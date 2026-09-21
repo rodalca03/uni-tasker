@@ -1,45 +1,52 @@
-# UniTask - Agenda Universitaria 🎓📅
+# UniTask - Agenda Universitaria Cifrada 🎓📅🔒
 
-**UniTask** es un gestor interactivo y moderno de entregas, exámenes y plazos académicos pensado para estudiantes universitarios. Diseñado con una interfaz visual limpia, fluida, animaciones suaves y total adaptabilidad en dispositivos móviles y de escritorio.
+<p align="center">
+  <img src="assets/logo.png" alt="UniTask Logo" width="120" style="border-radius: 24px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);" />
+</p>
+
+**UniTask** es un gestor interactivo de entregas, exámenes y plazos académicos para estudiantes universitarios. Integra un sistema de **autenticación de usuarios**, **base de datos local en el navegador (IndexedDB)** y **cifrado criptográfico de grado militar (AES-256-GCM y PBKDF2)** de cero conocimiento (*zero-knowledge encryption*).
 
 ---
 
-## ✨ Características
+## 🚀 Demo en Vivo
 
-- 📱 **Mobile Responsive & Touch-First**:
-  - Selector de días semanal deslizante con indicadores visuales de entregas pendientes.
-  - Conmutador de vista táctil: **Por Día** (para navegación ágil con una mano) o **Semana** (tablero completo de 7 días).
-  - Botón de acción flotante (**FAB**) en móvil para registrar entregas al instante.
-  - Modales adaptativos estilo *bottom-sheet* en smartphones.
+🌐 Accede directamente sin instalar nada: **[https://rodalca03.github.io/uni-tasker/](https://rodalca03.github.io/uni-tasker/)**
 
-- 🗓️ **Tablero Semanal Inteligente**:
-  - Navegación fluida entre semanas (anterior, siguiente y salto directo a "Hoy").
-  - Identificación visual del día actual con resaltado e insignias.
-  - Barra de progreso dinámica que calcula el porcentaje de cumplimiento semanal.
+---
+
+## 🔐 Seguridad y Cifrado Local
+
+- **Autenticación Segura**: Sistema de registro e inicio de sesión por usuario y contraseña.
+- **Cifrado AES-256-GCM**: Todas las tareas, asignaturas y descripciones se cifran antes de persistir en la base de datos local del navegador.
+- **Derivación con PBKDF2**: Claves criptográficas derivadas con 100,000 iteraciones y algoritmo SHA-256, con sal única aleatoria por usuario.
+- **Cero Conocimiento**: Ni el navegador ni terceros pueden leer tus notas o entregas sin la contraseña que descifra la bóveda en memoria.
+- **Base de Datos Local**: Soporte nativo para **IndexedDB** con respaldo automático a almacenamiento local cifrado.
+
+---
+
+## ✨ Características y Funcionalidades
+
+- 📱 **Diseño Mobile Responsive & Touch-First**:
+  - Selector deslizante de días de la semana con indicadores de tareas.
+  - Conmutador de vista táctil: **Por Día** o **Semana Completa**.
+  - Botón flotante (**FAB**) para crear tareas con una sola mano.
+  - Modales fluidos estilo *bottom-sheet* en teléfonos móviles.
+
+- 🗓️ **Tablero Semanal**:
+  - Navegación ágil entre semanas y salto inmediato a "Hoy".
+  - Barra de progreso que calcula el porcentaje de cumplimiento semanal.
+  - Prioridades visuales: 🔴 Alta, 🟡 Media, 🟢 Baja.
 
 - 🎨 **Gestión de Asignaturas**:
-  - Creación y asignación de colores personalizados por materia.
-  - Reasignación automática de tareas al eliminar asignaturas.
-  - Filtro por asignatura para enfocar el estudio.
-
-- ⚡ **Animaciones y Micro-interacciones**:
-  - Efectos hover con elevación en tarjetas de entregas.
-  - Transiciones elásticas en apertura y cierre de ventanas modales.
-  - Feedback inmediato mediante notificaciones toast y casillas de verificación animadas.
-
----
-
-## 🚀 Despliegue y Acceso
-
-Puedes utilizar la aplicación directamente abriendo `index.html` en cualquier navegador web moderno, o a través de **GitHub Pages**:
-
-🔗 **Demo en vivo**: [https://rodalca03.github.io/uni-tasker/](https://rodalca03.github.io/uni-tasker/)
+  - Colores personalizados por materia.
+  - Reasignación de tareas al eliminar una asignatura.
+  - Filtro instantáneo por asignatura.
 
 ---
 
 ## 🛠️ Tecnologías
 
-- **HTML5** semántico y accesible.
-- **Tailwind CSS** (vía CDN) para estilizado moderno y sistema de diseño cohesivo.
-- **Vanilla JavaScript** (ES6+) sin dependencias externas pesadas.
-- **Google Fonts** (Plus Jakarta Sans & Inter).
+- **HTML5 & CSS3** con diseño adaptativo.
+- **Web Crypto API** nativa del navegador (`crypto.subtle`).
+- **IndexedDB** para persistencia estructurada local.
+- **Tailwind CSS** (vía CDN) & **Google Fonts** (Plus Jakarta Sans).
