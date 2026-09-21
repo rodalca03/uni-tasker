@@ -53,7 +53,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     body { 
@@ -62,7 +62,7 @@
       overscroll-behavior-y: none;
     }
 
-    /* Safe area for mobile modern notches & home bars */
+    /* Safe area for modern mobile notches & home bars */
     .safe-area-bottom {
       padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
     }
@@ -114,6 +114,11 @@
       transform: translateY(0) scale(1);
     }
 
+    /* Full-Screen Auth View Transition */
+    #authScreen {
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     /* Task card transitions */
     .task-card {
       transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
@@ -161,12 +166,207 @@
 </head>
 <body class="h-full flex flex-col text-slate-800 bg-slate-100/90 select-none sm:select-auto overflow-x-hidden w-full">
 
-  <!-- Native App Header -->
+  <!-- =========================================================
+       FULL-SCREEN AUTHENTICATION VIEW (LOGIN & REGISTER)
+       ========================================================= -->
+  <div id="authScreen" class="fixed inset-0 z-50 bg-slate-50 flex flex-col lg:flex-row overflow-y-auto w-full h-full min-h-screen transition-all duration-300 ease-out">
+    
+    <!-- Hero / Brand Showcase (Left side on Desktop, Compact Brand Header on Mobile) -->
+    <div class="bg-gradient-to-br from-indigo-700 via-indigo-600 to-brand-700 text-white p-5 sm:p-8 lg:p-14 flex flex-col justify-between relative overflow-hidden lg:w-1/2 flex-shrink-0">
+      
+      <!-- Ambient Decorative Glows -->
+      <div class="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Top Brand Header -->
+      <div class="relative z-10 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shadow-xl border-2 border-white/20 bg-white p-1 flex items-center justify-center flex-shrink-0">
+            <img src="assets/logo.png" alt="UniTask Logo" class="w-full h-full object-contain rounded-xl" />
+          </div>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-none text-white">UniTask</h1>
+            <p class="text-xs text-indigo-200 font-semibold mt-0.5">Agenda Universitaria Cifrada</p>
+          </div>
+        </div>
+
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/15 backdrop-blur-md border border-white/20 text-white">
+          <svg class="w-3.5 h-3.5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <span>AES-256</span>
+        </span>
+      </div>
+
+      <!-- Middle Value Proposition (Desktop & Large screens showcase) -->
+      <div class="relative z-10 my-8 lg:my-auto hidden lg:block">
+        <div class="max-w-lg">
+          <h2 class="text-3xl lg:text-4xl font-black tracking-tight leading-tight text-white mb-3">
+            Organiza tus entregas universitarias con total privacidad.
+          </h2>
+          <p class="text-base text-indigo-100/90 font-medium leading-relaxed mb-6">
+            Tablero semanal inteligente, gestión ágil de materias y almacenamiento local cifrado de cero conocimiento en tu propio dispositivo.
+          </p>
+        </div>
+
+        <!-- 3 Feature Pills -->
+        <div class="grid grid-cols-1 gap-3 max-w-lg">
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 text-white font-bold text-lg">
+              🗓️
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">Tablero Adaptativo</h4>
+              <p class="text-[11px] text-indigo-200 leading-tight">Vista semanal de escritorio o día a día táctil móvil</p>
+            </div>
+          </div>
+
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 text-white font-bold text-lg">
+              🔒
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">Cifrado Cero Conocimiento</h4>
+              <p class="text-[11px] text-indigo-200 leading-tight">Claves derivadas con PBKDF2 y AES-256 en tu navegador</p>
+            </div>
+          </div>
+
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 text-white font-bold text-lg">
+              🎨
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-white leading-tight">Gestión por Materias</h4>
+              <p class="text-[11px] text-indigo-200 leading-tight">Control de fechas de entrega, prioridades y estados</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Badge (Desktop only) -->
+      <div class="relative z-10 pt-4 text-xs text-indigo-200/80 font-semibold border-t border-white/10 hidden lg:flex items-center justify-between">
+        <span>UniTask v2.5</span>
+        <span>100% Offline & Seguro</span>
+      </div>
+    </div>
+
+    <!-- Auth Form Canvas (Right side on Desktop, Main Card on Mobile) -->
+    <div class="flex-1 flex flex-col justify-center items-center p-4 sm:p-8 lg:p-12 bg-slate-50 min-h-full">
+      <div class="w-full max-w-md bg-white p-6 sm:p-10 rounded-3xl shadow-xl shadow-slate-200/70 border border-slate-200/90 my-auto">
+        
+        <!-- Form Header & Tab Switcher -->
+        <div class="text-center mb-6">
+          <h3 id="authFormHeadline" class="text-2xl font-black text-slate-900 tracking-tight">Bienvenido a UniTask</h3>
+          <p id="authFormSubheadline" class="text-xs sm:text-sm text-slate-500 font-medium mt-1">Inicia sesión para descifrar tu agenda</p>
+
+          <!-- Tab Switcher -->
+          <div class="mt-5 flex bg-slate-100 p-1.5 rounded-2xl text-xs sm:text-sm font-extrabold border border-slate-200/80 h-12 items-center">
+            <button id="tabBtnLogin" class="flex-1 py-2 rounded-xl bg-white text-slate-900 shadow-xs transition-all h-full">Iniciar sesión</button>
+            <button id="tabBtnRegister" class="flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-900 transition-all h-full">Crear cuenta</button>
+          </div>
+        </div>
+
+        <!-- Auth Form -->
+        <form id="authForm" class="space-y-4">
+          <!-- Display name (only in register mode) -->
+          <div id="fieldDisplayName" class="hidden">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="authDisplayName">
+              Tu nombre o alias
+            </label>
+            <div class="relative">
+              <input type="text" id="authDisplayName" placeholder="Ej: Roberto Delgado"
+                     class="w-full h-12 text-base sm:text-sm px-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 transition shadow-2xs" />
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="authUsername">
+              Usuario *
+            </label>
+            <div class="relative">
+              <input type="text" id="authUsername" required autocomplete="username" placeholder="Ej: roberto03"
+                     class="w-full h-12 text-base sm:text-sm px-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 transition shadow-2xs" />
+            </div>
+          </div>
+
+          <!-- Password with Eye Toggle -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="authPassword">
+              Contraseña *
+            </label>
+            <div class="relative flex items-center">
+              <input type="password" id="authPassword" required autocomplete="current-password" placeholder="Tu clave secreta"
+                     class="w-full h-12 text-base sm:text-sm pl-4 pr-12 rounded-2xl border-2 border-slate-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 transition shadow-2xs" />
+              <button type="button" onclick="togglePasswordVisibility('authPassword', 'iconEyePass')" class="absolute right-3 p-2 text-slate-400 hover:text-slate-600 transition">
+                <svg id="iconEyePass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirm Password (only in register mode) -->
+          <div id="fieldConfirmPassword" class="hidden">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="authConfirmPassword">
+              Confirmar contraseña *
+            </label>
+            <div class="relative flex items-center">
+              <input type="password" id="authConfirmPassword" autocomplete="new-password" placeholder="Repite tu clave"
+                     class="w-full h-12 text-base sm:text-sm pl-4 pr-12 rounded-2xl border-2 border-slate-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 transition shadow-2xs" />
+              <button type="button" onclick="togglePasswordVisibility('authConfirmPassword', 'iconEyeConfirm')" class="absolute right-3 p-2 text-slate-400 hover:text-slate-600 transition">
+                <svg id="iconEyeConfirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Error notice -->
+          <div id="authErrorMsg" class="hidden p-3.5 text-xs sm:text-sm rounded-2xl bg-rose-50 text-rose-700 border border-rose-200 font-bold leading-relaxed"></div>
+
+          <!-- Primary Submit Button -->
+          <button type="submit" id="btnAuthSubmit" class="btn-action w-full h-13 sm:h-14 text-base sm:text-lg font-black text-white bg-gradient-to-r from-indigo-600 via-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 rounded-2xl shadow-lg shadow-indigo-300 active:scale-95 transition-all flex items-center justify-center gap-2 mt-2">
+            <span id="btnAuthSubmitText">Iniciar sesión</span>
+          </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="relative flex py-2 items-center my-2">
+          <div class="flex-grow border-t border-slate-200"></div>
+          <span class="flex-shrink mx-3 text-xs text-slate-400 font-bold uppercase tracking-wider">o prueba rápida</span>
+          <div class="flex-grow border-t border-slate-200"></div>
+        </div>
+
+        <!-- Guest Access Button -->
+        <button type="button" id="btnGuestAccess" class="btn-action w-full h-12 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Acceder en modo demostración</span>
+        </button>
+
+        <!-- Guarantee footer -->
+        <div class="pt-4 flex items-center justify-center gap-2 text-xs text-slate-400 font-semibold text-center">
+          <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <span>Almacenamiento local cifrado con AES-256-GCM</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MAIN APPLICATION (TOP APP BAR & BOARD)
+       ========================================================= -->
   <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/90 sticky top-0 z-30 shadow-xs transition-all">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16 sm:h-18 gap-3">
         
-        <!-- Logo & Title (Native App Brand) -->
+        <!-- Logo & Title -->
         <div class="flex items-center space-x-3 cursor-pointer select-none group min-w-0" onclick="goToToday()">
           <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-md shadow-indigo-100 border border-slate-100 group-hover:scale-105 transition-all duration-200 bg-white flex items-center justify-center p-1 flex-shrink-0">
             <img src="assets/logo.png" alt="UniTask Logo" class="w-full h-full object-contain rounded-xl" />
@@ -201,7 +401,7 @@
             <span>Nueva tarea</span>
           </button>
 
-          <!-- User Profile Chip & Logout (Visible on mobile & desktop) -->
+          <!-- User Profile Chip & Logout -->
           <div class="relative">
             <div id="userProfileBtn" class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-2xl bg-slate-100/90 border border-slate-200/80 hover:bg-slate-200/90 transition-colors cursor-pointer select-none">
               <div id="userAvatar" class="w-8 h-8 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-brand-500 text-white flex items-center justify-center font-extrabold text-sm shadow-xs">
@@ -225,13 +425,13 @@
   <!-- Main Container -->
   <main class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 w-full flex-1 flex flex-col pb-28 sm:pb-10 min-w-0">
     
-    <!-- Top Bar: Navigation, Progress, and Quick Filters (Generous Mobile Sizing) -->
+    <!-- Top Bar: Navigation, Progress, and Quick Filters -->
     <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-4 sm:p-5 mb-4 transition-all min-w-0">
       
       <!-- Upper row: Week navigator & Progress -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3.5 pb-4 border-b border-slate-100 min-w-0">
         
-        <!-- Week Controls (Large Touch Targets) -->
+        <!-- Week Controls -->
         <div class="flex items-center justify-between sm:justify-start gap-2.5 min-w-0">
           <div class="flex items-center space-x-2 flex-shrink-0">
             <button id="btnPrevWeek" title="Semana anterior" class="btn-action w-11 h-11 sm:w-10 sm:h-10 flex items-center justify-center text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-2xl border border-slate-200/80 transition-colors">
@@ -258,7 +458,7 @@
           </div>
         </div>
 
-        <!-- Weekly Progress Bar & Stats (Large & Readable) -->
+        <!-- Weekly Progress Bar & Stats -->
         <div class="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-2xl border border-slate-200/70 min-w-0">
           <div class="flex flex-col flex-1 min-w-0">
             <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-slate-700 mb-1.5">
@@ -279,7 +479,7 @@
       <!-- Lower row: Subject filter & Tab toggles -->
       <div class="flex flex-wrap items-center justify-between gap-3 pt-3.5 min-w-0">
         
-        <!-- Subject Filter Dropdown (Comfortable Mobile Size) -->
+        <!-- Subject Filter Dropdown -->
         <div class="relative flex-1 sm:flex-initial min-w-[180px]">
           <select id="filterSubject" class="w-full h-11 text-sm font-bold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 py-2.5 pl-4 pr-10 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors cursor-pointer appearance-none">
             <option value="ALL">Todas las asignaturas</option>
@@ -292,7 +492,7 @@
         </div>
 
         <div class="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-          <!-- Mobile View Switcher (Por Día / Semana) -->
+          <!-- Mobile View Switcher -->
           <div class="lg:hidden flex bg-slate-100 p-1 rounded-2xl text-xs sm:text-sm font-bold border border-slate-200/70 h-11 items-center">
             <button id="btnMobileViewSingle" class="mobile-view-btn px-3.5 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs font-bold transition-all h-full">Por Día</button>
             <button id="btnMobileViewAll" class="mobile-view-btn px-3.5 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 transition-all h-full">Semana</button>
@@ -308,14 +508,14 @@
       </div>
     </div>
 
-    <!-- Mobile Day Strip (Generous Thumb Targets with clear numbers & status) -->
+    <!-- Mobile Day Strip -->
     <div id="mobileDayStripContainer" class="lg:hidden mb-4 min-w-0">
       <div id="mobileDayStrip" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-0.5 min-w-0">
         <!-- Dynamically rendered mobile day pill buttons -->
       </div>
     </div>
 
-    <!-- Weekly Board (7 Columns on Desktop, Native Full-Width Card Stack on Mobile) -->
+    <!-- Weekly Board -->
     <div class="flex-1 pb-4 min-w-0">
       <div id="weeklyBoard" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 sm:gap-4 h-full items-start transition-all duration-200 min-w-0">
         <!-- 7 Days dynamically generated here -->
@@ -323,7 +523,7 @@
     </div>
   </main>
 
-  <!-- Native Mobile Bottom Navigation Bar (iOS / Android Native App Feel) -->
+  <!-- Native Mobile Bottom Navigation Bar -->
   <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 px-4 py-2 flex items-center justify-around shadow-2xl safe-area-bottom">
     <button onclick="goToToday()" class="flex flex-col items-center justify-center py-1 px-3 text-slate-600 active:text-indigo-600 transition-colors">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -363,97 +563,6 @@
 
   <!-- ================= MODALS ================= -->
 
-  <!-- Authentication Modal (Login / Register / Guest) -->
-  <div id="authModal" class="modal-backdrop fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 hidden overflow-hidden">
-    <div class="modal-panel bg-white max-sm:rounded-t-3xl max-sm:rounded-b-none sm:rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh]">
-      
-      <!-- Mobile Pull Indicator -->
-      <div class="w-12 h-1.5 bg-slate-300 rounded-full mx-auto mt-3 mb-1 sm:hidden flex-shrink-0"></div>
-
-      <!-- Auth Header with Logo -->
-      <div class="p-6 text-center border-b border-slate-100 bg-gradient-to-b from-indigo-50/50 to-white flex-shrink-0">
-        <div class="w-18 h-18 sm:w-20 sm:h-20 mx-auto mb-3 rounded-3xl overflow-hidden shadow-lg shadow-indigo-200/50 border border-slate-100 bg-white p-1.5 flex items-center justify-center">
-          <img src="assets/logo.png" alt="UniTask Logo" class="w-full h-full object-contain rounded-2xl" />
-        </div>
-        <h2 class="text-2xl font-black text-slate-900 tracking-tight">UniTask</h2>
-        <p class="text-sm text-slate-500 font-medium mt-1">Agenda académica con cifrado local de extremo a extremo</p>
-
-        <!-- Auth Tabs: Login vs Register -->
-        <div class="mt-4 flex bg-slate-100 p-1.5 rounded-2xl text-xs sm:text-sm font-bold border border-slate-200/60 h-11 items-center">
-          <button id="tabBtnLogin" class="flex-1 py-2 rounded-xl bg-white text-slate-900 shadow-xs transition-all h-full">Iniciar sesión</button>
-          <button id="tabBtnRegister" class="flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-900 transition-all h-full">Crear cuenta</button>
-        </div>
-      </div>
-
-      <!-- Auth Form (Generous Inputs) -->
-      <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
-        <form id="authForm" class="space-y-4">
-          <!-- Display name (only on register) -->
-          <div id="fieldDisplayName" class="hidden">
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="authDisplayName">
-              Tu nombre o alias
-            </label>
-            <input type="text" id="authDisplayName" placeholder="Ej: Roberto Delgado"
-                   class="w-full text-base sm:text-sm px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-2xs" />
-          </div>
-
-          <!-- Username -->
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="authUsername">
-              Usuario *
-            </label>
-            <input type="text" id="authUsername" required autocomplete="username" placeholder="Ej: roberto03"
-                   class="w-full text-base sm:text-sm px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-2xs" />
-          </div>
-
-          <!-- Password -->
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="authPassword">
-              Contraseña *
-            </label>
-            <input type="password" id="authPassword" required autocomplete="current-password" placeholder="Tu clave de cifrado"
-                   class="w-full text-base sm:text-sm px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-2xs" />
-          </div>
-
-          <!-- Password confirm (only on register) -->
-          <div id="fieldConfirmPassword" class="hidden">
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="authConfirmPassword">
-              Confirmar contraseña *
-            </label>
-            <input type="password" id="authConfirmPassword" autocomplete="new-password" placeholder="Repite tu clave"
-                   class="w-full text-base sm:text-sm px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-2xs" />
-          </div>
-
-          <!-- Error notice -->
-          <div id="authErrorMsg" class="hidden p-3 text-xs sm:text-sm rounded-2xl bg-rose-50 text-rose-700 border border-rose-200 font-bold"></div>
-
-          <!-- Submit button (Large Mobile Native Style) -->
-          <button type="submit" id="btnAuthSubmit" class="btn-action w-full py-4 text-base font-extrabold text-white bg-indigo-600 hover:bg-indigo-700 rounded-2xl shadow-md shadow-indigo-200 transition flex items-center justify-center gap-2">
-            <span id="btnAuthSubmitText">Entrar</span>
-          </button>
-        </form>
-
-        <div class="relative flex py-1 items-center">
-          <div class="flex-grow border-t border-slate-100"></div>
-          <span class="flex-shrink mx-3 text-xs text-slate-400 font-bold">o continuar como</span>
-          <div class="flex-grow border-t border-slate-100"></div>
-        </div>
-
-        <button type="button" id="btnGuestAccess" class="btn-action w-full py-3 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-2xl transition flex items-center justify-center gap-1.5">
-          <span>Modo demostración / Invitado</span>
-        </button>
-
-        <!-- Encryption Guarantee Badge -->
-        <div class="pt-2 pb-2 flex items-center justify-center gap-2 text-xs text-slate-400 font-semibold">
-          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-          <span>Cifrado local AES-256 (Cero conocimiento)</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Task Modal (Create & Edit) -->
   <div id="taskModal" class="modal-backdrop fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 hidden overflow-hidden">
     <div class="modal-panel bg-white max-sm:rounded-t-3xl max-sm:rounded-b-none sm:rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh]">
@@ -478,7 +587,7 @@
         </button>
       </div>
 
-      <!-- Modal Body Form (Comfortable inputs that never zoom or clip) -->
+      <!-- Modal Body Form -->
       <form id="taskForm" class="p-5 sm:p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1 min-w-0">
         <input type="hidden" id="taskIdInput" />
 
@@ -599,7 +708,7 @@
 
         <hr class="border-slate-100 my-2" />
 
-        <!-- Subject List (Generous cards that never overflow) -->
+        <!-- Subject List -->
         <div class="min-w-0">
           <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Asignaturas registradas</h4>
           <div id="subjectListContainer" class="space-y-2.5 max-h-60 overflow-y-auto pr-1 custom-scrollbar min-w-0">
@@ -960,7 +1069,7 @@
     ];
 
     /* =========================================================
-       4. AUTHENTICATION & SESSION HANDLING
+       4. AUTHENTICATION (FULL SCREEN EXPERIENCE)
        ========================================================= */
     let currentAuthMode = 'login';
 
@@ -971,27 +1080,60 @@
       const fieldDisplayName = document.getElementById('fieldDisplayName');
       const fieldConfirmPassword = document.getElementById('fieldConfirmPassword');
       const btnSubmitText = document.getElementById('btnAuthSubmitText');
+      const headline = document.getElementById('authFormHeadline');
+      const subheadline = document.getElementById('authFormSubheadline');
       const errorMsg = document.getElementById('authErrorMsg');
 
       errorMsg.classList.add('hidden');
 
       if (mode === 'login') {
-        tabLogin.className = 'flex-1 py-2 rounded-xl bg-white text-slate-900 shadow-xs transition-all h-full';
-        tabRegister.className = 'flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-900 transition-all h-full';
+        tabLogin.className = 'flex-1 py-2 rounded-xl bg-white text-slate-900 shadow-xs transition-all h-full font-bold';
+        tabRegister.className = 'flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-900 transition-all h-full font-bold';
         fieldDisplayName.classList.add('hidden');
         fieldConfirmPassword.classList.add('hidden');
         btnSubmitText.textContent = 'Iniciar sesión';
+        headline.textContent = 'Bienvenido a UniTask';
+        subheadline.textContent = 'Inicia sesión para descifrar tu agenda';
       } else {
-        tabRegister.className = 'flex-1 py-2 rounded-xl bg-white text-slate-900 shadow-xs transition-all h-full';
-        tabLogin.className = 'flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-900 transition-all h-full';
+        tabRegister.className = 'flex-1 py-2 rounded-xl bg-white text-slate-900 shadow-xs transition-all h-full font-bold';
+        tabLogin.className = 'flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-900 transition-all h-full font-bold';
         fieldDisplayName.classList.remove('hidden');
         fieldConfirmPassword.classList.remove('hidden');
         btnSubmitText.textContent = 'Crear cuenta protegida';
+        headline.textContent = 'Crea tu cuenta';
+        subheadline.textContent = 'Genera tu bóveda personal cifrada con AES-256';
       }
     }
 
     document.getElementById('tabBtnLogin').addEventListener('click', () => setAuthMode('login'));
     document.getElementById('tabBtnRegister').addEventListener('click', () => setAuthMode('register'));
+
+    window.togglePasswordVisibility = function(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />`;
+      } else {
+        input.type = 'password';
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+      }
+    };
+
+    function showAuthScreen() {
+      const screen = document.getElementById('authScreen');
+      screen.classList.remove('hidden');
+      void screen.offsetWidth;
+      screen.classList.remove('opacity-0', 'pointer-events-none', 'scale-105');
+    }
+
+    function hideAuthScreen() {
+      const screen = document.getElementById('authScreen');
+      screen.classList.add('opacity-0', 'pointer-events-none', 'scale-105');
+      setTimeout(() => {
+        screen.classList.add('hidden');
+      }, 350);
+    }
 
     document.getElementById('authForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1047,7 +1189,7 @@
         await UniTaskDB.saveVault(usernameInput, encryptedVault);
 
         activateUserSession(usernameInput, displayName, encKey, false, initialData);
-        closeModalEl(document.getElementById('authModal'));
+        hideAuthScreen();
         showToast(`¡Bienvenido, ${displayName}! 🔐`);
       } else {
         const userRecord = await UniTaskDB.getUser(usernameInput);
@@ -1078,7 +1220,7 @@
         }
 
         activateUserSession(userRecord.username, userRecord.displayName || userRecord.username, encKey, false, userData);
-        closeModalEl(document.getElementById('authModal'));
+        hideAuthScreen();
         showToast(`Sesión iniciada. Base de datos descifrada 🔓`);
       }
     });
@@ -1091,7 +1233,7 @@
       );
       const initialData = createDefaultUserData();
       activateUserSession('invitado', 'Invitado', demoKey, true, initialData);
-      closeModalEl(document.getElementById('authModal'));
+      hideAuthScreen();
       showToast('Modo demostración activado');
     });
 
@@ -1128,7 +1270,7 @@
       renderBoard();
       document.getElementById('authForm').reset();
       setAuthMode('login');
-      openModalEl(document.getElementById('authModal'));
+      showAuthScreen();
       showToast('Sesión cerrada de forma segura.');
     }
 
@@ -1151,7 +1293,7 @@
     };
 
     /* =========================================================
-       5. BOARD RENDERING & INTERACTION (NATIVE SIZING & ZERO OVERFLOW)
+       5. BOARD RENDERING & INTERACTION
        ========================================================= */
     function renderBoard() {
       const board = document.getElementById('weeklyBoard');
@@ -1175,7 +1317,7 @@
       const isSameMonth = currentWeekStart.getMonth() === currentWeekEnd.getMonth();
       const rangeText = isSameMonth
         ? `${currentWeekStart.getDate()} - ${currentWeekEnd.getDate()} de ${MONTH_NAMES[currentWeekStart.getMonth()]} ${currentWeekEnd.getFullYear()}`
-        : `${currentWeekStart.getDate()} ${MONTH_NAMES[currentWeekStart.getMonth()].slice(0, 3)} - ${currentWeekEnd.getDate()} ${MONTH_NAMES[currentWeekEnd.getMonth()].slice(0, 3)} ${currentWeekEnd.getFullYear()}`;
+        : `${currentWeekStart.getDate()} ${MONTH_NAMES[currentWeekStart.getMonth()].slice(0, 3)} - ${currentWeekEnd.getDate()} ${MONTH_NAMES[currentWeekStart.getMonth()].slice(0, 3)} ${currentWeekEnd.getFullYear()}`;
       
       document.getElementById('currentWeekRange').textContent = rangeText;
 
@@ -1234,7 +1376,6 @@
             : 'border-slate-200/90 hover:border-slate-300 hover:shadow-sm'
         } ${isVisibleOnMobile ? 'flex w-full' : 'hidden lg:flex'}`;
 
-        // Generous Day Header
         const dayHeader = document.createElement('div');
         dayHeader.className = `px-4 py-3.5 border-b flex items-center justify-between gap-2.5 transition-colors min-w-0 ${
           isCurrentDay 
@@ -1273,7 +1414,6 @@
 
         col.appendChild(dayHeader);
 
-        // Container of tasks
         const taskContainer = document.createElement('div');
         taskContainer.className = 'p-3.5 sm:p-3 space-y-3.5 sm:space-y-3 flex-1 overflow-y-auto custom-scrollbar max-h-[660px] min-w-0';
 
@@ -1303,7 +1443,6 @@
       }
     }
 
-    /* Native Mobile Day Strip (Tall, comfortable thumb targets) */
     function renderMobileDayStrip() {
       const container = document.getElementById('mobileDayStrip');
       container.innerHTML = '';
@@ -1354,7 +1493,6 @@
       }
     }
 
-    /* Native Mobile Task Card (Generous Padding, Legible Typography, Overflow-Safe) */
     function createTaskCard(task) {
       const subject = subjects.find(s => s.id === task.subjectId) || { name: 'General', color: '#64748b' };
 
@@ -1376,7 +1514,6 @@
       }
 
       card.innerHTML = `
-        <!-- Top Row: Subject pill & time -->
         <div class="flex items-center justify-between gap-2 mb-2.5 min-w-0">
           <span class="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold px-3 py-1 rounded-xl min-w-0 max-w-[65%] truncate flex-shrink" style="background-color: ${subject.color}18; color: ${subject.color};">
             <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${subject.color}"></span>
@@ -1390,7 +1527,6 @@
           </span>
         </div>
 
-        <!-- Title and Checkbox (Large Touch Target) -->
         <div class="flex items-start gap-3 my-2.5 min-w-0">
           <input type="checkbox" ${task.completed ? 'checked' : ''} 
                  onclick="event.stopPropagation(); toggleTaskCompletion('${task.id}')"
@@ -1402,14 +1538,12 @@
           </h5>
         </div>
 
-        <!-- Description preview -->
         ${task.description ? `
           <p class="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed break-words mb-3 min-w-0 ${task.completed ? 'opacity-50' : ''}">
             ${escapeHtml(task.description)}
           </p>
         ` : ''}
 
-        <!-- Footer: Priority & Action buttons (Large Tappable Buttons) -->
         <div class="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-100 mt-2 min-w-0">
           <span class="text-xs font-extrabold px-2.5 py-1 rounded-xl flex-shrink-0 ${priorityClass}">
             ${priorityLabel}
@@ -1594,7 +1728,6 @@
       closeConfirmModal();
     });
 
-    // Close on backdrop tap
     [document.getElementById('taskModal'), document.getElementById('subjectsModal'), document.getElementById('confirmModal')].forEach(modal => {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -1603,7 +1736,6 @@
       });
     });
 
-    // Open New Task
     function openDefaultNewTask() {
       const today = new Date();
       openNewTaskForDate(formatDateToYMD(today));
@@ -1618,7 +1750,6 @@
       closeModalEl(document.getElementById('taskModal'));
     });
 
-    // Save Task Form Handler
     document.getElementById('taskForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const editId = document.getElementById('taskIdInput').value;
@@ -1662,7 +1793,6 @@
       persistEncryptedUserData();
     });
 
-    // Subjects modal
     document.getElementById('btnManageSubjects').addEventListener('click', () => {
       openManageSubjects();
     });
@@ -1691,7 +1821,6 @@
       showToast('Asignatura añadida.');
     });
 
-    // Week navigation animation
     function animateBoardTransition() {
       const board = document.getElementById('weeklyBoard');
       board.classList.add('opacity-0', 'scale-[0.99]');
@@ -1719,7 +1848,6 @@
 
     document.getElementById('btnToday').addEventListener('click', goToToday);
 
-    // Status filter tabs
     document.querySelectorAll('.filter-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-tab-btn').forEach(b => {
@@ -1731,7 +1859,6 @@
       });
     });
 
-    // Mobile view mode toggle (Por Día vs Semana)
     const btnSingle = document.getElementById('btnMobileViewSingle');
     const btnAll = document.getElementById('btnMobileViewAll');
     const btnMobileToggleView = document.getElementById('btnMobileToggleView');
@@ -1774,7 +1901,6 @@
       renderBoard();
     });
 
-    /* Toast Notification */
     let toastTimeout;
     function showToast(msg) {
       const toast = document.getElementById('toastNotification');
@@ -1804,10 +1930,10 @@
       });
     }
 
-    /* Init app & DB */
+    /* App Bootstrap */
     window.onload = async function() {
       await UniTaskDB.init();
-      openModalEl(document.getElementById('authModal'));
+      showAuthScreen();
     };
   </script>
 </body>
