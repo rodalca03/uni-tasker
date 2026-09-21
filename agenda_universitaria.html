@@ -1046,12 +1046,27 @@
       isConfigured: false,
       unsubscribeRemoteListener: null,
 
+      // Pre-configured cloud database for UniTask
+      defaultConfig: {
+        apiKey: "AIzaSyDNSQW1QTMeRUwB-pNMUoFyoDKSXLeWON4",
+        authDomain: "unitask-agenda-rodalca.firebaseapp.com",
+        projectId: "unitask-agenda-rodalca",
+        storageBucket: "unitask-agenda-rodalca.firebasestorage.app",
+        messagingSenderId: "788601911608",
+        appId: "1:788601911608:web:3e516571ab6689222ee9cd"
+      },
+
       async init() {
         try {
           const stored = localStorage.getItem('unitask_firebase_config');
+          const isDisconnectedByUser = localStorage.getItem('unitask_cloud_disconnected') === 'true';
+
           if (stored) {
             const config = JSON.parse(stored);
             await this.applyConfig(config);
+          } else if (!isDisconnectedByUser && this.defaultConfig && this.defaultConfig.projectId) {
+            // Automatically connect to the provisioned UniTask Firebase project!
+            await this.applyConfig(this.defaultConfig);
           } else {
             this.updateStatusUI(false);
           }
@@ -1088,6 +1103,7 @@
           this.db = firebase.firestore();
           this.config = config;
           this.isConfigured = true;
+          localStorage.removeItem('unitask_cloud_disconnected');
           localStorage.setItem('unitask_firebase_config', JSON.stringify(config));
           this.updateStatusUI(true, config.projectId);
           return true;
@@ -1106,6 +1122,7 @@
             this.unsubscribeRemoteListener = null;
           }
           localStorage.removeItem('unitask_firebase_config');
+          localStorage.setItem('unitask_cloud_disconnected', 'true');
           this.config = null;
           this.db = null;
           this.isConfigured = false;
