@@ -111,6 +111,21 @@
       background-color: #94a3b8;
     }
 
+    #weeklyBoard::-webkit-scrollbar {
+      height: 8px;
+    }
+    #weeklyBoard::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    #weeklyBoard::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1;
+      border-radius: 9999px;
+    }
+    #weeklyBoard::-webkit-scrollbar-thumb:hover {
+      background-color: #6366f1;
+    }
+
     /* Hide scrollbars */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
@@ -517,10 +532,24 @@
             </button>
           </div>
 
-          <div class="min-w-0 text-right sm:text-left flex-1 sm:flex-initial">
+          <div class="min-w-0 text-right sm:text-left flex-1 sm:flex-initial flex items-center gap-3">
             <span id="currentWeekRange" class="font-extrabold text-slate-900 text-sm sm:text-base tracking-tight block truncate">
               Cargando semana...
             </span>
+            <!-- Desktop Board Horizontal Scroll Navigation Buttons -->
+            <div class="hidden lg:flex items-center gap-1.5 border-l border-slate-200 pl-3">
+              <span class="text-xs font-semibold text-slate-400 select-none mr-1">Días:</span>
+              <button id="btnScrollBoardLeft" title="Ver días anteriores" class="btn-action w-8 h-8 flex items-center justify-center text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200/80 transition-colors">
+                <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button id="btnScrollBoardRight" title="Ver más días" class="btn-action w-8 h-8 flex items-center justify-center text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200/80 transition-colors">
+                <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -581,9 +610,9 @@
       </div>
     </div>
 
-    <!-- Weekly Board -->
+    <!-- Weekly Board (Desktop: 4 days visible with horizontal scroll) -->
     <div class="flex-1 pb-4 min-w-0">
-      <div id="weeklyBoard" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 sm:gap-4 h-full items-start transition-all duration-200 min-w-0 scroll-mt-20">
+      <div id="weeklyBoard" class="grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-nowrap lg:overflow-x-auto lg:gap-4 lg:pb-3 custom-scrollbar lg:snap-x lg:snap-mandatory lg:scroll-smooth items-start transition-all duration-200 min-w-0 scroll-mt-20">
         <!-- 7 Days dynamically generated here -->
       </div>
     </div>
@@ -2083,7 +2112,7 @@
 
         const col = document.createElement('div');
         col.id = `day-column-${i}`;
-        col.className = `day-column day-col-${i} flex flex-col bg-white rounded-3xl border transition-all duration-200 overflow-hidden min-h-[480px] shadow-xs max-w-full min-w-0 ${
+        col.className = `day-column day-col-${i} flex flex-col bg-white rounded-3xl border transition-all duration-200 overflow-hidden min-h-[480px] shadow-xs max-w-full min-w-0 lg:flex-shrink-0 lg:w-[calc((100%-3rem)/4)] lg:min-w-[calc((100%-3rem)/4)] lg:snap-start ${
           isCurrentDay 
             ? 'border-indigo-400 ring-2 ring-indigo-200/90 shadow-indigo-100/60' 
             : 'border-slate-200/90 hover:border-slate-300 hover:shadow-sm'
@@ -2610,6 +2639,7 @@
       const board = document.getElementById('weeklyBoard');
       board.classList.add('opacity-0', 'scale-[0.99]');
       setTimeout(() => {
+        board.scrollLeft = 0;
         renderBoard();
         board.classList.remove('opacity-0', 'scale-[0.99]');
       }, 150);
@@ -2630,9 +2660,54 @@
       selectedMobileDayIndex = getInitialDayIndex();
       animateBoardTransition();
       scrollToDayStrip();
+      if (window.innerWidth >= 1024) {
+        setTimeout(() => {
+          const board = document.getElementById('weeklyBoard');
+          const todayCol = document.getElementById(`day-column-${selectedMobileDayIndex}`);
+          if (todayCol && board) {
+            todayCol.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+          }
+        }, 200);
+      }
     };
 
     document.getElementById('btnToday').addEventListener('click', goToToday);
+
+    // Desktop horizontal scroll buttons & mouse wheel support
+    const weeklyBoardEl = document.getElementById('weeklyBoard');
+    const btnScrollLeft = document.getElementById('btnScrollBoardLeft');
+    const btnScrollRight = document.getElementById('btnScrollBoardRight');
+
+    if (btnScrollLeft && weeklyBoardEl) {
+      btnScrollLeft.addEventListener('click', () => {
+        const colWidth = weeklyBoardEl.clientWidth / 4;
+        weeklyBoardEl.scrollBy({ left: -(colWidth * 2), behavior: 'smooth' });
+      });
+    }
+
+    if (btnScrollRight && weeklyBoardEl) {
+      btnScrollRight.addEventListener('click', () => {
+        const colWidth = weeklyBoardEl.clientWidth / 4;
+        weeklyBoardEl.scrollBy({ left: (colWidth * 2), behavior: 'smooth' });
+      });
+    }
+
+    if (weeklyBoardEl) {
+      weeklyBoardEl.addEventListener('wheel', (e) => {
+        if (window.innerWidth >= 1024) {
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            const maxScroll = weeklyBoardEl.scrollWidth - weeklyBoardEl.clientWidth;
+            if (maxScroll > 0) {
+              if ((e.deltaY > 0 && weeklyBoardEl.scrollLeft < maxScroll) ||
+                  (e.deltaY < 0 && weeklyBoardEl.scrollLeft > 0)) {
+                e.preventDefault();
+                weeklyBoardEl.scrollLeft += e.deltaY;
+              }
+            }
+          }
+        }
+      }, { passive: false });
+    }
 
     document.querySelectorAll('.filter-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
