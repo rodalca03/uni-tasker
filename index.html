@@ -14,6 +14,9 @@
   <meta name="apple-mobile-web-app-title" content="UniTask" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
   <link rel="apple-touch-icon" sizes="512x512" href="assets/icon-512.png" />
+  <!-- Firebase App & Cloud Firestore SDKs (for Multi-Device Cloud Sync) -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -284,6 +287,20 @@
           <h3 id="authFormHeadline" class="text-2xl font-black text-slate-900 tracking-tight">Bienvenido a UniTask</h3>
           <p id="authFormSubheadline" class="text-xs sm:text-sm text-slate-500 font-medium mt-1">Inicia sesión para descifrar tu agenda</p>
 
+          <!-- Cloud DB Status Pill on Auth Screen -->
+          <div class="mt-3.5 flex items-center justify-between p-2 px-3 rounded-2xl bg-slate-100/80 border border-slate-200/80 text-xs transition-all">
+            <div class="flex items-center gap-2 min-w-0">
+              <span id="authCloudDot" class="w-2.5 h-2.5 rounded-full bg-slate-400 flex-shrink-0"></span>
+              <span id="authCloudStatusText" class="font-bold text-slate-600 truncate">Nube: Solo Local</span>
+            </div>
+            <button type="button" onclick="openCloudConfigModal()" class="btn-action text-indigo-600 hover:text-indigo-800 font-extrabold flex items-center gap-1 flex-shrink-0 text-xs hover:underline">
+              <span>Configurar</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+
           <!-- Tab Switcher -->
           <div class="mt-5 flex bg-slate-100 p-1.5 rounded-2xl text-xs sm:text-sm font-extrabold border border-slate-200/80 h-12 items-center">
             <button id="tabBtnLogin" class="flex-1 py-2 rounded-xl bg-white text-slate-900 shadow-xs transition-all h-full">Iniciar sesión</button>
@@ -413,6 +430,13 @@
                 </svg>
                 <span>AES-256</span>
               </span>
+              <!-- Cloud Sync Status Pill & Button -->
+              <button id="btnCloudStatusHeader" onclick="openCloudConfigModal()" title="Estado de sincronización en la nube (Firebase)" class="hidden xs:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 transition cursor-pointer flex-shrink-0">
+                <svg id="iconCloudHeader" class="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg>
+                <span id="cloudStatusLabel">Solo Local</span>
+              </button>
             </div>
             <p class="text-xs text-slate-500 font-medium leading-tight truncate">Agenda académica</p>
           </div>
@@ -782,6 +806,110 @@
     </div>
   </div>
 
+  <!-- Cloud Configuration & Multi-Device Sync Modal -->
+  <div id="cloudConfigModal" class="modal-backdrop fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 hidden overflow-hidden">
+    <div class="modal-panel bg-white max-sm:rounded-t-3xl max-sm:rounded-b-none sm:rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh]">
+      
+      <!-- Mobile Pull Bar -->
+      <div class="sm:hidden flex justify-center pt-3 pb-1">
+        <div class="w-12 h-1.5 bg-slate-200 rounded-full"></div>
+      </div>
+
+      <!-- Modal Header -->
+      <div class="px-5 sm:px-6 py-4 sm:py-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-slate-50/50">
+        <div class="flex items-center space-x-3 min-w-0">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight truncate">Base de Datos en la Nube</h3>
+            <p class="text-xs text-slate-500 font-semibold truncate">Sincronización multi-dispositivo cifrada</p>
+          </div>
+        </div>
+        <button id="btnCloseCloudModal" class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 sm:p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4 text-slate-700">
+        <!-- Status Card -->
+        <div id="cloudModalStatusCard" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span id="cloudModalStatusDot" class="w-3 h-3 rounded-full bg-slate-400 flex-shrink-0"></span>
+            <div class="min-w-0">
+              <h4 id="cloudModalStatusTitle" class="text-xs sm:text-sm font-extrabold text-slate-800">Modo Local (Sin Nube)</h4>
+              <p id="cloudModalStatusSubtitle" class="text-xs text-slate-500 truncate">Las cuentas solo existen en este navegador.</p>
+            </div>
+          </div>
+          <span id="cloudModalBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-slate-200 text-slate-700 flex-shrink-0">Offline</span>
+        </div>
+
+        <!-- 3 Steps Guide -->
+        <div class="rounded-2xl p-4 bg-indigo-50/70 border border-indigo-100/80 text-xs text-slate-600 space-y-2">
+          <p class="font-extrabold text-indigo-900 flex items-center gap-1.5">
+            <span>🔥 Conecta tu proyecto de Firebase Firestore:</span>
+          </p>
+          <ol class="list-decimal list-inside space-y-1 text-slate-600 font-medium pl-1">
+            <li>Abre tu <a href="https://console.firebase.google.com" target="_blank" rel="noopener" class="text-indigo-600 underline font-bold">Firebase Console</a>.</li>
+            <li>Asegúrate de que <strong>Cloud Firestore</strong> esté activo en Modo de Prueba.</li>
+            <li>En Configuración del Proyecto añade una app Web y pega aquí tu <code>firebaseConfig</code>.</li>
+          </ol>
+        </div>
+
+        <!-- Config Form -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="firebaseConfigInput">
+            Configuración de Firebase (Código JS o JSON)
+          </label>
+          <textarea id="firebaseConfigInput" rows="6" placeholder='Pega aquí tu firebaseConfig:&#10;const firebaseConfig = {&#10;  apiKey: "AIzaSy...",&#10;  projectId: "tu-proyecto",&#10;  ...&#10;};'
+                    class="w-full text-xs font-mono p-3 rounded-2xl border-2 border-slate-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 transition custom-scrollbar"></textarea>
+          <p class="text-[11px] text-slate-400 mt-1">Puedes pegar directamente el bloque copiado de Firebase Console o formato JSON.</p>
+        </div>
+
+        <!-- Notice error/success -->
+        <div id="cloudConfigMsg" class="hidden p-3 text-xs rounded-xl font-bold leading-relaxed"></div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-2.5 pt-2">
+          <button type="button" id="btnSaveCloudConfig" class="btn-action w-full h-12 text-sm font-extrabold text-white bg-indigo-600 hover:bg-indigo-700 rounded-2xl shadow-sm shadow-indigo-200 active:scale-95 transition flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Conectar y Sincronizar</span>
+          </button>
+
+          <!-- 1-Click Sync Link for Mobile -->
+          <button type="button" id="btnShareMobileLink" class="btn-action w-full h-11 text-xs sm:text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-2xl active:scale-95 transition flex items-center justify-center gap-2">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <span>📲 Compartir con mi móvil en 1 clic (Copiar Enlace)</span>
+          </button>
+
+          <button type="button" id="btnDisconnectCloud" class="btn-action w-full h-10 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-2xl transition flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span>Desconectar Nube (Volver a Modo Local)</span>
+          </button>
+        </div>
+
+        <!-- Privacy Guarantee -->
+        <div class="pt-2 flex items-center justify-center gap-2 text-xs text-slate-400 text-center font-medium">
+          <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <span>Cifrado AES-256-GCM cliente: Firebase nunca ve tus tareas en texto plano.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toastNotification" class="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:right-6 sm:translate-x-0 z-50 bg-slate-900/95 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-3 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 backdrop-blur-md border border-slate-800">
     <span id="toastIcon" class="text-emerald-400">
@@ -909,7 +1037,209 @@
     };
 
     /* =========================================================
-       2. LOCAL DATABASE LAYER (IndexedDB with LocalStorage fallback)
+       2. CLOUD DATABASE LAYER (Firebase Cloud Firestore)
+       ========================================================= */
+    const UniTaskCloudDB = {
+      db: null,
+      app: null,
+      config: null,
+      isConfigured: false,
+      unsubscribeRemoteListener: null,
+
+      async init() {
+        try {
+          const stored = localStorage.getItem('unitask_firebase_config');
+          if (stored) {
+            const config = JSON.parse(stored);
+            await this.applyConfig(config);
+          } else {
+            this.updateStatusUI(false);
+          }
+        } catch (e) {
+          console.warn('Error inicializando Firebase:', e);
+          this.updateStatusUI(false);
+        }
+      },
+
+      async applyConfig(config) {
+        if (!config || !config.projectId) {
+          this.isConfigured = false;
+          this.updateStatusUI(false);
+          return false;
+        }
+
+        try {
+          if (typeof firebase === 'undefined') {
+            console.warn('Firebase SDK no disponible');
+            this.isConfigured = false;
+            this.updateStatusUI(false);
+            return false;
+          }
+
+          if (firebase.apps && firebase.apps.length > 0) {
+            try {
+              await firebase.app().delete();
+            } catch (delErr) {
+              console.warn('Error reiniciando app previa de Firebase:', delErr);
+            }
+          }
+
+          this.app = firebase.initializeApp(config);
+          this.db = firebase.firestore();
+          this.config = config;
+          this.isConfigured = true;
+          localStorage.setItem('unitask_firebase_config', JSON.stringify(config));
+          this.updateStatusUI(true, config.projectId);
+          return true;
+        } catch (err) {
+          console.error('Error aplicando configuración de Firebase:', err);
+          this.isConfigured = false;
+          this.updateStatusUI(false);
+          return false;
+        }
+      },
+
+      disconnect() {
+        try {
+          if (this.unsubscribeRemoteListener) {
+            this.unsubscribeRemoteListener();
+            this.unsubscribeRemoteListener = null;
+          }
+          localStorage.removeItem('unitask_firebase_config');
+          this.config = null;
+          this.db = null;
+          this.isConfigured = false;
+          this.updateStatusUI(false);
+        } catch (err) {
+          console.warn('Error desconectando Firebase:', err);
+        }
+      },
+
+      updateStatusUI(isConnected, projectId = '') {
+        const headerBtn = document.getElementById('btnCloudStatusHeader');
+        const headerLabel = document.getElementById('cloudStatusLabel');
+        const headerIcon = document.getElementById('iconCloudHeader');
+
+        const authDot = document.getElementById('authCloudDot');
+        const authText = document.getElementById('authCloudStatusText');
+
+        const modalDot = document.getElementById('cloudModalStatusDot');
+        const modalTitle = document.getElementById('cloudModalStatusTitle');
+        const modalSub = document.getElementById('cloudModalStatusSubtitle');
+        const modalBadge = document.getElementById('cloudModalBadge');
+
+        if (isConnected) {
+          if (headerBtn) {
+            headerBtn.className = 'hidden xs:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition cursor-pointer flex-shrink-0';
+          }
+          if (headerLabel) headerLabel.textContent = 'Nube Activa';
+          if (headerIcon) headerIcon.classList.add('text-indigo-600');
+
+          if (authDot) authDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0';
+          if (authText) authText.textContent = `Nube Conectada: ${projectId || 'Firestore'}`;
+
+          if (modalDot) modalDot.className = 'w-3 h-3 rounded-full bg-emerald-500 flex-shrink-0';
+          if (modalTitle) modalTitle.textContent = 'Nube Conectada a Firestore';
+          if (modalSub) modalSub.textContent = `Proyecto: ${projectId || 'Activo'} (Multi-dispositivo sincronizado)`;
+          if (modalBadge) {
+            modalBadge.className = 'text-[11px] font-bold px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 flex-shrink-0';
+            modalBadge.textContent = 'Online';
+          }
+        } else {
+          if (headerBtn) {
+            headerBtn.className = 'hidden xs:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 transition cursor-pointer flex-shrink-0';
+          }
+          if (headerLabel) headerLabel.textContent = 'Solo Local';
+          if (headerIcon) headerIcon.classList.remove('text-indigo-600');
+
+          if (authDot) authDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-400 flex-shrink-0';
+          if (authText) authText.textContent = 'Nube: Solo Local (Configurar)';
+
+          if (modalDot) modalDot.className = 'w-3 h-3 rounded-full bg-slate-400 flex-shrink-0';
+          if (modalTitle) modalTitle.textContent = 'Modo Local (Sin Nube)';
+          if (modalSub) modalSub.textContent = 'Las cuentas solo existen en este navegador.';
+          if (modalBadge) {
+            modalBadge.className = 'text-[11px] font-bold px-2 py-0.5 rounded-lg bg-slate-200 text-slate-700 flex-shrink-0';
+            modalBadge.textContent = 'Offline';
+          }
+        }
+      },
+
+      async getUser(username) {
+        if (!this.isConfigured || !this.db) return null;
+        const norm = username.toLowerCase().trim();
+        try {
+          const doc = await this.db.collection('users').doc(norm).get();
+          if (doc.exists) {
+            return doc.data();
+          }
+          return null;
+        } catch (err) {
+          console.warn('Error obteniendo usuario de la nube:', err);
+          return null;
+        }
+      },
+
+      async saveUser(userData) {
+        if (!this.isConfigured || !this.db) return;
+        const norm = userData.username.toLowerCase().trim();
+        try {
+          await this.db.collection('users').doc(norm).set(userData, { merge: true });
+        } catch (err) {
+          console.error('Error guardando usuario en la nube:', err);
+        }
+      },
+
+      async getVault(username) {
+        if (!this.isConfigured || !this.db) return null;
+        const norm = username.toLowerCase().trim();
+        try {
+          const doc = await this.db.collection('vaults').doc(norm).get();
+          if (doc.exists) {
+            return doc.data();
+          }
+          return null;
+        } catch (err) {
+          console.warn('Error obteniendo almacén de la nube:', err);
+          return null;
+        }
+      },
+
+      async saveVault(username, vaultRecord) {
+        if (!this.isConfigured || !this.db) return;
+        const norm = username.toLowerCase().trim();
+        try {
+          await this.db.collection('vaults').doc(norm).set(vaultRecord, { merge: true });
+        } catch (err) {
+          console.error('Error guardando almacén en la nube:', err);
+        }
+      },
+
+      listenToRemoteVault(username, onUpdate) {
+        if (!this.isConfigured || !this.db) return;
+        if (this.unsubscribeRemoteListener) {
+          this.unsubscribeRemoteListener();
+          this.unsubscribeRemoteListener = null;
+        }
+        const norm = username.toLowerCase().trim();
+        try {
+          this.unsubscribeRemoteListener = this.db.collection('vaults').doc(norm)
+            .onSnapshot((docSnapshot) => {
+              if (docSnapshot && docSnapshot.exists) {
+                const data = docSnapshot.data();
+                onUpdate(data);
+              }
+            }, (error) => {
+              console.warn('Listener Firestore desconectado:', error);
+            });
+        } catch (e) {
+          console.warn('No se pudo suscribir a Firestore:', e);
+        }
+      }
+    };
+
+    /* =========================================================
+       2.5 LOCAL & HYBRID DATABASE LAYER (IndexedDB + Cloud Sync)
        ========================================================= */
     const UniTaskDB = {
       dbName: 'UniTask_EncryptedDB',
@@ -941,8 +1271,7 @@
         });
       },
 
-      async getUser(username) {
-        const norm = username.toLowerCase().trim();
+      async getLocalUser(norm) {
         if (this.db) {
           return new Promise((resolve) => {
             const tx = this.db.transaction('users', 'readonly');
@@ -956,8 +1285,7 @@
         return item ? JSON.parse(item) : null;
       },
 
-      async saveUser(userData) {
-        userData.username = userData.username.toLowerCase().trim();
+      async saveLocalUser(userData) {
         if (this.db) {
           return new Promise((resolve, reject) => {
             const tx = this.db.transaction('users', 'readwrite');
@@ -970,8 +1298,29 @@
         localStorage.setItem(`unitask_user_${userData.username}`, JSON.stringify(userData));
       },
 
-      async getVault(username) {
+      async getUser(username) {
         const norm = username.toLowerCase().trim();
+        let user = await this.getLocalUser(norm);
+
+        // If not found locally, fetch from cloud database (multi-device login)
+        if (!user && UniTaskCloudDB.isConfigured) {
+          user = await UniTaskCloudDB.getUser(norm);
+          if (user) {
+            await this.saveLocalUser(user);
+          }
+        }
+        return user;
+      },
+
+      async saveUser(userData) {
+        userData.username = userData.username.toLowerCase().trim();
+        await this.saveLocalUser(userData);
+        if (UniTaskCloudDB.isConfigured) {
+          await UniTaskCloudDB.saveUser(userData);
+        }
+      },
+
+      async getLocalVault(norm) {
         if (this.db) {
           return new Promise((resolve) => {
             const tx = this.db.transaction('vaults', 'readonly');
@@ -985,9 +1334,7 @@
         return item ? JSON.parse(item) : null;
       },
 
-      async saveVault(username, vaultData) {
-        const norm = username.toLowerCase().trim();
-        const record = { username: norm, ...vaultData, updatedAt: new Date().toISOString() };
+      async saveLocalVault(record) {
         if (this.db) {
           return new Promise((resolve, reject) => {
             const tx = this.db.transaction('vaults', 'readwrite');
@@ -997,7 +1344,32 @@
             req.onerror = () => reject(req.error);
           });
         }
-        localStorage.setItem(`unitask_vault_${norm}`, JSON.stringify(record));
+        localStorage.setItem(`unitask_vault_${record.username}`, JSON.stringify(record));
+      },
+
+      async getVault(username) {
+        const norm = username.toLowerCase().trim();
+        const localVault = await this.getLocalVault(norm);
+
+        if (UniTaskCloudDB.isConfigured) {
+          const cloudVault = await UniTaskCloudDB.getVault(norm);
+          if (cloudVault && cloudVault.ciphertext) {
+            if (!localVault || !localVault.updatedAt || new Date(cloudVault.updatedAt) > new Date(localVault.updatedAt)) {
+              await this.saveLocalVault(cloudVault);
+              return cloudVault;
+            }
+          }
+        }
+        return localVault;
+      },
+
+      async saveVault(username, vaultData) {
+        const norm = username.toLowerCase().trim();
+        const record = { username: norm, ...vaultData, updatedAt: new Date().toISOString() };
+        await this.saveLocalVault(record);
+        if (UniTaskCloudDB.isConfigured) {
+          await UniTaskCloudDB.saveVault(username, record);
+        }
       }
     };
 
@@ -1404,9 +1776,38 @@
 
       refreshSubjectSelects();
       renderBoard();
+
+      // Real-time synchronization across devices
+      if (UniTaskCloudDB.isConfigured && !isGuest) {
+        UniTaskCloudDB.listenToRemoteVault(username, handleRemoteVaultUpdate);
+      }
+    }
+
+    async function handleRemoteVaultUpdate(remoteVaultRecord) {
+      if (!currentUser || currentUser.isGuest || !remoteVaultRecord || !remoteVaultRecord.ciphertext) return;
+      try {
+        const decrypted = await UniCrypto.decryptVault(remoteVaultRecord.iv, remoteVaultRecord.ciphertext, currentUser.encKey);
+        if (decrypted && decrypted.tasks && decrypted.subjects) {
+          const currentJson = JSON.stringify({ subjects, tasks });
+          const incomingJson = JSON.stringify(decrypted);
+          if (currentJson !== incomingJson) {
+            subjects = decrypted.subjects;
+            tasks = decrypted.tasks;
+            refreshSubjectSelects();
+            renderBoard();
+            showToast('Agenda sincronizada desde otro dispositivo ☁️');
+          }
+        }
+      } catch (err) {
+        console.warn('No se pudo procesar la actualización remota de la nube:', err);
+      }
     }
 
     function logoutUser() {
+      if (UniTaskCloudDB.unsubscribeRemoteListener) {
+        UniTaskCloudDB.unsubscribeRemoteListener();
+        UniTaskCloudDB.unsubscribeRemoteListener = null;
+      }
       clearTemporarySession();
       currentUser = null;
       subjects = [];
@@ -1913,12 +2314,19 @@
       closeConfirmModal();
     });
 
-    [document.getElementById('taskModal'), document.getElementById('subjectsModal'), document.getElementById('confirmModal')].forEach(modal => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          closeModalEl(modal);
-        }
-      });
+    [
+      document.getElementById('taskModal'),
+      document.getElementById('subjectsModal'),
+      document.getElementById('confirmModal'),
+      document.getElementById('cloudConfigModal')
+    ].forEach(modal => {
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            closeModalEl(modal);
+          }
+        });
+      }
     });
 
     function openDefaultNewTask() {
@@ -2197,10 +2605,190 @@
     }
 
     /* =========================================================
-       APP BOOTSTRAP (WITH RELOAD SESSION PERSISTENCE)
+       CLOUD CONFIGURATION MODAL & 1-CLICK MOBILE LINK SYNC
+       ========================================================= */
+    function parseFirebaseConfigInput(rawText) {
+      if (!rawText || typeof rawText !== 'string') return null;
+      const trimmed = rawText.trim();
+
+      // 1. Try direct JSON parsing
+      try {
+        const obj = JSON.parse(trimmed);
+        if (obj && obj.apiKey && obj.projectId) return obj;
+      } catch (e) {}
+
+      // 2. If wrapped in curly braces (e.g. JS snippet: const firebaseConfig = { ... };)
+      const start = trimmed.indexOf('{');
+      const end = trimmed.lastIndexOf('}');
+      if (start !== -1 && end !== -1 && end > start) {
+        const inner = trimmed.substring(start, end + 1);
+        try {
+          const jsonLike = inner
+            .replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '') // remove comments
+            .replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":') // quote unquoted keys
+            .replace(/'/g, '"') // replace single quotes with double quotes
+            .replace(/,\s*([}\]])/g, '$1'); // strip trailing commas
+
+          const obj = JSON.parse(jsonLike);
+          if (obj && obj.apiKey && obj.projectId) return obj;
+        } catch (e) {}
+      }
+
+      // 3. Robust regex extraction fallback
+      const getField = (fieldName) => {
+        const regex = new RegExp(`(?:['"]?${fieldName}['"]?\\s*:\\s*['"]([^'"]+)['"])`);
+        const match = trimmed.match(regex);
+        return match ? match[1] : '';
+      };
+
+      const apiKey = getField('apiKey');
+      const projectId = getField('projectId');
+      const authDomain = getField('authDomain') || (projectId ? `${projectId}.firebaseapp.com` : '');
+      const storageBucket = getField('storageBucket') || (projectId ? `${projectId}.appspot.com` : '');
+      const messagingSenderId = getField('messagingSenderId');
+      const appId = getField('appId');
+
+      if (apiKey && projectId) {
+        return { apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId };
+      }
+
+      return null;
+    }
+
+    function generateMobileCloudLink() {
+      if (!UniTaskCloudDB.config) return null;
+      try {
+        const jsonStr = JSON.stringify(UniTaskCloudDB.config);
+        const encoded = btoa(encodeURIComponent(jsonStr));
+        const url = new URL(window.location.href);
+        url.searchParams.set('cloud', encoded);
+        return url.toString();
+      } catch (e) {
+        console.warn('Error generando enlace móvil:', e);
+        return null;
+      }
+    }
+
+    async function checkUrlCloudConfig() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const cloudParam = params.get('cloud');
+        if (cloudParam) {
+          const decoded = decodeURIComponent(atob(cloudParam));
+          const config = JSON.parse(decoded);
+          if (config && config.projectId && config.apiKey) {
+            const success = await UniTaskCloudDB.applyConfig(config);
+            if (success) {
+              const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+              window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+              showToast(`¡Conectado a Firebase (${config.projectId}) desde enlace! ☁️`);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Error importando configuración de Firebase desde URL:', e);
+      }
+    }
+
+    window.openCloudConfigModal = function() {
+      const input = document.getElementById('firebaseConfigInput');
+      const msg = document.getElementById('cloudConfigMsg');
+      if (msg) msg.className = 'hidden';
+      if (UniTaskCloudDB.config) {
+        input.value = JSON.stringify(UniTaskCloudDB.config, null, 2);
+      } else {
+        input.value = '';
+      }
+      openModalEl(document.getElementById('cloudConfigModal'));
+    };
+
+    window.closeCloudConfigModal = function() {
+      closeModalEl(document.getElementById('cloudConfigModal'));
+    };
+
+    document.getElementById('btnCloseCloudModal').addEventListener('click', closeCloudConfigModal);
+
+    document.getElementById('btnSaveCloudConfig').addEventListener('click', async () => {
+      const input = document.getElementById('firebaseConfigInput').value.trim();
+      const msg = document.getElementById('cloudConfigMsg');
+      msg.className = 'hidden';
+
+      if (!input) {
+        msg.className = 'p-3 text-xs rounded-xl font-bold leading-relaxed bg-rose-50 text-rose-700 border border-rose-200 block';
+        msg.textContent = 'Por favor pega la configuración de tu proyecto en Firebase.';
+        return;
+      }
+
+      const config = parseFirebaseConfigInput(input);
+      if (!config || !config.apiKey || !config.projectId) {
+        msg.className = 'p-3 text-xs rounded-xl font-bold leading-relaxed bg-rose-50 text-rose-700 border border-rose-200 block';
+        msg.textContent = 'No se encontró un apiKey o projectId válidos. Revisa el texto pegado.';
+        return;
+      }
+
+      const success = await UniTaskCloudDB.applyConfig(config);
+      if (success) {
+        msg.className = 'p-3 text-xs rounded-xl font-bold leading-relaxed bg-emerald-50 text-emerald-700 border border-emerald-200 block';
+        msg.textContent = `¡Conectado exitosamente con Firestore (${config.projectId})!`;
+        showToast(`Conectado a Firebase (${config.projectId}) ☁️`);
+
+        // If user is currently logged in, sync current account & vault to cloud
+        if (currentUser && !currentUser.isGuest) {
+          await persistEncryptedUserData();
+          const localUser = await UniTaskDB.getLocalUser(currentUser.username);
+          if (localUser) {
+            await UniTaskCloudDB.saveUser(localUser);
+          }
+          UniTaskCloudDB.listenToRemoteVault(currentUser.username, handleRemoteVaultUpdate);
+        }
+
+        setTimeout(() => {
+          closeCloudConfigModal();
+        }, 1200);
+      } else {
+        msg.className = 'p-3 text-xs rounded-xl font-bold leading-relaxed bg-rose-50 text-rose-700 border border-rose-200 block';
+        msg.textContent = 'Error al inicializar Firebase. Asegúrate de tener conexión a Internet.';
+      }
+    });
+
+    document.getElementById('btnShareMobileLink').addEventListener('click', async () => {
+      if (!UniTaskCloudDB.isConfigured) {
+        showToast('Conecta primero tu proyecto de Firebase antes de compartir.');
+        return;
+      }
+      const link = generateMobileCloudLink();
+      if (!link) return;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(link);
+          showToast('¡Enlace copiado! Ábrelo en tu móvil para sincronizar al instante 📲');
+          return;
+        } catch (e) {}
+      }
+
+      window.prompt('Copia este enlace y ábrelo en tu móvil para sincronizar:', link);
+    });
+
+    document.getElementById('btnDisconnectCloud').addEventListener('click', () => {
+      UniTaskCloudDB.disconnect();
+      document.getElementById('firebaseConfigInput').value = '';
+      const msg = document.getElementById('cloudConfigMsg');
+      msg.className = 'p-3 text-xs rounded-xl font-bold leading-relaxed bg-slate-100 text-slate-700 border border-slate-200 block';
+      msg.textContent = 'Desconectado. Ahora la aplicación funciona en Modo Local.';
+      showToast('Desconectado de la nube. Modo local activo.');
+      setTimeout(() => {
+        closeCloudConfigModal();
+      }, 1000);
+    });
+
+    /* =========================================================
+       APP BOOTSTRAP (WITH RELOAD SESSION PERSISTENCE & CLOUD)
        ========================================================= */
     window.onload = async function() {
       await UniTaskDB.init();
+      await UniTaskCloudDB.init();
+      await checkUrlCloudConfig();
 
       // Check if there is an active session from before page reload
       const restored = await tryRestoreTemporarySession();

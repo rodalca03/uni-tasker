@@ -14,13 +14,16 @@
 
 ---
 
-## 🔐 Seguridad y Cifrado Local
-
-- **Autenticación Segura**: Sistema de registro e inicio de sesión por usuario y contraseña.
-- **Cifrado AES-256-GCM**: Todas las tareas, asignaturas y descripciones se cifran antes de persistir en la base de datos local del navegador.
-- **Derivación con PBKDF2**: Claves criptográficas derivadas con 100,000 iteraciones y algoritmo SHA-256, con sal única aleatoria por usuario.
-- **Cero Conocimiento**: Ni el navegador ni terceros pueden leer tus notas o entregas sin la contraseña que descifra la bóveda en memoria.
-- **Base de Datos Local**: Soporte nativo para **IndexedDB** con respaldo automático a almacenamiento local cifrado.
+## 🔐 Seguridad, Cifrado y Sincronización en la Nube
+ 
+- **Autenticación Segura & Multi-dispositivo**: Crea tu cuenta y accede desde tu ordenador o teléfono móvil con sincronización en tiempo real.
+- **Cifrado AES-256-GCM Cliente (Zero-Knowledge)**: Todas tus tareas, asignaturas y fechas se encriptan con la Web Crypto API en tu propio navegador antes de enviarse a la base de datos o a la nube.
+- **Derivación de Claves PBKDF2**: Claves criptográficas derivadas con 100,000 iteraciones SHA-256 y sal criptográfica de 128 bits.
+- **Base de Datos Híbrida (Local-First + Firebase Firestore)**:
+  - Funciona de manera 100% offline y local en IndexedDB.
+  - Al conectar tu proyecto de **Google Firebase Firestore**, tus cuentas y datos se sincronizan automáticamente entre todos tus dispositivos.
+  - **Privacidad Absoluta**: Google Firebase solo almacena datos cifrados e identificadores matemáticos; nunca ve tus tareas en texto plano ni tus contraseñas.
+- **📲 Enlace de Sincronización en 1 Clic**: Genera un enlace cifrado para vincular tu teléfono móvil al instante sin tener que escribir configuraciones complejas en la pantalla táctil.
 
 ---
 

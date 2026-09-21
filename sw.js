@@ -37,6 +37,11 @@ self.addEventListener('fetch', (event) => {
   // Ignore non-GET requests or chrome extension schemes
   if (req.method !== 'GET' || !req.url.startsWith('http')) return;
 
+  // Bypass Firebase Firestore streams, WebSockets, and Google APIs
+  if (req.url.includes('googleapis.com') || req.url.includes('firebaseio.com') || req.url.includes('identitytoolkit')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(req).then((cachedResponse) => {
       // Return cached response if available, then fetch update in background (stale-while-revalidate)
