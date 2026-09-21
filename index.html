@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>UniTask - Agenda Universitaria</title>
   <link rel="icon" type="image/png" href="assets/logo.png" />
+  <!-- Progressive Web App (PWA) Manifest & Mobile Meta -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="UniTask" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="assets/icon-512.png" />
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -348,6 +357,14 @@
           <span>Acceder en modo demostración</span>
         </button>
 
+        <!-- PWA Install Button inside Auth Screen -->
+        <button type="button" class="pwa-install-btn hidden btn-action w-full h-12 text-sm font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200/80 rounded-2xl active:scale-95 transition-all items-center justify-center gap-2 mt-2.5 shadow-2xs">
+          <svg class="w-4.5 h-4.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          <span>Instalar UniTask en tu pantalla de inicio</span>
+        </button>
+
         <!-- Guarantee footer -->
         <div class="pt-4 flex items-center justify-center gap-2 text-xs text-slate-400 font-semibold text-center">
           <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -387,6 +404,15 @@
 
         <!-- Desktop Action Buttons & Profile -->
         <div class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+          <!-- PWA Install Button (Chrome / Android / Desktop) -->
+          <button id="btnInstallApp" class="pwa-install-btn hidden btn-action px-3 py-2 text-xs sm:text-sm font-extrabold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-2xl transition-all items-center gap-1.5 shadow-2xs">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            <span class="hidden xs:inline">Instalar app</span>
+            <span class="xs:hidden">Instalar</span>
+          </button>
+
           <button id="btnManageSubjects" class="btn-action hidden sm:inline-flex px-3.5 py-2.5 text-sm font-bold text-slate-700 bg-slate-100/90 hover:bg-slate-200/90 rounded-2xl transition-all items-center gap-2 border border-slate-200/70 shadow-xs">
             <svg class="w-4.5 h-4.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
@@ -810,11 +836,27 @@
           },
           keyMaterial,
           { name: 'AES-GCM', length: 256 },
-          false,
+          true,
           ['encrypt', 'decrypt']
         );
 
         return { authHash, encKey };
+      },
+
+      async exportRawKey(encKey) {
+        const rawBuf = await window.crypto.subtle.exportKey('raw', encKey);
+        return this.bufToHex(rawBuf);
+      },
+
+      async importRawKey(keyHex) {
+        const keyBytes = this.hexToBuf(keyHex);
+        return window.crypto.subtle.importKey(
+          'raw',
+          keyBytes,
+          { name: 'AES-GCM', length: 256 },
+          true,
+          ['encrypt', 'decrypt']
+        );
       },
 
       async encryptVault(dataObj, encKey) {
@@ -1188,7 +1230,7 @@
         const encryptedVault = await UniCrypto.encryptVault(initialData, encKey);
         await UniTaskDB.saveVault(usernameInput, encryptedVault);
 
-        activateUserSession(usernameInput, displayName, encKey, false, initialData);
+        await activateUserSession(usernameInput, displayName, encKey, false, initialData);
         hideAuthScreen();
         showToast(`¡Bienvenido, ${displayName}! 🔐`);
       } else {
@@ -1219,7 +1261,7 @@
           userData = createDefaultUserData();
         }
 
-        activateUserSession(userRecord.username, userRecord.displayName || userRecord.username, encKey, false, userData);
+        await activateUserSession(userRecord.username, userRecord.displayName || userRecord.username, encKey, false, userData);
         hideAuthScreen();
         showToast(`Sesión iniciada. Base de datos descifrada 🔓`);
       }
@@ -1228,19 +1270,104 @@
     document.getElementById('btnGuestAccess').addEventListener('click', async () => {
       const demoKey = await window.crypto.subtle.generateKey(
         { name: 'AES-GCM', length: 256 },
-        false,
+        true,
         ['encrypt', 'decrypt']
       );
       const initialData = createDefaultUserData();
-      activateUserSession('invitado', 'Invitado', demoKey, true, initialData);
+      await activateUserSession('invitado', 'Invitado', demoKey, true, initialData);
       hideAuthScreen();
       showToast('Modo demostración activado');
     });
 
-    function activateUserSession(username, displayName, encKey, isGuest, data) {
+    /* =========================================================
+       TEMPORARY SESSION MANAGEMENT (RELOAD PERSISTENCE & COOKIE)
+       ========================================================= */
+    async function saveTemporarySession(username, displayName, encKey, isGuest) {
+      try {
+        let keyHex = '';
+        if (encKey && !isGuest) {
+          keyHex = await UniCrypto.exportRawKey(encKey);
+        }
+        const sessionPayload = {
+          username,
+          displayName,
+          isGuest,
+          keyHex,
+          createdAt: Date.now()
+        };
+        sessionStorage.setItem('unitask_active_session', JSON.stringify(sessionPayload));
+
+        // Temporary session cookie (cleared when browser session ends)
+        const cookieData = encodeURIComponent(JSON.stringify({ username, displayName, isGuest }));
+        document.cookie = `unitask_session=${cookieData}; path=/; SameSite=Strict`;
+      } catch (err) {
+        console.warn('No se pudo guardar la sesión temporal:', err);
+      }
+    }
+
+    function clearTemporarySession() {
+      try {
+        sessionStorage.removeItem('unitask_active_session');
+        document.cookie = 'unitask_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+      } catch (err) {
+        console.warn('Error borrando sesión temporal:', err);
+      }
+    }
+
+    async function tryRestoreTemporarySession() {
+      try {
+        const stored = sessionStorage.getItem('unitask_active_session');
+        if (!stored) return false;
+
+        const session = JSON.parse(stored);
+        if (!session || !session.username) return false;
+
+        if (session.isGuest) {
+          const demoKey = await window.crypto.subtle.generateKey(
+            { name: 'AES-GCM', length: 256 },
+            true,
+            ['encrypt', 'decrypt']
+          );
+          const initialData = createDefaultUserData();
+          await activateUserSession('invitado', 'Invitado', demoKey, true, initialData);
+          hideAuthScreen();
+          return true;
+        }
+
+        if (!session.keyHex) return false;
+
+        const encKey = await UniCrypto.importRawKey(session.keyHex);
+        const vaultRecord = await UniTaskDB.getVault(session.username);
+
+        let userData = { subjects: [], tasks: [] };
+        if (vaultRecord && vaultRecord.ciphertext) {
+          try {
+            userData = await UniCrypto.decryptVault(vaultRecord.iv, vaultRecord.ciphertext, encKey);
+          } catch (decErr) {
+            console.error('Error descifrando almacén restaurado:', decErr);
+            userData = createDefaultUserData();
+          }
+        } else {
+          userData = createDefaultUserData();
+        }
+
+        await activateUserSession(session.username, session.displayName || session.username, encKey, false, userData);
+        hideAuthScreen();
+        showToast(`Sesión restaurada para ${session.displayName || session.username} 🔐`);
+        return true;
+      } catch (e) {
+        console.error('Error restaurando sesión:', e);
+        clearTemporarySession();
+        return false;
+      }
+    }
+
+    async function activateUserSession(username, displayName, encKey, isGuest, data) {
       currentUser = { username, displayName, encKey, isGuest };
       subjects = data.subjects || [];
       tasks = data.tasks || [];
+
+      await saveTemporarySession(username, displayName, encKey, isGuest);
 
       document.getElementById('userNameLabel').textContent = displayName;
       document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
@@ -1264,6 +1391,7 @@
     }
 
     function logoutUser() {
+      clearTemporarySession();
       currentUser = null;
       subjects = [];
       tasks = [];
@@ -1930,10 +2058,97 @@
       });
     }
 
-    /* App Bootstrap */
+    /* =========================================================
+       PWA INSTALLATION & SERVICE WORKER (CHROME & MOBILE)
+       ========================================================= */
+    let deferredInstallPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent automatic banner, save prompt
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      
+      // Reveal all install buttons (header & login screen)
+      document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+        btn.classList.remove('hidden');
+        btn.classList.add('inline-flex');
+      });
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+        btn.classList.add('hidden');
+        btn.classList.remove('inline-flex', 'flex');
+      });
+      showToast('¡UniTask se ha instalado en tu dispositivo! 🎉');
+    });
+
+    async function triggerPwaInstall() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        if (outcome === 'accepted') {
+          showToast('Instalando UniTask en tu pantalla de inicio... 📲');
+        }
+        deferredInstallPrompt = null;
+        document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+          btn.classList.add('hidden');
+          btn.classList.remove('inline-flex', 'flex');
+        });
+      } else {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+          openConfirmModal(
+            'Instalar en iPhone / iPad',
+            'En Safari, pulsa el botón Compartir (icono de cuadrado con flecha) y selecciona "Añadir a pantalla de inicio" 📲',
+            () => closeConfirmModal()
+          );
+        } else {
+          showToast('Usa el menú de Chrome (⋮) y selecciona "Instalar aplicación" 📲');
+        }
+      }
+    }
+
+    // Attach click listener to all install buttons
+    document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        triggerPwaInstall();
+      });
+    });
+
+    // Check if running already in standalone mode
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator && window.navigator.standalone);
+    if (isStandalone) {
+      document.querySelectorAll('.pwa-install-btn').forEach(btn => btn.classList.add('hidden'));
+    }
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => {
+            console.log('UniTask Service Worker registrado:', reg.scope);
+          })
+          .catch((err) => {
+            console.warn('Error registrando Service Worker:', err);
+          });
+      });
+    }
+
+    /* =========================================================
+       APP BOOTSTRAP (WITH RELOAD SESSION PERSISTENCE)
+       ========================================================= */
     window.onload = async function() {
       await UniTaskDB.init();
-      showAuthScreen();
+
+      // Check if there is an active session from before page reload
+      const restored = await tryRestoreTemporarySession();
+      if (!restored) {
+        showAuthScreen();
+      }
     };
   </script>
 </body>
