@@ -535,7 +535,7 @@
     </div>
 
     <!-- Mobile Day Strip -->
-    <div id="mobileDayStripContainer" class="lg:hidden mb-4 min-w-0">
+    <div id="mobileDayStripContainer" class="lg:hidden mb-4 min-w-0 scroll-mt-20">
       <div id="mobileDayStrip" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-0.5 min-w-0">
         <!-- Dynamically rendered mobile day pill buttons -->
       </div>
@@ -543,7 +543,7 @@
 
     <!-- Weekly Board -->
     <div class="flex-1 pb-4 min-w-0">
-      <div id="weeklyBoard" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 sm:gap-4 h-full items-start transition-all duration-200 min-w-0">
+      <div id="weeklyBoard" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 sm:gap-4 h-full items-start transition-all duration-200 min-w-0 scroll-mt-20">
         <!-- 7 Days dynamically generated here -->
       </div>
     </div>
@@ -1505,11 +1505,19 @@
         } ${isVisibleOnMobile ? 'flex w-full' : 'hidden lg:flex'}`;
 
         const dayHeader = document.createElement('div');
-        dayHeader.className = `px-4 py-3.5 border-b flex items-center justify-between gap-2.5 transition-colors min-w-0 ${
+        dayHeader.className = `px-4 py-3.5 border-b flex items-center justify-between gap-2.5 transition-colors min-w-0 cursor-pointer ${
           isCurrentDay 
             ? 'bg-gradient-to-r from-indigo-50/90 via-indigo-100/40 to-white border-indigo-100' 
-            : 'bg-slate-50/80 border-slate-100'
+            : 'bg-slate-50/80 border-slate-100 hover:bg-slate-100/80'
         }`;
+
+        dayHeader.onclick = (e) => {
+          if (!e.target.closest('button')) {
+            selectedMobileDayIndex = i;
+            renderBoard();
+            scrollToDayStrip();
+          }
+        };
 
         dayHeader.innerHTML = `
           <div class="flex items-center space-x-3 min-w-0">
@@ -1571,6 +1579,38 @@
       }
     }
 
+    function getElementDocumentTop(el) {
+      let top = 0;
+      while (el) {
+        top += el.offsetTop || 0;
+        el = el.offsetParent;
+      }
+      return top;
+    }
+
+    function scrollToDayStrip() {
+      setTimeout(() => {
+        const isMobile = window.innerWidth < 1024;
+        const targetEl = (isMobile && mobileViewMode === 'single')
+          ? document.getElementById('mobileDayStripContainer')
+          : document.getElementById('weeklyBoard');
+
+        if (!targetEl) return;
+
+        const header = document.querySelector('header');
+        const headerHeight = header ? header.offsetHeight : 0;
+        const docTop = getElementDocumentTop(targetEl);
+        
+        // Exact target position so the day row sits flush below sticky header with 6px breather
+        const targetScrollY = Math.max(0, docTop - headerHeight - 6);
+
+        window.scrollTo({
+          top: targetScrollY,
+          behavior: 'smooth'
+        });
+      }, 40);
+    }
+
     function renderMobileDayStrip() {
       const container = document.getElementById('mobileDayStrip');
       container.innerHTML = '';
@@ -1601,6 +1641,7 @@
         btn.onclick = () => {
           selectedMobileDayIndex = i;
           renderBoard();
+          scrollToDayStrip();
         };
 
         btn.innerHTML = `
@@ -1972,6 +2013,7 @@
       currentWeekStart = getMonday(new Date());
       selectedMobileDayIndex = getInitialDayIndex();
       animateBoardTransition();
+      scrollToDayStrip();
     };
 
     document.getElementById('btnToday').addEventListener('click', goToToday);
