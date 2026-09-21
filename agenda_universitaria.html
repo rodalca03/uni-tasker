@@ -1117,10 +1117,7 @@
 
       disconnect() {
         try {
-          if (this.unsubscribeRemoteListener) {
-            this.unsubscribeRemoteListener();
-            this.unsubscribeRemoteListener = null;
-          }
+          this.unsubscribeAllListeners();
           localStorage.removeItem('unitask_firebase_config');
           localStorage.setItem('unitask_cloud_disconnected', 'true');
           this.config = null;
@@ -1232,25 +1229,145 @@
         }
       },
 
-      listenToRemoteVault(username, onUpdate) {
-        if (!this.isConfigured || !this.db) return;
-        if (this.unsubscribeRemoteListener) {
-          this.unsubscribeRemoteListener();
-          this.unsubscribeRemoteListener = null;
-        }
+      // ================= CONTENT SYNC: ASIGNATURAS Y TAREAS EN FIRESTORE =================
+      async getSubjects(username) {
+        if (!this.isConfigured || !this.db) return null;
         const norm = username.toLowerCase().trim();
         try {
-          this.unsubscribeRemoteListener = this.db.collection('vaults').doc(norm)
-            .onSnapshot((docSnapshot) => {
-              if (docSnapshot && docSnapshot.exists) {
-                const data = docSnapshot.data();
-                onUpdate(data);
-              }
-            }, (error) => {
-              console.warn('Listener Firestore desconectado:', error);
-            });
+          const snap = await this.db.collection('users').doc(norm).collection('subjects').get();
+          if (snap.empty) return null;
+          const list = [];
+          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+          return list;
+        } catch (err) {
+          console.warn('Error obteniendo asignaturas de Firestore:', err);
+          return null;
+        }
+      },
+
+      async saveSubject(username, subject) {
+        if (!this.isConfigured || !this.db) return;
+        const norm = username.toLowerCase().trim();
+        try {
+          await this.db.collection('users').doc(norm).collection('subjects').doc(subject.id).set({
+            ...subject,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } catch (err) {
+          console.error('Error guardando asignatura en Firestore:', err);
+        }
+      },
+
+      async deleteSubject(username, subjectId) {
+        if (!this.isConfigured || !this.db) return;
+        const norm = username.toLowerCase().trim();
+        try {
+          await this.db.collection('users').doc(norm).collection('subjects').doc(subjectId).delete();
+        } catch (err) {
+          console.error('Error eliminando asignatura en Firestore:', err);
+        }
+      },
+
+      async getTasks(username) {
+        if (!this.isConfigured || !this.db) return null;
+        const norm = username.toLowerCase().trim();
+        try {
+          const snap = await this.db.collection('users').doc(norm).collection('tasks').get();
+          if (snap.empty) return null;
+          const list = [];
+          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+          return list;
+        } catch (err) {
+          console.warn('Error obteniendo tareas de Firestore:', err);
+          return null;
+        }
+      },
+
+      async saveTask(username, task) {
+        if (!this.isConfigured || !this.db) return;
+        const norm = username.toLowerCase().trim();
+        try {
+          await this.db.collection('users').doc(norm).collection('tasks').doc(task.id).set({
+            ...task,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } catch (err) {
+          console.error('Error guardando tarea en Firestore:', err);
+        }
+      },
+
+      async deleteTask(username, taskId) {
+        if (!this.isConfigured || !this.db) return;
+        const norm = username.toLowerCase().trim();
+        try {
+          await this.db.collection('users').doc(norm).collection('tasks').doc(taskId).delete();
+        } catch (err) {
+          console.error('Error eliminando tarea en Firestore:', err);
+        }
+      },
+
+      async syncAllData(username, subjectsList, tasksList) {
+        if (!this.isConfigured || !this.db) return;
+        const norm = username.toLowerCase().trim();
+        try {
+          const batch = this.db.batch();
+          const userRef = this.db.collection('users').doc(norm);
+
+          subjectsList.forEach(sub => {
+            const ref = userRef.collection('subjects').doc(sub.id);
+            batch.set(ref, { ...sub, updatedAt: new Date().toISOString() }, { merge: true });
+          });
+
+          tasksList.forEach(t => {
+            const ref = userRef.collection('tasks').doc(t.id);
+            batch.set(ref, { ...t, updatedAt: new Date().toISOString() }, { merge: true });
+          });
+
+          await batch.commit();
+        } catch (err) {
+          console.error('Error sincronizando contenidos en lote a Firestore:', err);
+        }
+      },
+
+      // Multi-device real-time sync listeners
+      activeListeners: [],
+
+      unsubscribeAllListeners() {
+        if (this.activeListeners && this.activeListeners.length > 0) {
+          this.activeListeners.forEach(unsub => {
+            try { if (typeof unsub === 'function') unsub(); } catch (e) {}
+          });
+        }
+        this.activeListeners = [];
+      },
+
+      listenToUserData(username, onUpdate) {
+        if (!this.isConfigured || !this.db) return;
+        this.unsubscribeAllListeners();
+        const norm = username.toLowerCase().trim();
+
+        try {
+          const userRef = this.db.collection('users').doc(norm);
+
+          // 1. Escucha en tiempo real de la colección de asignaturas
+          const unsubSubjects = userRef.collection('subjects').onSnapshot(snap => {
+            const subs = [];
+            snap.forEach(doc => subs.push({ id: doc.id, ...doc.data() }));
+            if (subs.length > 0) {
+              onUpdate({ type: 'subjects', data: subs });
+            }
+          }, err => console.warn('Listener asignaturas desconectado:', err));
+
+          // 2. Escucha en tiempo real de la colección de tareas
+          const unsubTasks = userRef.collection('tasks').onSnapshot(snap => {
+            const tsks = [];
+            snap.forEach(doc => tsks.push({ id: doc.id, ...doc.data() }));
+            onUpdate({ type: 'tasks', data: tsks });
+          }, err => console.warn('Listener tareas desconectado:', err));
+
+          this.activeListeners = [unsubSubjects, unsubTasks];
         } catch (e) {
-          console.warn('No se pudo suscribir a Firestore:', e);
+          console.warn('No se pudo suscribir a actualizaciones de Firestore:', e);
         }
       }
     };
@@ -1635,6 +1752,11 @@
         const encryptedVault = await UniCrypto.encryptVault(initialData, encKey);
         await UniTaskDB.saveVault(usernameInput, encryptedVault);
 
+        // Sync subjects and tasks to Firestore subcollections
+        if (UniTaskCloudDB.isConfigured) {
+          await UniTaskCloudDB.syncAllData(usernameInput, initialData.subjects, initialData.tasks);
+        }
+
         await activateUserSession(usernameInput, displayName, encKey, false, initialData);
         hideAuthScreen();
         showToast(`¡Bienvenido, ${displayName}! 🔐`);
@@ -1653,22 +1775,38 @@
           return;
         }
 
-        const vaultRecord = await UniTaskDB.getVault(usernameInput);
+        // 1. Fetch structured subjects and tasks from Firestore
         let userData = { subjects: [], tasks: [] };
-        if (vaultRecord && vaultRecord.ciphertext) {
-          try {
-            userData = await UniCrypto.decryptVault(vaultRecord.iv, vaultRecord.ciphertext, encKey);
-          } catch (decErr) {
-            console.error('Error descifrando el almacén:', decErr);
-            userData = createDefaultUserData();
-          }
+        const cloudSubjects = await UniTaskCloudDB.getSubjects(usernameInput);
+        const cloudTasks = await UniTaskCloudDB.getTasks(usernameInput);
+
+        if (cloudSubjects && cloudSubjects.length > 0) {
+          userData.subjects = cloudSubjects;
+          userData.tasks = cloudTasks || [];
         } else {
-          userData = createDefaultUserData();
+          // Fallback to vault if Firestore subcollections aren't populated yet
+          const vaultRecord = await UniTaskDB.getVault(usernameInput);
+          if (vaultRecord && vaultRecord.ciphertext) {
+            try {
+              userData = await UniCrypto.decryptVault(vaultRecord.iv, vaultRecord.ciphertext, encKey);
+              if (UniTaskCloudDB.isConfigured && userData.subjects) {
+                await UniTaskCloudDB.syncAllData(usernameInput, userData.subjects, userData.tasks || []);
+              }
+            } catch (decErr) {
+              console.error('Error descifrando el almacén:', decErr);
+              userData = createDefaultUserData();
+            }
+          } else {
+            userData = createDefaultUserData();
+            if (UniTaskCloudDB.isConfigured) {
+              await UniTaskCloudDB.syncAllData(usernameInput, userData.subjects, userData.tasks);
+            }
+          }
         }
 
         await activateUserSession(userRecord.username, userRecord.displayName || userRecord.username, encKey, false, userData);
         hideAuthScreen();
-        showToast(`Sesión iniciada. Base de datos descifrada 🔓`);
+        showToast(`Sesión iniciada. Tareas y asignaturas sincronizadas ☁️`);
       }
     });
 
@@ -1742,18 +1880,28 @@
         if (!session.keyHex) return false;
 
         const encKey = await UniCrypto.importRawKey(session.keyHex);
-        const vaultRecord = await UniTaskDB.getVault(session.username);
-
         let userData = { subjects: [], tasks: [] };
-        if (vaultRecord && vaultRecord.ciphertext) {
-          try {
-            userData = await UniCrypto.decryptVault(vaultRecord.iv, vaultRecord.ciphertext, encKey);
-          } catch (decErr) {
-            console.error('Error descifrando almacén restaurado:', decErr);
+        const cloudSubjects = await UniTaskCloudDB.getSubjects(session.username);
+        const cloudTasks = await UniTaskCloudDB.getTasks(session.username);
+
+        if (cloudSubjects && cloudSubjects.length > 0) {
+          userData.subjects = cloudSubjects;
+          userData.tasks = cloudTasks || [];
+        } else {
+          const vaultRecord = await UniTaskDB.getVault(session.username);
+          if (vaultRecord && vaultRecord.ciphertext) {
+            try {
+              userData = await UniCrypto.decryptVault(vaultRecord.iv, vaultRecord.ciphertext, encKey);
+              if (UniTaskCloudDB.isConfigured && userData.subjects) {
+                await UniTaskCloudDB.syncAllData(session.username, userData.subjects, userData.tasks || []);
+              }
+            } catch (decErr) {
+              console.error('Error descifrando almacén restaurado:', decErr);
+              userData = createDefaultUserData();
+            }
+          } else {
             userData = createDefaultUserData();
           }
-        } else {
-          userData = createDefaultUserData();
         }
 
         await activateUserSession(session.username, session.displayName || session.username, encKey, false, userData);
@@ -1794,36 +1942,39 @@
       refreshSubjectSelects();
       renderBoard();
 
-      // Real-time synchronization across devices
+      // Real-time synchronization across devices for tasks and subjects
       if (UniTaskCloudDB.isConfigured && !isGuest) {
-        UniTaskCloudDB.listenToRemoteVault(username, handleRemoteVaultUpdate);
+        UniTaskCloudDB.listenToUserData(username, handleRemoteDataUpdate);
       }
     }
 
-    async function handleRemoteVaultUpdate(remoteVaultRecord) {
-      if (!currentUser || currentUser.isGuest || !remoteVaultRecord || !remoteVaultRecord.ciphertext) return;
-      try {
-        const decrypted = await UniCrypto.decryptVault(remoteVaultRecord.iv, remoteVaultRecord.ciphertext, currentUser.encKey);
-        if (decrypted && decrypted.tasks && decrypted.subjects) {
-          const currentJson = JSON.stringify({ subjects, tasks });
-          const incomingJson = JSON.stringify(decrypted);
-          if (currentJson !== incomingJson) {
-            subjects = decrypted.subjects;
-            tasks = decrypted.tasks;
-            refreshSubjectSelects();
-            renderBoard();
-            showToast('Agenda sincronizada desde otro dispositivo ☁️');
-          }
+    function handleRemoteDataUpdate(update) {
+      if (!currentUser || currentUser.isGuest || !update) return;
+
+      if (update.type === 'subjects') {
+        const incomingJson = JSON.stringify(update.data);
+        const currentJson = JSON.stringify(subjects);
+        if (incomingJson !== currentJson) {
+          subjects = update.data;
+          refreshSubjectSelects();
+          renderBoard();
+          persistEncryptedUserData();
         }
-      } catch (err) {
-        console.warn('No se pudo procesar la actualización remota de la nube:', err);
+      } else if (update.type === 'tasks') {
+        const incomingJson = JSON.stringify(update.data);
+        const currentJson = JSON.stringify(tasks);
+        if (incomingJson !== currentJson) {
+          tasks = update.data;
+          renderBoard();
+          persistEncryptedUserData();
+          showToast('Tareas y asignaturas sincronizadas en tiempo real ☁️');
+        }
       }
     }
 
     function logoutUser() {
-      if (UniTaskCloudDB.unsubscribeRemoteListener) {
-        UniTaskCloudDB.unsubscribeRemoteListener();
-        UniTaskCloudDB.unsubscribeRemoteListener = null;
+      if (UniTaskCloudDB.unsubscribeAllListeners) {
+        UniTaskCloudDB.unsubscribeAllListeners();
       }
       clearTemporarySession();
       currentUser = null;
@@ -2242,6 +2393,9 @@
         task.completed = !task.completed;
         renderBoard();
         persistEncryptedUserData();
+        if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+          UniTaskCloudDB.saveTask(currentUser.username, task);
+        }
         showToast(task.completed ? '¡Tarea completada! 🎉' : 'Tarea pendiente.');
       }
     };
@@ -2286,6 +2440,9 @@
           tasks = tasks.filter(t => t.id !== taskId);
           renderBoard();
           persistEncryptedUserData();
+          if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+            UniTaskCloudDB.deleteTask(currentUser.username, taskId);
+          }
           showToast('Tarea eliminada.');
         }
       );
@@ -2302,12 +2459,20 @@
           subjects = subjects.filter(s => s.id !== subjectId);
           if (subjects.length > 0) {
             tasks.forEach(t => {
-              if (t.subjectId === subjectId) t.subjectId = subjects[0].id;
+              if (t.subjectId === subjectId) {
+                t.subjectId = subjects[0].id;
+                if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+                  UniTaskCloudDB.saveTask(currentUser.username, t);
+                }
+              }
             });
           }
           refreshSubjectSelects();
           renderBoard();
           persistEncryptedUserData();
+          if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+            UniTaskCloudDB.deleteSubject(currentUser.username, subjectId);
+          }
           showToast('Asignatura eliminada.');
         }
       );
@@ -2381,6 +2546,9 @@
           task.time = time;
           task.description = description;
           task.priority = priority;
+          if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+            UniTaskCloudDB.saveTask(currentUser.username, task);
+          }
           showToast('Tarea actualizada.');
         }
       } else {
@@ -2395,6 +2563,9 @@
           completed: false
         };
         tasks.push(newTask);
+        if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+          UniTaskCloudDB.saveTask(currentUser.username, newTask);
+        }
         showToast('Tarea creada.');
       }
 
@@ -2418,16 +2589,20 @@
 
       if (!name) return;
 
-      subjects.push({
+      const newSub = {
         id: 'sub-' + Date.now(),
         name,
         color
-      });
+      };
+      subjects.push(newSub);
 
       document.getElementById('newSubjectName').value = '';
       refreshSubjectSelects();
       renderBoard();
       persistEncryptedUserData();
+      if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+        UniTaskCloudDB.saveSubject(currentUser.username, newSub);
+      }
       showToast('Asignatura añadida.');
     });
 
@@ -2749,14 +2924,15 @@
         msg.textContent = `¡Conectado exitosamente con Firestore (${config.projectId})!`;
         showToast(`Conectado a Firebase (${config.projectId}) ☁️`);
 
-        // If user is currently logged in, sync current account & vault to cloud
+        // If user is currently logged in, sync current account, subjects & tasks to cloud
         if (currentUser && !currentUser.isGuest) {
-          await persistEncryptedUserData();
           const localUser = await UniTaskDB.getLocalUser(currentUser.username);
           if (localUser) {
             await UniTaskCloudDB.saveUser(localUser);
           }
-          UniTaskCloudDB.listenToRemoteVault(currentUser.username, handleRemoteVaultUpdate);
+          await UniTaskCloudDB.syncAllData(currentUser.username, subjects, tasks);
+          await persistEncryptedUserData();
+          UniTaskCloudDB.listenToUserData(currentUser.username, handleRemoteDataUpdate);
         }
 
         setTimeout(() => {
