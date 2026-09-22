@@ -1,6 +1,6 @@
 {
-  "name": "UniTask - Agenda Universitaria",
-  "short_name": "UniTask",
+  "name": "Studeo - Agenda Universitaria",
+  "short_name": "Studeo",
   "description": "Agenda académica universitaria inteligente, cifrada con AES-256 y 100% offline",
   "start_url": "./index.html",
   "scope": "./",

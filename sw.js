@@ -1,5 +1,5 @@
-/* UniTask Service Worker v1.2 */
-const CACHE_NAME = 'unitask-cache-v3';
+/* Studeo Service Worker v2.0 */
+const CACHE_NAME = 'studeo-cache-v1';
 const STATIC_ASSETS = [
   './',
   './index.html',

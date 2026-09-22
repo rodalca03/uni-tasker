@@ -1,10 +1,10 @@
-# UniTask - Agenda Universitaria Cifrada 🎓📅🔒
+# Studeo - Agenda Universitaria Cifrada 🎓📅🔒
 
 <p align="center">
-  <img src="assets/logo.png" alt="UniTask Logo" width="120" style="border-radius: 24px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);" />
+  <img src="assets/logo.png" alt="Studeo Logo" width="120" style="border-radius: 24px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);" />
 </p>
 
-**UniTask** es un gestor interactivo de entregas, exámenes y plazos académicos para estudiantes universitarios. Integra un sistema de **autenticación de usuarios**, **base de datos local en el navegador (IndexedDB)** y **cifrado criptográfico de grado militar (AES-256-GCM y PBKDF2)** de cero conocimiento (*zero-knowledge encryption*).
+**Studeo** es un gestor interactivo de entregas, exámenes y plazos académicos para estudiantes universitarios. Integra un sistema de **autenticación de usuarios**, **base de datos local en el navegador (IndexedDB)** y **cifrado criptográfico de grado militar (AES-256-GCM y PBKDF2)** de cero conocimiento (*zero-knowledge encryption*).
 
 ---
 
