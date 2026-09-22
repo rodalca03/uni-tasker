@@ -1,5 +1,5 @@
-/* UniTask Service Worker v1.1 */
-const CACHE_NAME = 'unitask-cache-v2';
+/* UniTask Service Worker v1.2 */
+const CACHE_NAME = 'unitask-cache-v3';
 const STATIC_ASSETS = [
   './',
   './index.html',

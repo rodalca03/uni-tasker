@@ -521,7 +521,7 @@
   <main class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 w-full flex-1 flex flex-col pb-28 sm:pb-10 min-w-0">
     
     <!-- Top Bar: Navigation, Filters and Progress in One Line -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs px-3 sm:px-4 py-2 sm:py-2.5 mb-3.5 transition-all min-w-0">
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs px-2.5 sm:px-4 py-2 sm:py-2.5 mb-3.5 transition-all min-w-0 overflow-hidden">
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-2.5 min-w-0">
         
         <!-- Row 1 on mobile / Left group on Desktop: Week Navigation, Range and (on mobile) Progress -->
@@ -575,13 +575,13 @@
         </div>
 
         <!-- Row 2 on mobile / Middle & Right groups on Desktop -->
-        <div class="flex items-center justify-between lg:justify-end gap-2 sm:gap-2.5 min-w-0 flex-1">
+        <div class="flex items-center justify-between lg:justify-end gap-1.5 sm:gap-2.5 min-w-0 flex-1 w-full lg:w-auto">
           <!-- Subject Filter Dropdown -->
-          <div class="relative flex-1 sm:flex-initial min-w-[120px] sm:min-w-[160px] max-w-[200px]">
-            <select id="filterSubject" class="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 py-1 pl-2.5 sm:pl-3 pr-7 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors cursor-pointer appearance-none truncate">
+          <div class="relative flex-1 min-w-0 max-w-full sm:max-w-[200px]">
+            <select id="filterSubject" class="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 py-1 pl-2 sm:pl-3 pr-6 sm:pr-7 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors cursor-pointer appearance-none truncate">
               <option value="ALL">Todas las asignaturas</option>
             </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 sm:px-2 text-slate-400">
               <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
@@ -589,10 +589,10 @@
           </div>
 
           <!-- Status Filter Tabs -->
-          <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0">
-            <button data-filter="all" class="filter-tab-btn px-2 sm:px-3 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-xs">Todas</button>
-            <button data-filter="pending" class="filter-tab-btn px-2 sm:px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-xs">Pendientes</button>
-            <button data-filter="completed" class="filter-tab-btn px-2 sm:px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-xs">Entregadas</button>
+          <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0 max-w-full">
+            <button data-filter="all" class="filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Todas</button>
+            <button data-filter="pending" class="filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Pendientes</button>
+            <button data-filter="completed" class="filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Entregadas</button>
           </div>
 
           <!-- Desktop Weekly Progress Bar & Stats -->
@@ -2117,6 +2117,11 @@
        ========================================================= */
     function renderBoard() {
       const board = document.getElementById('weeklyBoard');
+      const prevMinHeight = board.style.minHeight;
+      const currentHeight = board.offsetHeight;
+      if (currentHeight > 0) {
+        board.style.minHeight = `${currentHeight}px`;
+      }
       board.innerHTML = '';
 
       if (!currentUser) {
@@ -2210,9 +2215,7 @@
 
         dayHeader.onclick = (e) => {
           if (!e.target.closest('button')) {
-            selectedMobileDayIndex = i;
-            renderBoard();
-            scrollToDayStrip();
+            switchMobileDay(i);
           }
         };
 
@@ -2274,6 +2277,9 @@
         col.appendChild(taskContainer);
         board.appendChild(col);
       }
+      requestAnimationFrame(() => {
+        board.style.minHeight = prevMinHeight;
+      });
     }
 
     function getElementDocumentTop(el) {
@@ -2308,6 +2314,28 @@
       }, 40);
     }
 
+    function switchMobileDay(index) {
+      if (selectedMobileDayIndex === index) return;
+      selectedMobileDayIndex = index;
+
+      for (let i = 0; i < 7; i++) {
+        const col = document.getElementById(`day-column-${i}`);
+        if (col) {
+          const isVisible = (mobileViewMode === 'all' || selectedMobileDayIndex === i);
+          if (isVisible) {
+            col.classList.remove('hidden');
+            if (!col.classList.contains('flex')) col.classList.add('flex');
+            if (!col.classList.contains('w-full')) col.classList.add('w-full');
+          } else {
+            col.classList.remove('flex', 'w-full');
+            if (!col.classList.contains('hidden')) col.classList.add('hidden');
+          }
+        }
+      }
+
+      renderMobileDayStrip();
+    }
+
     function renderMobileDayStrip() {
       const container = document.getElementById('mobileDayStrip');
       container.innerHTML = '';
@@ -2336,9 +2364,7 @@
         }`;
 
         btn.onclick = () => {
-          selectedMobileDayIndex = i;
-          renderBoard();
-          scrollToDayStrip();
+          switchMobileDay(i);
         };
 
         btn.innerHTML = `
@@ -3199,9 +3225,9 @@
     document.querySelectorAll('.filter-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-tab-btn').forEach(b => {
-          b.className = 'filter-tab-btn px-2.5 sm:px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-xs';
+          b.className = 'filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center';
         });
-        btn.className = 'filter-tab-btn px-2.5 sm:px-3 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-xs';
+        btn.className = 'filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center';
         activeFilter = btn.getAttribute('data-filter');
         renderBoard();
       });
