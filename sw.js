@@ -1,5 +1,5 @@
-/* Studeo Service Worker v2.0 */
-const CACHE_NAME = 'studeo-cache-v1';
+/* Studeo Service Worker v2.1 */
+const CACHE_NAME = 'studeo-cache-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',

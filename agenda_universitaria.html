@@ -219,6 +219,43 @@
     .day-col-4 { animation-delay: 0.15s; }
     .day-col-5 { animation-delay: 0.18s; }
     .day-col-6 { animation-delay: 0.21s; }
+
+    /* Task Description Editor & Smart Hyperlinks */
+    .task-desc-editor:empty:before {
+      content: attr(data-placeholder);
+      color: #94a3b8;
+      pointer-events: none;
+      font-size: 0.875rem;
+    }
+    .task-inline-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.15rem 0.55rem;
+      margin: 0.1rem 0.15rem;
+      border-radius: 0.625rem;
+      background-color: #eef2ff;
+      color: #4338ca;
+      border: 1px solid #c7d2fe;
+      font-weight: 700;
+      font-size: 0.8125rem;
+      line-height: 1.25rem;
+      text-decoration: none;
+      vertical-align: middle;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 2px 0 rgba(99, 102, 241, 0.08);
+    }
+    .task-inline-link:hover {
+      background-color: #e0e7ff;
+      color: #3730a3;
+      border-color: #a5b4fc;
+      transform: translateY(-0.5px);
+    }
+    .task-card-link {
+      word-break: break-word;
+    }
   </style>
 </head>
 <body class="h-full flex flex-col text-slate-800 bg-slate-100/90 select-none sm:select-auto overflow-x-hidden w-full">
@@ -752,13 +789,69 @@
           </div>
         </div>
 
-        <!-- Description -->
-        <div class="min-w-0">
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="taskDesc">
-            Descripción
-          </label>
-          <textarea id="taskDesc" rows="2" placeholder="Formato de entrega, pautas o enlace al campus virtual..."
-                    class="w-full text-base sm:text-sm px-4 py-3 sm:py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-2xs resize-none"></textarea>
+        <!-- Description with Smart Hyperlink Detection -->
+        <div class="min-w-0 relative">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600" for="taskDesc">
+              Descripción
+            </label>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] font-semibold text-slate-400 hidden xs:inline-flex items-center gap-1">
+                <svg class="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                Enlaces inteligentes
+              </span>
+              <button type="button" id="btnManualAddLink" title="Insertar hipervínculo" class="text-slate-400 hover:text-indigo-600 p-0.5 rounded transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Description Editor Box -->
+          <div id="taskDescEditorContainer" class="relative">
+            <div id="taskDesc" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="false"
+                 data-placeholder="Formato de entrega, pautas o enlace al campus virtual..."
+                 class="task-desc-editor w-full text-base sm:text-sm px-4 py-3 rounded-2xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-2xs min-h-[76px] max-h-[160px] overflow-y-auto break-words leading-relaxed text-slate-800"></div>
+
+            <!-- Floating Link Popover ("Ventana pequeña encima del enlace") -->
+            <div id="linkPopover" class="hidden absolute z-50 w-[calc(100vw-3.5rem)] max-w-[310px] sm:max-w-[330px] bg-white/98 backdrop-blur-md border border-indigo-100 shadow-xl shadow-indigo-500/15 rounded-2xl p-3.5 transition-all duration-150 pointer-events-auto">
+              <!-- Pointer Arrow -->
+              <div id="linkPopoverArrow" class="absolute -bottom-1.5 w-3 h-3 bg-white border-r border-b border-indigo-100 rotate-45"></div>
+
+              <!-- Header with link icon and URL preview -->
+              <div class="flex items-center justify-between gap-1 mb-1.5">
+                <div class="flex items-center gap-1.5 text-xs font-extrabold text-indigo-700 min-w-0">
+                  <div class="w-5 h-5 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center flex-shrink-0 text-indigo-600">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                  </div>
+                  <span class="truncate">Enlace detectado</span>
+                </div>
+                <button type="button" id="btnCancelLinkPopover" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition" title="Cerrar">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+
+              <!-- Truncated URL Preview -->
+              <div id="popoverUrlPreview" class="text-[11px] font-mono text-slate-500 bg-slate-50 border border-slate-200/80 rounded-lg px-2 py-1 truncate mb-2.5" title=""></div>
+
+              <!-- Input for custom words to replace link -->
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1" for="popoverLinkText">
+                Texto a mostrar (sustituir enlace):
+              </label>
+              <input type="text" id="popoverLinkText" placeholder="Ej: Campus Virtual, Guía del proyecto..."
+                     class="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white transition mb-3" />
+
+              <!-- Action buttons -->
+              <div class="flex items-center justify-end gap-2">
+                <button type="button" id="btnKeepRawUrl" class="px-2.5 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition">
+                  Dejar URL
+                </button>
+                <button type="button" id="btnApplyLinkText" class="px-3.5 py-1.5 text-xs font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs flex items-center gap-1.5 transition">
+                  <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span>Aceptar</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Attachments Section (Photos & PDFs) -->
@@ -2431,8 +2524,8 @@
         </div>
 
         ${task.description ? `
-          <p class="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed break-words mb-3 min-w-0 ${task.completed ? 'opacity-50' : ''}">
-            ${escapeHtml(task.description)}
+          <p class="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed break-words mb-3 min-w-0 ${task.completed ? 'opacity-50' : ''}">
+            ${renderDescriptionForCard(task.description)}
           </p>
         ` : ''}
 
@@ -2578,6 +2671,465 @@
       card.onclick = () => editTask(task.id);
       return card;
     }
+
+    /* =========================================================
+       SMART HYPERLINK DETECTION & DESCRIPTION RICH EDITOR
+       ========================================================= */
+    let pendingLinkState = null;
+
+    function createInlineLinkElement(label, url) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.setAttribute('data-url', url);
+      a.setAttribute('contenteditable', 'false');
+      a.className = 'task-inline-link inline-flex items-center gap-1.5 px-2.5 py-1 my-0.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200/90 font-bold text-xs sm:text-[13px] shadow-2xs cursor-pointer select-none transition-all group align-baseline';
+      a.setAttribute('title', `Abrir ${url} (clic)`);
+
+      a.innerHTML = `
+        <svg class="w-3.5 h-3.5 text-indigo-500 group-hover:scale-110 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+        </svg>
+        <span class="link-label underline underline-offset-2 decoration-indigo-300 group-hover:decoration-indigo-600">${escapeHtml(label)}</span>
+        <svg class="w-3 h-3 text-indigo-400 group-hover:text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+      `;
+
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.open(url, '_blank', 'noopener,noreferrer');
+      });
+
+      return a;
+    }
+
+    function getTaskDescContent() {
+      const el = document.getElementById('taskDesc');
+      if (!el) return '';
+
+      function serializeNode(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          return node.textContent;
+        }
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (node.classList.contains('task-inline-link') || node.tagName === 'A') {
+            const url = node.getAttribute('data-url') || node.getAttribute('href') || '';
+            const textSpan = node.querySelector('.link-label') || node;
+            const text = textSpan.textContent.trim() || url;
+            return `[${text}](${url})`;
+          }
+          if (node.id === 'activeLinkDetector') {
+            return node.getAttribute('data-raw-url') || node.textContent;
+          }
+          if (node.tagName === 'BR') {
+            return '\n';
+          }
+          let inner = '';
+          node.childNodes.forEach(child => {
+            inner += serializeNode(child);
+          });
+          if (node.tagName === 'DIV' || node.tagName === 'P') {
+            return '\n' + inner;
+          }
+          return inner;
+        }
+        return '';
+      }
+
+      let result = '';
+      el.childNodes.forEach(child => {
+        result += serializeNode(child);
+      });
+      return result.replace(/^\n+/, '').trim();
+    }
+
+    function setTaskDescContent(raw) {
+      const el = document.getElementById('taskDesc');
+      if (!el) return;
+      el.innerHTML = '';
+      if (!raw) return;
+
+      const combinedRegex = /\[([^\]]+)\]\(((?:https?:\/\/|www\.)[^\s)]+)\)|((?:https?:\/\/|www\.)[^\s<]+)/gi;
+      let lastIndex = 0;
+      let match;
+
+      function appendText(text) {
+        if (!text) return;
+        const parts = text.split('\n');
+        parts.forEach((p, i) => {
+          if (i > 0) el.appendChild(document.createElement('br'));
+          if (p) el.appendChild(document.createTextNode(p));
+        });
+      }
+
+      while ((match = combinedRegex.exec(raw)) !== null) {
+        if (match.index > lastIndex) {
+          appendText(raw.slice(lastIndex, match.index));
+        }
+
+        if (match[1] && match[2]) {
+          const label = match[1];
+          const url = match[2].startsWith('http://') || match[2].startsWith('https://') ? match[2] : `https://${match[2]}`;
+          el.appendChild(createInlineLinkElement(label, url));
+          el.appendChild(document.createTextNode('\u00A0'));
+        } else if (match[3]) {
+          const rawUrl = match[3];
+          const url = rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : `https://${rawUrl}`;
+          let label = rawUrl;
+          try {
+            const u = new URL(url);
+            label = u.hostname.replace('www.', '');
+          } catch {}
+          el.appendChild(createInlineLinkElement(label, url));
+          el.appendChild(document.createTextNode('\u00A0'));
+        }
+
+        lastIndex = combinedRegex.lastIndex;
+      }
+
+      if (lastIndex < raw.length) {
+        appendText(raw.slice(lastIndex));
+      }
+    }
+
+    function renderDescriptionForCard(raw) {
+      if (!raw) return '';
+      const combinedRegex = /\[([^\]]+)\]\(((?:https?:\/\/|www\.)[^\s)]+)\)|((?:https?:\/\/|www\.)[^\s<]+)/gi;
+      let lastIndex = 0;
+      let html = '';
+      let match;
+
+      while ((match = combinedRegex.exec(raw)) !== null) {
+        if (match.index > lastIndex) {
+          html += escapeHtml(raw.slice(lastIndex, match.index));
+        }
+
+        if (match[1] && match[2]) {
+          const label = match[1];
+          const url = match[2].startsWith('http://') || match[2].startsWith('https://') ? match[2] : `https://${match[2]}`;
+          html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Abrir ${escapeHtml(url)}" class="task-card-link inline-flex items-center gap-1 font-bold text-indigo-600 hover:text-indigo-800 underline underline-offset-2 decoration-indigo-300 hover:decoration-indigo-600 transition-colors cursor-pointer px-1 py-0.5 rounded-md hover:bg-indigo-50/80"><span>${escapeHtml(label)}</span><svg class="w-3 h-3 inline-block stroke-[2.2] text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>`;
+        } else if (match[3]) {
+          const rawUrl = match[3];
+          const url = rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : `https://${rawUrl}`;
+          let label = rawUrl;
+          try {
+            const u = new URL(url);
+            label = u.hostname.replace('www.', '');
+          } catch {}
+          html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="Abrir ${escapeHtml(url)}" class="task-card-link inline-flex items-center gap-1 font-semibold text-indigo-600 hover:text-indigo-800 underline underline-offset-2 decoration-indigo-300 hover:decoration-indigo-600 transition-colors cursor-pointer px-1 py-0.5 rounded-md hover:bg-indigo-50/80"><span>${escapeHtml(label)}</span><svg class="w-3 h-3 inline-block stroke-[2.2] text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>`;
+        }
+
+        lastIndex = combinedRegex.lastIndex;
+      }
+
+      if (lastIndex < raw.length) {
+        html += escapeHtml(raw.slice(lastIndex));
+      }
+
+      return html;
+    }
+
+    function openLinkPopoverForSpan(span, rawUrl) {
+      const popover = document.getElementById('linkPopover');
+      const arrow = document.getElementById('linkPopoverArrow');
+      const container = document.getElementById('taskDescEditorContainer');
+      const urlPreview = document.getElementById('popoverUrlPreview');
+      const input = document.getElementById('popoverLinkText');
+      if (!popover || !container || !span) return;
+
+      const cleanUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : `https://${rawUrl}`;
+      pendingLinkState = { span, rawUrl, cleanUrl };
+
+      urlPreview.textContent = cleanUrl;
+      urlPreview.title = cleanUrl;
+
+      let placeholderText = 'Ej: Campus Virtual, Guía...';
+      try {
+        const u = new URL(cleanUrl);
+        const host = u.hostname.replace('www.', '');
+        placeholderText = `Ej: ${host}`;
+      } catch {}
+      input.placeholder = placeholderText;
+      input.value = '';
+
+      popover.classList.remove('hidden');
+
+      const containerRect = container.getBoundingClientRect();
+      const spanRect = span.getBoundingClientRect();
+      const popoverWidth = popover.offsetWidth || 300;
+      const popoverHeight = popover.offsetHeight || 160;
+
+      let left = (spanRect.left - containerRect.left) + (spanRect.width / 2) - (popoverWidth / 2);
+      const minLeft = 6;
+      const maxLeft = containerRect.width - popoverWidth - 6;
+      left = Math.max(minLeft, Math.min(maxLeft, left));
+
+      // Check space above inside modal panel
+      const modalPanel = document.querySelector('#taskModal .modal-panel');
+      const modalPanelRect = modalPanel ? modalPanel.getBoundingClientRect() : { top: 0 };
+      const spaceAbove = spanRect.top - modalPanelRect.top;
+
+      let isAbove = spaceAbove >= popoverHeight + 15;
+      let top;
+
+      if (isAbove) {
+        top = (spanRect.top - containerRect.top) - popoverHeight - 12;
+      } else {
+        top = (spanRect.bottom - containerRect.top) + 12;
+      }
+
+      if (arrow) {
+        const spanCenter = (spanRect.left - containerRect.left) + (spanRect.width / 2);
+        const arrowLeft = Math.max(16, Math.min(popoverWidth - 16, spanCenter - left));
+        arrow.style.left = `${arrowLeft}px`;
+        if (isAbove) {
+          arrow.className = 'absolute -bottom-1.5 w-3 h-3 bg-white border-r border-b border-indigo-100 rotate-45';
+        } else {
+          arrow.className = 'absolute -top-1.5 w-3 h-3 bg-white border-l border-t border-indigo-100 rotate-45';
+        }
+      }
+
+      popover.style.top = `${top}px`;
+      popover.style.left = `${left}px`;
+
+      setTimeout(() => {
+        input.focus();
+        input.select();
+      }, 50);
+    }
+
+    function closeLinkPopover() {
+      const popover = document.getElementById('linkPopover');
+      if (popover) {
+        popover.classList.add('hidden');
+      }
+      pendingLinkState = null;
+    }
+
+    function applyLinkPopover() {
+      if (!pendingLinkState || !pendingLinkState.span) {
+        closeLinkPopover();
+        return;
+      }
+      const { span, cleanUrl } = pendingLinkState;
+      const input = document.getElementById('popoverLinkText');
+      let label = input.value.trim();
+      if (!label) {
+        try {
+          const u = new URL(cleanUrl);
+          label = u.hostname.replace('www.', '');
+        } catch {
+          label = cleanUrl;
+        }
+      }
+
+      const linkEl = createInlineLinkElement(label, cleanUrl);
+      const space = document.createTextNode('\u00A0');
+
+      if (span.parentNode) {
+        span.parentNode.replaceChild(linkEl, span);
+        linkEl.parentNode.insertBefore(space, linkEl.nextSibling);
+
+        const sel = window.getSelection();
+        if (sel) {
+          const range = document.createRange();
+          range.setStartAfter(space);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+
+      closeLinkPopover();
+      const editor = document.getElementById('taskDesc');
+      if (editor) editor.focus();
+    }
+
+    function cancelLinkPopover(keepRaw = true) {
+      if (pendingLinkState && pendingLinkState.span) {
+        const { span, rawUrl } = pendingLinkState;
+        if (span.parentNode) {
+          if (keepRaw) {
+            const textNode = document.createTextNode(rawUrl + ' ');
+            span.parentNode.replaceChild(textNode, span);
+          } else {
+            span.remove();
+          }
+        }
+      }
+      closeLinkPopover();
+      const editor = document.getElementById('taskDesc');
+      if (editor) editor.focus();
+    }
+
+    function initTaskDescriptionEditor() {
+      const editor = document.getElementById('taskDesc');
+      if (!editor) return;
+
+      try {
+        Object.defineProperty(editor, 'value', {
+          get() {
+            return getTaskDescContent();
+          },
+          set(val) {
+            setTaskDescContent(val);
+          },
+          configurable: true
+        });
+      } catch (err) {
+        console.warn('Could not defineProperty on taskDesc:', err);
+      }
+
+      editor.addEventListener('paste', (e) => {
+        const pasteText = (e.clipboardData || window.clipboardData).getData('text');
+        if (!pasteText) return;
+
+        const urlRegex = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/i;
+        const match = pasteText.match(urlRegex);
+        if (match) {
+          e.preventDefault();
+          const rawUrl = match[0];
+          const before = pasteText.slice(0, match.index);
+          const after = pasteText.slice(match.index + rawUrl.length);
+
+          if (before) {
+            document.execCommand('insertText', false, before);
+          }
+
+          const span = document.createElement('span');
+          span.id = 'activeLinkDetector';
+          span.className = 'bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded font-mono text-xs border border-indigo-300 animate-pulse';
+          span.textContent = rawUrl;
+          span.setAttribute('data-raw-url', rawUrl);
+
+          const sel = window.getSelection();
+          if (sel && sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(span);
+            range.setStartAfter(span);
+            range.setEndAfter(span);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          } else {
+            editor.appendChild(span);
+          }
+
+          if (after) {
+            document.execCommand('insertText', false, after);
+          }
+
+          openLinkPopoverForSpan(span, rawUrl);
+        }
+      });
+
+      editor.addEventListener('keyup', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          const sel = window.getSelection();
+          if (!sel || !sel.anchorNode) return;
+          const node = sel.anchorNode;
+          if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent;
+            const caretPos = sel.anchorOffset;
+            const textBeforeCaret = text.slice(0, caretPos);
+            const match = textBeforeCaret.match(/(?:^|\s)((?:https?:\/\/|www\.)[^\s<]+)\s$/i);
+            if (match && match[1]) {
+              const url = match[1];
+              const urlStart = textBeforeCaret.lastIndexOf(url);
+              if (urlStart >= 0) {
+                const range = document.createRange();
+                range.setStart(node, urlStart);
+                range.setEnd(node, urlStart + url.length);
+
+                const span = document.createElement('span');
+                span.id = 'activeLinkDetector';
+                span.className = 'bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded font-mono text-xs border border-indigo-300 animate-pulse';
+                span.textContent = url;
+                span.setAttribute('data-raw-url', url);
+
+                range.deleteContents();
+                range.insertNode(span);
+
+                openLinkPopoverForSpan(span, url);
+              }
+            }
+          }
+        }
+      });
+
+      const btnApply = document.getElementById('btnApplyLinkText');
+      if (btnApply) {
+        btnApply.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          applyLinkPopover();
+        });
+      }
+
+      const btnKeepRaw = document.getElementById('btnKeepRawUrl');
+      if (btnKeepRaw) {
+        btnKeepRaw.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          cancelLinkPopover(true);
+        });
+      }
+
+      const btnCancel = document.getElementById('btnCancelLinkPopover');
+      if (btnCancel) {
+        btnCancel.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          cancelLinkPopover(true);
+        });
+      }
+
+      const input = document.getElementById('popoverLinkText');
+      if (input) {
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            applyLinkPopover();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            cancelLinkPopover(true);
+          }
+        });
+      }
+
+      const btnManual = document.getElementById('btnManualAddLink');
+      if (btnManual) {
+        btnManual.addEventListener('click', () => {
+          const raw = prompt('Introduce la dirección web (ej: https://campus.universidad.es):');
+          if (raw && raw.trim()) {
+            const clean = raw.trim();
+            const span = document.createElement('span');
+            span.id = 'activeLinkDetector';
+            span.className = 'bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded font-mono text-xs border border-indigo-300 animate-pulse';
+            span.textContent = clean;
+            span.setAttribute('data-raw-url', clean);
+            editor.appendChild(span);
+            openLinkPopoverForSpan(span, clean);
+          }
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        const popover = document.getElementById('linkPopover');
+        const container = document.getElementById('taskDescEditorContainer');
+        if (popover && !popover.classList.contains('hidden')) {
+          if (!popover.contains(e.target) && (!container || !container.contains(e.target))) {
+            cancelLinkPopover(true);
+          }
+        }
+      });
+    }
+    initTaskDescriptionEditor();
 
     /* Modal Animation Helpers */
     function openModalEl(modalEl) {
@@ -2877,6 +3429,8 @@
     window.openNewTaskForDate = function(dateYmd) {
       document.getElementById('taskIdInput').value = '';
       document.getElementById('taskForm').reset();
+      setTaskDescContent('');
+      closeLinkPopover();
       document.getElementById('modalTitle').textContent = 'Nueva tarea';
       document.getElementById('taskDate').value = dateYmd;
       document.getElementById('taskTime').value = '23:59';
@@ -2898,7 +3452,8 @@
       document.getElementById('taskSubject').value = task.subjectId;
       document.getElementById('taskDate').value = task.date;
       document.getElementById('taskTime').value = task.time || '23:59';
-      document.getElementById('taskDesc').value = task.description || '';
+      setTaskDescContent(task.description || '');
+      closeLinkPopover();
       document.getElementById('taskPriority').value = task.priority || 'medium';
 
       currentEditingTaskAttachments = task.attachments ? JSON.parse(JSON.stringify(task.attachments)) : [];
@@ -3058,9 +3613,11 @@
     document.getElementById('mobileFabNewTask').addEventListener('click', openDefaultNewTask);
 
     document.getElementById('btnCloseTaskModal').addEventListener('click', () => {
+      closeLinkPopover();
       closeModalEl(document.getElementById('taskModal'));
     });
     document.getElementById('btnCancelTaskModal').addEventListener('click', () => {
+      closeLinkPopover();
       closeModalEl(document.getElementById('taskModal'));
     });
 
@@ -3071,7 +3628,7 @@
       const subjectId = document.getElementById('taskSubject').value;
       const date = document.getElementById('taskDate').value;
       const time = document.getElementById('taskTime').value;
-      const description = document.getElementById('taskDesc').value.trim();
+      const description = getTaskDescContent();
       const priority = document.getElementById('taskPriority').value;
 
       if (!title || !date || !subjectId) return;
@@ -3571,6 +4128,7 @@
        APP BOOTSTRAP (WITH RELOAD SESSION PERSISTENCE & CLOUD)
        ========================================================= */
     window.onload = async function() {
+      initTaskDescriptionEditor();
       await UniTaskDB.init();
       await UniTaskCloudDB.init();
       await checkUrlCloudConfig();
