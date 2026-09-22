@@ -2909,14 +2909,36 @@
       pendingLinkState = null;
     }
 
+    let dismissedUrls = new Set();
+    let inputDebounceTimer = null;
+
+    function scrubRawUrlFromEditor(urlToRemove) {
+      if (!urlToRemove) return;
+      const editor = document.getElementById('taskDesc');
+      if (!editor) return;
+
+      function cleanInNode(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          if (node.textContent && node.textContent.includes(urlToRemove)) {
+            node.textContent = node.textContent.split(urlToRemove).join('').replace(/[ \t]{2,}/g, ' ');
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          if (!node.classList.contains('task-inline-link') && node.id !== 'activeLinkDetector') {
+            Array.from(node.childNodes).forEach(cleanInNode);
+          }
+        }
+      }
+      cleanInNode(editor);
+    }
+
     function applyLinkPopover() {
       if (!pendingLinkState || !pendingLinkState.span) {
         closeLinkPopover();
         return;
       }
-      const { span, cleanUrl } = pendingLinkState;
+      const { span, rawUrl, cleanUrl } = pendingLinkState;
       const input = document.getElementById('popoverLinkText');
-      let label = input.value.trim();
+      let label = input ? input.value.trim() : '';
       if (!label) {
         try {
           const u = new URL(cleanUrl);
@@ -2943,6 +2965,12 @@
         }
       }
 
+      // CRITICAL: Guarantee previous raw URL completely disappears from text
+      scrubRawUrlFromEditor(rawUrl);
+      if (cleanUrl !== rawUrl) {
+        scrubRawUrlFromEditor(cleanUrl);
+      }
+
       closeLinkPopover();
       const editor = document.getElementById('taskDesc');
       if (editor) editor.focus();
@@ -2951,18 +2979,91 @@
     function cancelLinkPopover(keepRaw = true) {
       if (pendingLinkState && pendingLinkState.span) {
         const { span, rawUrl } = pendingLinkState;
-        if (span.parentNode) {
-          if (keepRaw) {
-            const textNode = document.createTextNode(rawUrl + ' ');
+        if (keepRaw) {
+          dismissedUrls.add(rawUrl);
+          const textNode = document.createTextNode(rawUrl + ' ');
+          if (span.parentNode) {
             span.parentNode.replaceChild(textNode, span);
-          } else {
-            span.remove();
           }
+        } else {
+          if (span.parentNode) span.remove();
         }
       }
       closeLinkPopover();
       const editor = document.getElementById('taskDesc');
       if (editor) editor.focus();
+    }
+
+    function detectAndHighlightUrl() {
+      const editor = document.getElementById('taskDesc');
+      if (!editor) return;
+
+      // If active detector or popover is already visible, do not re-trigger
+      if (document.getElementById('activeLinkDetector')) return;
+      const popover = document.getElementById('linkPopover');
+      if (popover && !popover.classList.contains('hidden')) return;
+
+      const textNodes = [];
+      function collectTextNodes(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const parentEl = node.parentElement;
+          if (!parentEl || (!parentEl.closest('.task-inline-link') && !parentEl.closest('#activeLinkDetector'))) {
+            textNodes.push(node);
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          if (node.classList.contains('task-inline-link') || node.id === 'activeLinkDetector' || node.id === 'linkPopover') {
+            return;
+          }
+          Array.from(node.childNodes).forEach(collectTextNodes);
+        }
+      }
+      collectTextNodes(editor);
+
+      const urlRegex = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/i;
+
+      for (const textNode of textNodes) {
+        const text = textNode.textContent;
+        const match = text.match(urlRegex);
+        if (match) {
+          let rawUrl = match[0];
+
+          // Strip sentence-ending punctuation from URL
+          while (/[.,;:!?)>\]]$/.test(rawUrl)) {
+            rawUrl = rawUrl.slice(0, -1);
+          }
+
+          if (rawUrl.length < 5) continue;
+          if (dismissedUrls.has(rawUrl)) continue;
+
+          const urlIndex = text.indexOf(rawUrl);
+          if (urlIndex === -1) continue;
+
+          const beforeText = text.substring(0, urlIndex);
+          const afterText = text.substring(urlIndex + rawUrl.length);
+
+          const parent = textNode.parentNode;
+          if (!parent) continue;
+
+          const span = document.createElement('span');
+          span.id = 'activeLinkDetector';
+          span.className = 'bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded font-mono text-xs border border-indigo-300 animate-pulse';
+          span.textContent = rawUrl;
+          span.setAttribute('data-raw-url', rawUrl);
+
+          const docFrag = document.createDocumentFragment();
+          if (beforeText) {
+            docFrag.appendChild(document.createTextNode(beforeText));
+          }
+          docFrag.appendChild(span);
+          if (afterText) {
+            docFrag.appendChild(document.createTextNode(afterText));
+          }
+
+          parent.replaceChild(docFrag, textNode);
+          openLinkPopoverForSpan(span, rawUrl);
+          break;
+        }
+      }
     }
 
     function initTaskDescriptionEditor() {
@@ -2983,83 +3084,43 @@
         console.warn('Could not defineProperty on taskDesc:', err);
       }
 
-      editor.addEventListener('paste', (e) => {
-        const pasteText = (e.clipboardData || window.clipboardData).getData('text');
-        if (!pasteText) return;
-
-        const urlRegex = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/i;
-        const match = pasteText.match(urlRegex);
-        if (match) {
-          e.preventDefault();
-          const rawUrl = match[0];
-          const before = pasteText.slice(0, match.index);
-          const after = pasteText.slice(match.index + rawUrl.length);
-
-          if (before) {
-            document.execCommand('insertText', false, before);
-          }
-
-          const span = document.createElement('span');
-          span.id = 'activeLinkDetector';
-          span.className = 'bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded font-mono text-xs border border-indigo-300 animate-pulse';
-          span.textContent = rawUrl;
-          span.setAttribute('data-raw-url', rawUrl);
-
-          const sel = window.getSelection();
-          if (sel && sel.rangeCount > 0) {
-            const range = sel.getRangeAt(0);
-            range.deleteContents();
-            range.insertNode(span);
-            range.setStartAfter(span);
-            range.setEndAfter(span);
-            sel.removeAllRanges();
-            sel.addRange(range);
-          } else {
-            editor.appendChild(span);
-          }
-
-          if (after) {
-            document.execCommand('insertText', false, after);
-          }
-
-          openLinkPopoverForSpan(span, rawUrl);
+      // Universal Mobile & Desktop input listener (catches typing, virtual keyboards, autocorrect, paste)
+      editor.addEventListener('input', (e) => {
+        const isSeparator = e.data === ' ' || e.data === '\n' || e.inputType === 'insertParagraph' || e.inputType === 'insertLineBreak' || e.inputType === 'insertFromPaste';
+        if (isSeparator) {
+          detectAndHighlightUrl();
+        } else {
+          clearTimeout(inputDebounceTimer);
+          inputDebounceTimer = setTimeout(() => {
+            detectAndHighlightUrl();
+          }, 350);
         }
       });
 
+      // Mobile & Desktop paste listeners
+      editor.addEventListener('paste', () => {
+        setTimeout(detectAndHighlightUrl, 30);
+      });
+
+      editor.addEventListener('beforeinput', (e) => {
+        if (e.inputType === 'insertFromPaste') {
+          setTimeout(detectAndHighlightUrl, 30);
+        }
+      });
+
+      // Keyboard keyup fallback for desktop
       editor.addEventListener('keyup', (e) => {
         if (e.key === ' ' || e.key === 'Enter') {
-          const sel = window.getSelection();
-          if (!sel || !sel.anchorNode) return;
-          const node = sel.anchorNode;
-          if (node.nodeType === Node.TEXT_NODE) {
-            const text = node.textContent;
-            const caretPos = sel.anchorOffset;
-            const textBeforeCaret = text.slice(0, caretPos);
-            const match = textBeforeCaret.match(/(?:^|\s)((?:https?:\/\/|www\.)[^\s<]+)\s$/i);
-            if (match && match[1]) {
-              const url = match[1];
-              const urlStart = textBeforeCaret.lastIndexOf(url);
-              if (urlStart >= 0) {
-                const range = document.createRange();
-                range.setStart(node, urlStart);
-                range.setEnd(node, urlStart + url.length);
-
-                const span = document.createElement('span');
-                span.id = 'activeLinkDetector';
-                span.className = 'bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded font-mono text-xs border border-indigo-300 animate-pulse';
-                span.textContent = url;
-                span.setAttribute('data-raw-url', url);
-
-                range.deleteContents();
-                range.insertNode(span);
-
-                openLinkPopoverForSpan(span, url);
-              }
-            }
-          }
+          detectAndHighlightUrl();
         }
       });
 
+      // Blur fallback (e.g. user finished typing or pasting and taps outside)
+      editor.addEventListener('blur', () => {
+        setTimeout(detectAndHighlightUrl, 100);
+      });
+
+      // Popover Action Buttons
       const btnApply = document.getElementById('btnApplyLinkText');
       if (btnApply) {
         btnApply.addEventListener('click', (e) => {
@@ -3102,23 +3163,25 @@
         });
       }
 
+      // Manual add link button (🔗)
       const btnManual = document.getElementById('btnManualAddLink');
       if (btnManual) {
         btnManual.addEventListener('click', () => {
+          // If editor already has a raw URL waiting, detect it immediately
+          detectAndHighlightUrl();
+          if (document.getElementById('activeLinkDetector')) return;
+
           const raw = prompt('Introduce la dirección web (ej: https://campus.universidad.es):');
           if (raw && raw.trim()) {
             const clean = raw.trim();
-            const span = document.createElement('span');
-            span.id = 'activeLinkDetector';
-            span.className = 'bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded font-mono text-xs border border-indigo-300 animate-pulse';
-            span.textContent = clean;
-            span.setAttribute('data-raw-url', clean);
-            editor.appendChild(span);
-            openLinkPopoverForSpan(span, clean);
+            editor.focus();
+            document.execCommand('insertText', false, clean + ' ');
+            detectAndHighlightUrl();
           }
         });
       }
 
+      // Dismiss popover if user taps outside
       document.addEventListener('click', (e) => {
         const popover = document.getElementById('linkPopover');
         const container = document.getElementById('taskDescEditorContainer');
@@ -3429,6 +3492,7 @@
     window.openNewTaskForDate = function(dateYmd) {
       document.getElementById('taskIdInput').value = '';
       document.getElementById('taskForm').reset();
+      dismissedUrls.clear();
       setTaskDescContent('');
       closeLinkPopover();
       document.getElementById('modalTitle').textContent = 'Nueva tarea';
@@ -3452,6 +3516,7 @@
       document.getElementById('taskSubject').value = task.subjectId;
       document.getElementById('taskDate').value = task.date;
       document.getElementById('taskTime').value = task.time || '23:59';
+      dismissedUrls.clear();
       setTaskDescContent(task.description || '');
       closeLinkPopover();
       document.getElementById('taskPriority').value = task.priority || 'medium';
