@@ -220,6 +220,75 @@
     .day-col-5 { animation-delay: 0.18s; }
     .day-col-6 { animation-delay: 0.21s; }
 
+    /* Transiciones suaves al cambiar entre días */
+    @keyframes daySlideInRight {
+      0% {
+        opacity: 0;
+        transform: translate3d(24px, 0, 0);
+      }
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    @keyframes daySlideInLeft {
+      0% {
+        opacity: 0;
+        transform: translate3d(-24px, 0, 0);
+      }
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    @keyframes dayFadeOutLeft {
+      0% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(-20px, 0, 0);
+      }
+    }
+
+    @keyframes dayFadeOutRight {
+      0% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(20px, 0, 0);
+      }
+    }
+
+    .day-transition-in-right {
+      animation: daySlideInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      animation-delay: 0s !important;
+      will-change: transform, opacity;
+    }
+
+    .day-transition-in-left {
+      animation: daySlideInLeft 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      animation-delay: 0s !important;
+      will-change: transform, opacity;
+    }
+
+    .day-transition-out-left {
+      animation: dayFadeOutLeft 0.12s ease-in forwards !important;
+      animation-delay: 0s !important;
+      will-change: transform, opacity;
+    }
+
+    .day-transition-out-right {
+      animation: dayFadeOutRight 0.12s ease-in forwards !important;
+      animation-delay: 0s !important;
+      will-change: transform, opacity;
+    }
+
     /* Task Description Editor & Smart Hyperlinks */
     .task-desc-editor:empty:before {
       content: attr(data-placeholder);
@@ -2455,26 +2524,132 @@
       }, 40);
     }
 
+    let dayTransitionTimer = null;
+
     function switchMobileDay(index) {
       if (selectedMobileDayIndex === index) return;
+      const prevIndex = selectedMobileDayIndex;
+      const isForward = index > prevIndex;
       selectedMobileDayIndex = index;
 
+      // 1. En Desktop (>= 1024px): scroll horizontal suave hacia la columna seleccionada
+      if (window.innerWidth >= 1024) {
+        const board = document.getElementById('weeklyBoard');
+        const targetCol = document.getElementById(`day-column-${index}`);
+        if (board && targetCol && board.scrollWidth > board.clientWidth) {
+          const boardRect = board.getBoundingClientRect();
+          const colRect = targetCol.getBoundingClientRect();
+          const targetLeft = colRect.left - boardRect.left + board.scrollLeft;
+          board.scrollTo({
+            left: Math.max(0, targetLeft),
+            behavior: 'smooth'
+          });
+        }
+        return;
+      }
+
+      // 2. Modo móvil lista completa (all): scroll vertical suave hacia el día
+      if (mobileViewMode === 'all') {
+        const targetCol = document.getElementById(`day-column-${index}`);
+        if (targetCol) {
+          targetCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        renderMobileDayStrip();
+        return;
+      }
+
+      // 3. Modo móvil por día (single): transición suave direccional (slide & fade)
+      const board = document.getElementById('weeklyBoard');
+      const prevCol = document.getElementById(`day-column-${prevIndex}`);
+      const nextCol = document.getElementById(`day-column-${index}`);
+
+      if (dayTransitionTimer) {
+        clearTimeout(dayTransitionTimer);
+        dayTransitionTimer = null;
+      }
+
+      // Limpiar clases de animación previas de todas las columnas
       for (let i = 0; i < 7; i++) {
-        const col = document.getElementById(`day-column-${i}`);
-        if (col) {
-          const isVisible = (mobileViewMode === 'all' || selectedMobileDayIndex === i);
-          if (isVisible) {
-            col.classList.remove('hidden');
-            if (!col.classList.contains('flex')) col.classList.add('flex');
-            if (!col.classList.contains('w-full')) col.classList.add('w-full');
-          } else {
-            col.classList.remove('flex', 'w-full');
-            if (!col.classList.contains('hidden')) col.classList.add('hidden');
+        const c = document.getElementById(`day-column-${i}`);
+        if (c) {
+          c.classList.remove('day-transition-in-right', 'day-transition-in-left', 'day-transition-out-left', 'day-transition-out-right');
+          if (c !== prevCol && c !== nextCol) {
+            c.classList.remove('flex', 'w-full');
+            c.classList.add('hidden');
           }
         }
       }
 
       renderMobileDayStrip();
+
+      // Centrar suavemente la pestaña activa en mobileDayStrip si desborda
+      const mobileStrip = document.getElementById('mobileDayStrip');
+      if (mobileStrip && mobileStrip.children[index] && mobileStrip.scrollWidth > mobileStrip.clientWidth) {
+        const stripRect = mobileStrip.getBoundingClientRect();
+        const btnRect = mobileStrip.children[index].getBoundingClientRect();
+        const targetBtnLeft = btnRect.left - stripRect.left + mobileStrip.scrollLeft - (mobileStrip.clientWidth / 2) + (btnRect.width / 2);
+        mobileStrip.scrollTo({
+          left: Math.max(0, targetBtnLeft),
+          behavior: 'smooth'
+        });
+      }
+
+      if (!prevCol || !nextCol) {
+        for (let i = 0; i < 7; i++) {
+          const col = document.getElementById(`day-column-${i}`);
+          if (col) {
+            if (i === index) {
+              col.classList.remove('hidden');
+              col.classList.add('flex', 'w-full');
+            } else {
+              col.classList.remove('flex', 'w-full');
+              col.classList.add('hidden');
+            }
+          }
+        }
+        return;
+      }
+
+      // Mantener altura mínima del contenedor para evitar brincos en la pantalla
+      if (board) {
+        const curH = board.offsetHeight;
+        if (curH > 0) {
+          board.style.minHeight = `${curH}px`;
+        }
+      }
+
+      // Fase 1: salida suave del día saliente
+      const outClass = isForward ? 'day-transition-out-left' : 'day-transition-out-right';
+      prevCol.classList.add(outClass);
+
+      dayTransitionTimer = setTimeout(() => {
+        prevCol.classList.remove(outClass, 'flex', 'w-full');
+        prevCol.classList.add('hidden');
+
+        // Fase 2: entrada suave con deslizamiento del nuevo día
+        const inClass = isForward ? 'day-transition-in-right' : 'day-transition-in-left';
+        nextCol.classList.remove('hidden');
+        nextCol.classList.add('flex', 'w-full', inClass);
+
+        if (board) {
+          board.style.transition = 'min-height 200ms ease';
+          requestAnimationFrame(() => {
+            const nextH = nextCol.offsetHeight;
+            if (nextH > 0) {
+              board.style.minHeight = `${nextH}px`;
+            }
+          });
+        }
+
+        dayTransitionTimer = setTimeout(() => {
+          nextCol.classList.remove(inClass);
+          if (board) {
+            board.style.minHeight = '';
+            board.style.transition = '';
+          }
+          dayTransitionTimer = null;
+        }, 240);
+      }, 110);
     }
 
     function renderMobileDayStrip() {
