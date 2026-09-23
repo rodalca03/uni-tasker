@@ -345,6 +345,47 @@
       border: none;
       border-radius: inherit;
     }
+
+    /* Drag & Drop Over Day Column */
+    .day-column.day-drop-active {
+      background-color: #eef2ff !important;
+      border-color: #6366f1 !important;
+      outline: 2px dashed #4f46e5 !important;
+      outline-offset: -3px !important;
+    }
+    .task-card.is-dragging {
+      opacity: 0.4 !important;
+      transform: scale(0.96) !important;
+      cursor: grabbing !important;
+    }
+
+    /* Task Card Highlight Pulse (when navigated to from search) */
+    @keyframes taskHighlightPulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
+      50% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+    }
+    .task-card-highlight {
+      animation: taskHighlightPulse 1.2s ease-out 2;
+      border-color: #4f46e5 !important;
+    }
+
+    /* Subtask Checklist animations & styles */
+    .subtask-item {
+      transition: background-color 0.15s ease;
+    }
+    .subtask-item:hover {
+      background-color: #f8fafc;
+    }
+
+    /* Command Palette Item Active State */
+    .search-result-item {
+      transition: all 0.15s ease;
+    }
+    .search-result-item.is-selected {
+      background-color: #eef2ff !important;
+      border-color: #c7d2fe !important;
+    }
   </style>
 </head>
 <body class="h-full flex flex-col text-slate-800 bg-slate-100/90 select-none sm:select-auto overflow-x-hidden w-full">
@@ -608,6 +649,19 @@
             <span class="xs:hidden">Instalar</span>
           </button>
 
+          <button id="btnOpenSearch" onclick="openSearchModal()" title="Buscar tareas" class="btn-action px-3 py-2 text-xs sm:text-sm font-bold text-slate-700 bg-slate-100/90 hover:bg-slate-200/90 rounded-2xl transition-all inline-flex items-center gap-1.5 sm:gap-2 border border-slate-200/70 shadow-xs">
+            <svg class="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span class="hidden md:inline">Buscar</span>
+          </button>
+
+          <button id="btnShortcutsHelp" onclick="openShortcutsModal()" title="Atajos de teclado (?)" class="btn-action w-9 h-9 hidden sm:inline-flex items-center justify-center text-slate-500 hover:text-indigo-600 bg-slate-100/90 hover:bg-slate-200/90 rounded-2xl transition-all border border-slate-200/70 shadow-xs">
+            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </button>
+
           <button id="btnManageSubjects" class="btn-action hidden sm:inline-flex px-3.5 py-2.5 text-sm font-bold text-slate-700 bg-slate-100/90 hover:bg-slate-200/90 rounded-2xl transition-all items-center gap-2 border border-slate-200/70 shadow-xs">
             <svg class="w-4.5 h-4.5 text-slate-500 flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
@@ -674,21 +728,6 @@
             <span id="currentWeekRange" class="font-extrabold text-slate-900 text-xs sm:text-sm tracking-tight truncate">
               Cargando semana...
             </span>
-
-            <!-- Desktop Board Horizontal Scroll Navigation Buttons -->
-            <div class="hidden lg:flex items-center gap-1 border-l border-slate-200 pl-2.5 ml-0.5">
-              <span class="text-[11px] font-semibold text-slate-400 select-none mr-0.5">Días:</span>
-              <button id="btnScrollBoardLeft" title="Ver días anteriores" class="btn-action w-7 h-7 flex items-center justify-center text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200/80 transition-colors">
-                <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button id="btnScrollBoardRight" title="Ver más días" class="btn-action w-7 h-7 flex items-center justify-center text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200/80 transition-colors">
-                <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
           </div>
 
           <!-- Mobile Compact Progress Badge -->
@@ -712,6 +751,18 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
+          </div>
+
+          <!-- Main View Mode Switcher (Semanal vs Timeline) -->
+          <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0">
+            <button id="btnViewWeekly" onclick="switchMainView('board')" title="Vista semanal por columnas" class="main-view-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+              <span>Semanal</span>
+            </button>
+            <button id="btnViewTimeline" onclick="switchMainView('timeline')" title="Vista cronológica completa" class="main-view-btn px-2 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Timeline</span>
+            </button>
           </div>
 
           <!-- Status Filter Tabs -->
@@ -750,9 +801,16 @@
     </div>
 
     <!-- Weekly Board (Desktop: 4 days visible with horizontal scroll) -->
-    <div class="flex-1 pb-4 min-w-0">
+    <div id="weeklyBoardWrapper" class="flex-1 pb-4 min-w-0">
       <div id="weeklyBoard" class="grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-nowrap lg:overflow-x-auto lg:gap-4 lg:pb-3 custom-scrollbar lg:snap-x lg:snap-mandatory lg:scroll-smooth items-start transition-all duration-200 min-w-0 scroll-mt-20">
         <!-- 7 Days dynamically generated here -->
+      </div>
+    </div>
+
+    <!-- Timeline View Container (Alternative to Weekly Board) -->
+    <div id="timelineView" class="hidden flex-1 pb-4 min-w-0">
+      <div id="timelineContent" class="max-w-4xl mx-auto space-y-6">
+        <!-- Dynamically rendered by renderTimelineView() -->
       </div>
     </div>
   </main>
@@ -764,6 +822,13 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
       <span class="text-[11px] font-bold mt-0.5">Hoy</span>
+    </button>
+
+    <button onclick="openSearchModal()" class="flex flex-col items-center justify-center py-1 px-3 text-slate-600 active:text-indigo-600 transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <span class="text-[11px] font-bold mt-0.5">Buscar</span>
     </button>
 
     <button onclick="openManageSubjects()" class="flex flex-col items-center justify-center py-1 px-3 text-slate-600 active:text-indigo-600 transition-colors">
@@ -824,6 +889,36 @@
       <!-- Modal Body Form -->
       <form id="taskForm" class="p-5 sm:p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1 min-w-0">
         <input type="hidden" id="taskIdInput" />
+
+        <!-- Task Type Selector -->
+        <div class="min-w-0">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+            Tipo de tarea
+          </label>
+          <input type="hidden" id="taskType" value="delivery" />
+          <div class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-1.5 sm:gap-2" id="taskTypePills">
+            <button type="button" data-type="delivery" onclick="selectModalTaskType('delivery')" class="task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 shadow-2xs flex items-center justify-center gap-1.5 transition">
+              <span>📝</span>
+              <span class="truncate">Práctica</span>
+            </button>
+            <button type="button" data-type="exam" onclick="selectModalTaskType('exam')" class="task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs flex items-center justify-center gap-1.5 transition">
+              <span>📖</span>
+              <span class="truncate">Examen</span>
+            </button>
+            <button type="button" data-type="team" onclick="selectModalTaskType('team')" class="task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs flex items-center justify-center gap-1.5 transition">
+              <span>👥</span>
+              <span class="truncate">Grupal</span>
+            </button>
+            <button type="button" data-type="tutoring" onclick="selectModalTaskType('tutoring')" class="task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs flex items-center justify-center gap-1.5 transition">
+              <span>🎓</span>
+              <span class="truncate">Tutoría</span>
+            </button>
+            <button type="button" data-type="other" onclick="selectModalTaskType('other')" class="task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs flex items-center justify-center gap-1.5 transition">
+              <span>📌</span>
+              <span class="truncate">Otro</span>
+            </button>
+          </div>
+        </div>
 
         <!-- Title -->
         <div class="min-w-0">
@@ -940,6 +1035,30 @@
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+        <!-- Subtasks / Checklist Section -->
+        <div class="min-w-0 pt-1">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+              Subtareas / Checklist
+            </label>
+            <span id="modalSubtasksCount" class="text-xs font-bold text-slate-400">0 pasos</span>
+          </div>
+
+          <!-- Add Subtask Input & Button -->
+          <div class="flex items-center gap-2 mb-2">
+            <input type="text" id="modalSubtaskInput" placeholder="Añadir paso o subtarea..."
+                   class="flex-1 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-2xs transition" />
+            <button type="button" onclick="addModalSubtask()" class="px-3.5 py-2.5 text-xs font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl border border-indigo-200 flex items-center gap-1 transition flex-shrink-0">
+              <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              <span>Añadir</span>
+            </button>
+          </div>
+
+          <!-- Subtasks dynamic list container -->
+          <div id="modalSubtasksList" class="space-y-1.5 max-h-[160px] overflow-y-auto custom-scrollbar">
+            <!-- Dynamic items rendered by renderTaskModalSubtasks() -->
           </div>
         </div>
 
@@ -1208,6 +1327,83 @@
       <!-- Body Content -->
       <div id="viewerContent" class="flex-1 overflow-auto p-4 flex items-center justify-center bg-slate-900/5 min-h-[260px] max-h-[75vh]">
         <!-- Image or PDF container dynamically loaded -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SEARCH MODAL / COMMAND PALETTE ================= -->
+  <div id="searchModal" class="modal-backdrop fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-start justify-center p-3 sm:p-6 sm:pt-16 hidden overflow-hidden">
+    <div class="modal-panel bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[85vh]">
+      <!-- Header with Search Input -->
+      <div class="p-3.5 sm:p-4 border-b border-slate-100 flex items-center gap-3 bg-white flex-shrink-0">
+        <svg class="w-5 h-5 text-indigo-600 flex-shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input type="text" id="commandPaletteInput" placeholder="Buscar tareas, exámenes, temas, asignaturas... (Esc para salir)"
+               class="w-full text-sm sm:text-base font-medium placeholder-slate-400 text-slate-800 bg-transparent focus:outline-none" />
+        <button onclick="closeSearchModal()" class="btn-action text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition flex-shrink-0" title="Cerrar">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Quick Filter Pills -->
+      <div class="flex items-center gap-1.5 px-4 py-2 bg-slate-50/90 border-b border-slate-100 overflow-x-auto no-scrollbar flex-shrink-0">
+        <button data-search-filter="all" onclick="setSearchFilter('all')" class="search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-indigo-700 shadow-2xs border border-indigo-100 transition">Todas</button>
+        <button data-search-filter="pending" onclick="setSearchFilter('pending')" class="search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">Pendientes</button>
+        <button data-search-filter="completed" onclick="setSearchFilter('completed')" class="search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">Entregadas</button>
+        <button data-search-filter="exam" onclick="setSearchFilter('exam')" class="search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">📖 Exámenes</button>
+      </div>
+
+      <!-- Results List -->
+      <div id="commandPaletteResults" class="p-2 sm:p-3 overflow-y-auto custom-scrollbar flex-1 space-y-1.5 min-h-[180px]">
+        <!-- Rendered by renderCommandPaletteResults() -->
+      </div>
+
+      <!-- Footer with Shortcut Hints -->
+      <div class="px-4 py-2.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 rounded bg-white border border-slate-200 shadow-2xs font-mono font-bold">↑↓</kbd> Navegar</span>
+          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 rounded bg-white border border-slate-200 shadow-2xs font-mono font-bold">Enter</kbd> Seleccionar</span>
+          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 rounded bg-white border border-slate-200 shadow-2xs font-mono font-bold">Esc</kbd> Cerrar</span>
+        </div>
+        <span id="searchResultCount" class="font-bold text-slate-600">0 resultados</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SHORTCUTS HELP MODAL ================= -->
+  <div id="shortcutsModal" class="modal-backdrop fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 hidden overflow-hidden">
+    <div class="modal-panel bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">⌨️</span>
+          <h3 class="text-base font-extrabold text-slate-900">Atajos de teclado</h3>
+        </div>
+        <button onclick="closeModalEl(document.getElementById('shortcutsModal'))" class="btn-action text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-5 space-y-2.5 overflow-y-auto custom-scrollbar text-xs sm:text-sm">
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Ir a la semana actual (Hoy)</span>
+          <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">T</kbd>
+        </div>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Semana siguiente</span>
+          <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">N</kbd>
+        </div>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Semana anterior</span>
+          <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">P</kbd>
+        </div>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Doble clic en un día</span>
+          <span class="text-indigo-600 font-bold text-xs">Crear tarea con esa fecha</span>
+        </div>
+        <div class="flex items-center justify-between py-1.5">
+          <span class="text-slate-700 font-medium">Cerrar ventanas / modales</span>
+          <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">Esc</kbd>
+        </div>
       </div>
     </div>
   </div>
@@ -1820,6 +2016,49 @@
     let selectedMobileDayIndex = getInitialDayIndex();
     let confirmCallback = null;
 
+    const TASK_TYPES = {
+      delivery: {
+        id: 'delivery',
+        label: 'Práctica / Entrega',
+        shortLabel: 'Práctica',
+        icon: '📝',
+        badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200'
+      },
+      exam: {
+        id: 'exam',
+        label: 'Examen / Parcial',
+        shortLabel: 'Examen',
+        icon: '📖',
+        badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 ring-1 ring-rose-200/60 font-black'
+      },
+      team: {
+        id: 'team',
+        label: 'Trabajo Grupal',
+        shortLabel: 'Grupal',
+        icon: '👥',
+        badgeClass: 'bg-purple-50 text-purple-700 border-purple-200'
+      },
+      tutoring: {
+        id: 'tutoring',
+        label: 'Tutoría / Seminario',
+        shortLabel: 'Tutoría',
+        icon: '🎓',
+        badgeClass: 'bg-amber-50 text-amber-800 border-amber-200'
+      },
+      other: {
+        id: 'other',
+        label: 'Otro / General',
+        shortLabel: 'Otro',
+        icon: '📌',
+        badgeClass: 'bg-slate-100 text-slate-700 border-slate-200'
+      }
+    };
+
+    let currentMainView = 'board'; // 'board' or 'timeline'
+    let currentEditingTaskSubtasks = [];
+    let searchActiveFilter = 'all';
+    let selectedSearchItemIndex = -1;
+
     let subjects = [];
     let tasks = [];
 
@@ -1837,41 +2076,62 @@
           id: 'task-1',
           title: 'Práctica 1: Balanceo de Árboles AVL',
           subjectId: 'sub-1',
+          type: 'delivery',
           date: relativeDateStr(1),
           time: '23:59',
           description: 'Implementar rotaciones simples y dobles en C++. Subir archivo al campus virtual.',
           priority: 'high',
-          completed: false
+          completed: false,
+          subtasks: [
+            { id: 'st-1', text: 'Rotaciones simples izquierda y derecha', completed: true },
+            { id: 'st-2', text: 'Rotaciones dobles', completed: false },
+            { id: 'st-3', text: 'Pruebas de memoria con Valgrind', completed: false }
+          ]
         },
         {
           id: 'task-2',
           title: 'Entrega de Problemas: Series de Taylor',
           subjectId: 'sub-2',
+          type: 'delivery',
           date: relativeDateStr(2),
           time: '18:00',
           description: 'Resolver ejercicios impares del boletín 3. Escaneo legible en formato PDF.',
           priority: 'medium',
-          completed: false
+          completed: false,
+          subtasks: [
+            { id: 'st-4', text: 'Ejercicios 1, 3 y 5', completed: true },
+            { id: 'st-5', text: 'Escanear a PDF', completed: false }
+          ]
         },
         {
           id: 'task-3',
           title: 'Diseño Conceptual Entidad-Relación',
           subjectId: 'sub-3',
+          type: 'team',
           date: relativeDateStr(4),
           time: '14:00',
           description: 'Caso práctico de la empresa de logística. Diagrama en draw.io.',
           priority: 'medium',
-          completed: true
+          completed: true,
+          subtasks: [
+            { id: 'st-6', text: 'Definir entidades y atributos', completed: true },
+            { id: 'st-7', text: 'Relaciones y cardinalidad', completed: true }
+          ]
         },
         {
           id: 'task-4',
-          title: 'Laboratorio de Hilos y Semáforos',
+          title: 'Examen Parcial de Laboratorio: Hilos y Mutex',
           subjectId: 'sub-4',
+          type: 'exam',
           date: relativeDateStr(5),
-          time: '23:59',
+          time: '12:00',
           description: 'Problema del barbero dormilón usando POSIX threads y mutex en Linux.',
           priority: 'high',
-          completed: false
+          completed: false,
+          subtasks: [
+            { id: 'st-8', text: 'Repasar llamadas pthread_create y pthread_join', completed: false },
+            { id: 'st-9', text: 'Ejercicios de condición de carrera', completed: false }
+          ]
         }
       ];
 
@@ -2266,7 +2526,11 @@
     async function activateUserSession(username, displayName, encKey, isGuest, data) {
       currentUser = { username, displayName, encKey, isGuest };
       subjects = data.subjects || [];
-      tasks = data.tasks || [];
+      tasks = (data.tasks || []).map(t => ({
+        ...t,
+        type: t.type || 'delivery',
+        subtasks: Array.isArray(t.subtasks) ? t.subtasks : []
+      }));
       currentWeekStart = getMonday(new Date());
       selectedMobileDayIndex = getInitialDayIndex();
 
@@ -2457,11 +2721,43 @@
 
         const col = document.createElement('div');
         col.id = `day-column-${i}`;
+        col.setAttribute('data-date', ymd);
         col.className = `day-column day-col-${i} flex flex-col bg-white rounded-3xl border transition-all duration-200 overflow-hidden min-h-[480px] shadow-xs max-w-full min-w-0 lg:flex-shrink-0 lg:w-[calc((100%-3rem)/4)] lg:min-w-[calc((100%-3rem)/4)] lg:snap-start ${
           isCurrentDay 
             ? 'border-indigo-400 ring-2 ring-indigo-200/90 shadow-indigo-100/60' 
             : 'border-slate-200/90 hover:border-slate-300 hover:shadow-sm'
         } ${isVisibleOnMobile ? 'flex w-full' : 'hidden lg:flex'}`;
+
+        // Drag & Drop target on Day Column
+        col.addEventListener('dragover', (e) => {
+          if (e.dataTransfer && Array.from(e.dataTransfer.types).includes('application/unitask-task-id')) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            col.classList.add('day-drop-active');
+          }
+        });
+
+        col.addEventListener('dragleave', (e) => {
+          if (!col.contains(e.relatedTarget)) {
+            col.classList.remove('day-drop-active');
+          }
+        });
+
+        col.addEventListener('drop', (e) => {
+          col.classList.remove('day-drop-active');
+          const taskId = e.dataTransfer ? e.dataTransfer.getData('application/unitask-task-id') : null;
+          if (taskId) {
+            e.preventDefault();
+            e.stopPropagation();
+            moveTaskToDate(taskId, ymd);
+          }
+        });
+
+        // Double click on day column background to quickly add task
+        col.addEventListener('dblclick', (e) => {
+          if (e.target.closest('.task-card') || e.target.closest('button') || e.target.closest('input')) return;
+          openNewTaskForDate(ymd);
+        });
 
         const dayHeader = document.createElement('div');
         dayHeader.className = `px-4 py-3.5 border-b flex items-center justify-between gap-2.5 transition-colors min-w-0 cursor-pointer ${
@@ -2750,13 +3046,33 @@
 
     function createTaskCard(task) {
       const subject = subjects.find(s => s.id === task.subjectId) || { name: 'General', color: '#64748b' };
+      const taskTypeInfo = TASK_TYPES[task.type] || TASK_TYPES.delivery;
 
       const card = document.createElement('div');
+      card.id = `task-card-${task.id}`;
+      card.setAttribute('draggable', 'true');
       card.className = `task-card group relative bg-white border rounded-2xl p-4 sm:p-4.5 shadow-xs hover:shadow-md cursor-pointer overflow-hidden min-w-0 max-w-full ${
         task.completed 
           ? 'border-emerald-200/90 bg-emerald-50/20' 
           : 'border-slate-200/90 hover:border-indigo-300'
       }`;
+
+      // Native HTML5 Card Dragging
+      card.addEventListener('dragstart', (e) => {
+        if (e.target.closest('input') || e.target.closest('a') || e.target.closest('button')) {
+          e.preventDefault();
+          return;
+        }
+        card.classList.add('is-dragging');
+        e.dataTransfer.setData('application/unitask-task-id', task.id);
+        e.dataTransfer.setData('text/plain', task.id);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+
+      card.addEventListener('dragend', () => {
+        card.classList.remove('is-dragging');
+        document.querySelectorAll('.day-column.day-drop-active').forEach(c => c.classList.remove('day-drop-active'));
+      });
 
       let priorityClass = 'bg-slate-100 text-slate-700 border border-slate-200/70';
       let priorityLabel = 'Baja';
@@ -2769,12 +3085,12 @@
       }
 
       card.innerHTML = `
-        <div class="flex items-center justify-between gap-2 mb-2.5 min-w-0">
-          <span class="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold px-3 py-1 rounded-xl min-w-0 max-w-[65%] truncate flex-shrink" style="background-color: ${subject.color}18; color: ${subject.color};">
+        <div class="flex items-center justify-between gap-1.5 mb-2.5 min-w-0">
+          <span class="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold px-2.5 py-0.5 rounded-xl min-w-0 truncate flex-shrink" style="background-color: ${subject.color}18; color: ${subject.color};">
             <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${subject.color}"></span>
             <span class="truncate">${escapeHtml(subject.name)}</span>
           </span>
-          <span class="text-xs sm:text-[13px] font-bold text-slate-500 flex items-center gap-1.5 flex-shrink-0">
+          <span class="text-xs sm:text-[13px] font-bold text-slate-500 flex items-center gap-1 flex-shrink-0">
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -2798,6 +3114,38 @@
             ${renderDescriptionForCard(task.description)}
           </p>
         ` : ''}
+
+        ${(() => {
+          if (!task.subtasks || task.subtasks.length === 0) return '';
+          const completedCount = task.subtasks.filter(s => s.completed).length;
+          const totalCount = task.subtasks.length;
+          const pct = Math.round((completedCount / totalCount) * 100);
+          return `
+            <div class="my-2.5 p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 min-w-0" onclick="event.stopPropagation()">
+              <div class="flex items-center justify-between text-[11px] font-bold text-slate-600 mb-1">
+                <span class="flex items-center gap-1">
+                  <svg class="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                  <span>Subtareas (${completedCount}/${totalCount})</span>
+                </span>
+                <span class="text-[10px] ${pct === 100 ? 'text-emerald-600' : 'text-slate-400'} font-extrabold">${pct}%</span>
+              </div>
+              <div class="w-full bg-slate-200/80 rounded-full h-1.5 mb-2 overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-300 ${pct === 100 ? 'bg-emerald-500' : 'bg-indigo-600'}" style="width: ${pct}%"></div>
+              </div>
+              <div class="space-y-1 max-h-[140px] overflow-y-auto custom-scrollbar pt-0.5">
+                ${task.subtasks.map(st => `
+                  <div class="flex items-start gap-2 py-0.5 px-1 rounded-lg hover:bg-slate-100/70 transition cursor-pointer select-none" onclick="toggleCardSubtask('${task.id}', '${st.id}')">
+                    <input type="checkbox" ${st.completed ? 'checked' : ''} onclick="event.stopPropagation(); toggleCardSubtask('${task.id}', '${st.id}')"
+                           class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5 cursor-pointer flex-shrink-0" />
+                    <span class="text-xs break-words leading-tight min-w-0 transition-all ${st.completed ? 'line-through text-slate-400' : 'text-slate-700 font-medium'}">
+                      ${escapeHtml(st.text)}
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        })()}
 
         ${(() => {
           if (!task.attachments || task.attachments.length === 0) return '';
@@ -2846,9 +3194,15 @@
         })()}
 
         <div class="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-100 mt-2 min-w-0">
-          <span class="text-xs font-extrabold px-2.5 py-1 rounded-xl flex-shrink-0 ${priorityClass}">
-            ${priorityLabel}
-          </span>
+          <div class="flex items-center gap-1.5 flex-wrap min-w-0">
+            <span class="text-xs font-extrabold px-2.5 py-1 rounded-xl flex-shrink-0 ${priorityClass}">
+              ${priorityLabel}
+            </span>
+            <span class="inline-flex items-center gap-1 text-[11px] font-extrabold px-2 py-0.5 rounded-lg border flex-shrink-0 ${taskTypeInfo.badgeClass}">
+              <span>${taskTypeInfo.icon}</span>
+              <span class="truncate">${taskTypeInfo.shortLabel}</span>
+            </span>
+          </div>
           
           <div class="flex items-center space-x-1.5 flex-shrink-0">
             <button onclick="event.stopPropagation(); editTask('${task.id}')" title="Editar" class="btn-action w-8 h-8 sm:w-8 sm:h-8 flex items-center justify-center text-slate-500 hover:text-indigo-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
@@ -3581,6 +3935,7 @@
       if (task) {
         task.completed = !task.completed;
         renderBoard();
+        if (currentMainView === 'timeline') renderTimelineView();
         persistEncryptedUserData();
         if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
           UniTaskCloudDB.saveTask(currentUser.username, task);
@@ -3806,12 +4161,534 @@
       openModalEl(modal);
     };
 
+    /* =========================================================
+       DRAG & DROP TASK MOVEMENT BETWEEN DAYS
+       ========================================================= */
+    function moveTaskToDate(taskId, targetYmd) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task || task.date === targetYmd) return;
+      task.date = targetYmd;
+      if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+        UniTaskCloudDB.saveTask(currentUser.username, task);
+      }
+      persistEncryptedUserData();
+      renderBoard();
+      if (currentMainView === 'timeline') renderTimelineView();
+      showToast('Tarea movida de fecha.');
+    }
+    window.moveTaskToDate = moveTaskToDate;
+
+    /* =========================================================
+       SUBTASKS & TASK TYPE MANAGEMENT
+       ========================================================= */
+    window.toggleCardSubtask = function(taskId, subtaskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task || !task.subtasks) return;
+      const st = task.subtasks.find(s => s.id === subtaskId);
+      if (!st) return;
+      st.completed = !st.completed;
+      if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+        UniTaskCloudDB.saveTask(currentUser.username, task);
+      }
+      persistEncryptedUserData();
+      renderBoard();
+      if (currentMainView === 'timeline') renderTimelineView();
+    };
+
+    window.selectModalTaskType = function(type) {
+      document.getElementById('taskType').value = type;
+      document.querySelectorAll('#taskTypePills .task-type-pill').forEach(btn => {
+        if (btn.getAttribute('data-type') === type) {
+          btn.className = 'task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 shadow-2xs flex items-center justify-center gap-1.5 transition';
+        } else {
+          btn.className = 'task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs flex items-center justify-center gap-1.5 transition';
+        }
+      });
+    };
+
+    window.renderTaskModalSubtasks = function() {
+      const container = document.getElementById('modalSubtasksList');
+      const countBadge = document.getElementById('modalSubtasksCount');
+      if (!container) return;
+      container.innerHTML = '';
+      if (countBadge) countBadge.textContent = `${currentEditingTaskSubtasks.length} pasos`;
+
+      if (currentEditingTaskSubtasks.length === 0) {
+        container.innerHTML = `
+          <p class="text-[11px] text-slate-400 italic py-1 px-1">Sin subtareas todavía. Añade pasos para desglosar esta entrega.</p>
+        `;
+        return;
+      }
+
+      currentEditingTaskSubtasks.forEach(st => {
+        const item = document.createElement('div');
+        item.className = 'subtask-item flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-xl border border-slate-100 bg-slate-50/60';
+        item.innerHTML = `
+          <div class="flex items-center gap-2 min-w-0 flex-1 cursor-pointer select-none" onclick="toggleModalSubtask('${st.id}')">
+            <input type="checkbox" ${st.completed ? 'checked' : ''} onclick="event.stopPropagation(); toggleModalSubtask('${st.id}')"
+                   class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer flex-shrink-0" />
+            <span class="text-xs break-words leading-tight ${st.completed ? 'line-through text-slate-400' : 'text-slate-700 font-semibold'}">
+              ${escapeHtml(st.text)}
+            </span>
+          </div>
+          <button type="button" onclick="removeModalSubtask('${st.id}')" class="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition" title="Eliminar paso">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    };
+
+    window.addModalSubtask = function() {
+      const input = document.getElementById('modalSubtaskInput');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      currentEditingTaskSubtasks.push({
+        id: 'st-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+        text,
+        completed: false
+      });
+      input.value = '';
+      input.focus();
+      renderTaskModalSubtasks();
+    };
+
+    window.removeModalSubtask = function(id) {
+      currentEditingTaskSubtasks = currentEditingTaskSubtasks.filter(s => s.id !== id);
+      renderTaskModalSubtasks();
+    };
+
+    window.toggleModalSubtask = function(id) {
+      const st = currentEditingTaskSubtasks.find(s => s.id === id);
+      if (st) {
+        st.completed = !st.completed;
+        renderTaskModalSubtasks();
+      }
+    };
+
+    /* =========================================================
+       TIMELINE VIEW (CHRONOLOGICAL OVERVIEW)
+       ========================================================= */
+    window.switchMainView = function(view) {
+      currentMainView = view;
+      const btnWeekly = document.getElementById('btnViewWeekly');
+      const btnTimeline = document.getElementById('btnViewTimeline');
+      const boardWrapper = document.getElementById('weeklyBoardWrapper');
+      const timelineView = document.getElementById('timelineView');
+      const mobileStrip = document.getElementById('mobileDayStripContainer');
+
+      if (view === 'timeline') {
+        if (btnWeekly) btnWeekly.className = 'main-view-btn px-2 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs flex items-center gap-1';
+        if (btnTimeline) btnTimeline.className = 'main-view-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs flex items-center gap-1';
+        if (boardWrapper) boardWrapper.classList.add('hidden');
+        if (timelineView) timelineView.classList.remove('hidden');
+        if (mobileStrip) mobileStrip.classList.add('hidden');
+        renderTimelineView();
+      } else {
+        if (btnWeekly) btnWeekly.className = 'main-view-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs flex items-center gap-1';
+        if (btnTimeline) btnTimeline.className = 'main-view-btn px-2 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs flex items-center gap-1';
+        if (boardWrapper) boardWrapper.classList.remove('hidden');
+        if (timelineView) timelineView.classList.add('hidden');
+        if (mobileStrip && mobileViewMode === 'single') mobileStrip.classList.remove('hidden');
+        renderBoard();
+      }
+    };
+
+    function renderTimelineView() {
+      const container = document.getElementById('timelineContent');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (!currentUser) {
+        container.innerHTML = `
+          <div class="py-20 text-center text-slate-400">
+            <p class="text-base font-bold">Inicia sesión para acceder a tu línea de tiempo.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const filtered = tasks.filter(task => {
+        if (selectedSubjectFilter !== 'ALL' && task.subjectId !== selectedSubjectFilter) return false;
+        if (activeFilter === 'pending' && task.completed) return false;
+        if (activeFilter === 'completed' && !task.completed) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-12 text-center shadow-xs">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center mx-auto mb-3">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 class="text-base sm:text-lg font-black text-slate-800 mb-1">Sin tareas en este filtro</h3>
+            <p class="text-xs sm:text-sm text-slate-500 mb-4 max-w-sm mx-auto">No hay entregas registradas que coincidan con la selección actual.</p>
+            <button onclick="openDefaultNewTask()" class="btn-action inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-sm transition">
+              <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              <span>Crear nueva tarea</span>
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const sorted = [...filtered].sort((a, b) => {
+        const da = (a.date || '') + ' ' + (a.time || '23:59');
+        const db = (b.date || '') + ' ' + (b.time || '23:59');
+        return da.localeCompare(db);
+      });
+
+      const todayStr = formatDateToYMD(new Date());
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+
+      const groups = [
+        { id: 'overdue', title: '🚨 Vencidas pendientes', tasks: [] },
+        { id: 'today', title: '🌟 Para Hoy', tasks: [] },
+        { id: 'this_week', title: '📅 Esta semana', tasks: [] },
+        { id: 'upcoming', title: '🔮 Próximas entregas y exámenes', tasks: [] },
+        { id: 'done', title: '✅ Entregadas / Completadas', tasks: [] }
+      ];
+
+      const currentMonday = getMonday(new Date());
+      const nextMonday = new Date(currentMonday);
+      nextMonday.setDate(nextMonday.getDate() + 7);
+
+      sorted.forEach(t => {
+        if (t.completed) {
+          groups[4].tasks.push(t);
+          return;
+        }
+        if (t.date < todayStr) {
+          groups[0].tasks.push(t);
+        } else if (t.date === todayStr) {
+          groups[1].tasks.push(t);
+        } else {
+          const tDate = new Date(t.date + 'T00:00:00');
+          if (tDate < nextMonday) {
+            groups[2].tasks.push(t);
+          } else {
+            groups[3].tasks.push(t);
+          }
+        }
+      });
+
+      groups.forEach(g => {
+        if (g.tasks.length === 0) return;
+
+        const groupEl = document.createElement('div');
+        groupEl.className = 'bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-5 shadow-xs';
+        
+        groupEl.innerHTML = `
+          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100">
+            <h3 class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">${g.title}</h3>
+            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">${g.tasks.length}</span>
+          </div>
+          <div class="space-y-3">
+            ${g.tasks.map(t => {
+              const sub = subjects.find(s => s.id === t.subjectId) || { name: 'General', color: '#64748b' };
+              const typeInfo = TASK_TYPES[t.type] || TASK_TYPES.delivery;
+              const tDate = new Date(t.date + 'T00:00:00');
+              const diffDays = Math.round((tDate - now) / (1000 * 60 * 60 * 24));
+              let relativeBadge = '';
+              if (t.completed) {
+                relativeBadge = '<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">Completada</span>';
+              } else if (diffDays < 0) {
+                relativeBadge = `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800">Vencida hace ${Math.abs(diffDays)}d</span>`;
+              } else if (diffDays === 0) {
+                relativeBadge = '<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 animate-pulse">¡Vence hoy!</span>';
+              } else if (diffDays === 1) {
+                relativeBadge = '<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-800">Mañana</span>';
+              } else {
+                relativeBadge = `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">En ${diffDays} días</span>`;
+              }
+
+              const formattedDate = `${DAY_NAMES[(tDate.getDay() + 6) % 7]}, ${tDate.getDate()} de ${MONTH_NAMES[tDate.getMonth()]}`;
+
+              return `
+                <div data-task-id="${t.id}" class="flex items-start gap-3 p-3.5 sm:p-4 rounded-2xl border transition-all ${
+                  t.completed ? 'bg-emerald-50/20 border-emerald-200/80' : 'bg-white border-slate-200/90 hover:border-indigo-300 hover:shadow-xs'
+                }">
+                  <input type="checkbox" ${t.completed ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskCompletion('${t.id}')"
+                         class="custom-checkbox mt-1 rounded-lg border-2 border-slate-300 text-indigo-600 focus:ring-indigo-500 w-5 h-5 cursor-pointer flex-shrink-0" />
+                  
+                  <div class="min-w-0 flex-1 cursor-pointer" onclick="editTask('${t.id}')">
+                    <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+                      <span class="inline-flex items-center gap-1.5 text-xs font-extrabold px-2.5 py-0.5 rounded-lg truncate" style="background-color: ${sub.color}18; color: ${sub.color};">
+                        <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${sub.color}"></span>
+                        <span class="truncate">${escapeHtml(sub.name)}</span>
+                      </span>
+                      <span class="inline-flex items-center gap-1 text-[11px] font-extrabold px-2 py-0.5 rounded-lg border ${typeInfo.badgeClass}">
+                        <span>${typeInfo.icon}</span>
+                        <span>${typeInfo.shortLabel}</span>
+                      </span>
+                      ${relativeBadge}
+                      <span class="text-xs font-semibold text-slate-400 ml-auto flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span>${formattedDate} (${t.time || '23:59'})</span>
+                      </span>
+                    </div>
+
+                    <h4 class="text-sm sm:text-base font-extrabold text-slate-900 leading-snug break-words ${t.completed ? 'line-through text-slate-400' : ''}">
+                      ${escapeHtml(t.title)}
+                    </h4>
+
+                    ${t.description ? `
+                      <p class="text-xs sm:text-sm text-slate-600 mt-1 line-clamp-2 break-words ${t.completed ? 'opacity-50' : ''}">
+                        ${escapeHtml(t.description)}
+                      </p>
+                    ` : ''}
+
+                    ${t.subtasks && t.subtasks.length > 0 ? `
+                      <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-500 font-semibold" onclick="event.stopPropagation()">
+                        <span class="text-indigo-600 font-extrabold">Checklist:</span>
+                        <span>${t.subtasks.filter(s => s.completed).length} de ${t.subtasks.length} pasos</span>
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <div class="flex items-center space-x-1 flex-shrink-0">
+                    <button onclick="event.stopPropagation(); editTask('${t.id}')" title="Editar" class="btn-action w-8 h-8 flex items-center justify-center text-slate-400 hover:text-indigo-600 bg-slate-50 hover:bg-slate-100 rounded-xl transition">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+                    <button onclick="event.stopPropagation(); promptDeleteTask('${t.id}')" title="Eliminar" class="btn-action w-8 h-8 flex items-center justify-center text-slate-400 hover:text-rose-600 bg-slate-50 hover:bg-slate-100 rounded-xl transition">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+        container.appendChild(groupEl);
+      });
+    }
+
+    /* =========================================================
+       COMMAND PALETTE & GLOBAL SEARCH
+       ========================================================= */
+    window.openSearchModal = function() {
+      const modal = document.getElementById('searchModal');
+      const input = document.getElementById('commandPaletteInput');
+      if (input) input.value = '';
+      searchActiveFilter = 'all';
+      selectedSearchItemIndex = -1;
+      updateSearchFilterPills();
+      renderCommandPaletteResults();
+      openModalEl(modal);
+      setTimeout(() => {
+        if (input) input.focus();
+      }, 100);
+    };
+
+    window.closeSearchModal = function() {
+      const modal = document.getElementById('searchModal');
+      closeModalEl(modal);
+    };
+
+    window.openShortcutsModal = function() {
+      const modal = document.getElementById('shortcutsModal');
+      openModalEl(modal);
+    };
+
+    window.setSearchFilter = function(filter) {
+      searchActiveFilter = filter;
+      selectedSearchItemIndex = -1;
+      updateSearchFilterPills();
+      renderCommandPaletteResults();
+    };
+
+    function updateSearchFilterPills() {
+      document.querySelectorAll('.search-filter-pill').forEach(btn => {
+        if (btn.getAttribute('data-search-filter') === searchActiveFilter) {
+          btn.className = 'search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-indigo-700 shadow-2xs border border-indigo-100 transition';
+        } else {
+          btn.className = 'search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition';
+        }
+      });
+    }
+
+    function renderCommandPaletteResults() {
+      const container = document.getElementById('commandPaletteResults');
+      const input = document.getElementById('commandPaletteInput');
+      const countEl = document.getElementById('searchResultCount');
+      if (!container) return;
+
+      const q = input ? input.value.toLowerCase().trim() : '';
+
+      const matched = tasks.filter(t => {
+        if (searchActiveFilter === 'pending' && t.completed) return false;
+        if (searchActiveFilter === 'completed' && !t.completed) return false;
+        if (searchActiveFilter === 'exam' && t.type !== 'exam') return false;
+
+        if (!q) return true;
+
+        const sub = subjects.find(s => s.id === t.subjectId);
+        const subName = sub ? sub.name.toLowerCase() : '';
+        const title = (t.title || '').toLowerCase();
+        const desc = (t.description || '').toLowerCase();
+        const subtasksText = (t.subtasks || []).map(st => st.text.toLowerCase()).join(' ');
+
+        return title.includes(q) || desc.includes(q) || subName.includes(q) || subtasksText.includes(q);
+      });
+
+      if (countEl) countEl.textContent = `${matched.length} resultado(s)`;
+      container.innerHTML = '';
+
+      if (matched.length === 0) {
+        container.innerHTML = `
+          <div class="py-10 text-center text-slate-400">
+            <svg class="w-8 h-8 mx-auto mb-2 text-slate-300 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <p class="text-sm font-bold text-slate-600">No se encontraron tareas</p>
+            <p class="text-xs text-slate-400 mt-0.5">Prueba con otro término o cambia el filtro</p>
+          </div>
+        `;
+        return;
+      }
+
+      matched.forEach((task, index) => {
+        const sub = subjects.find(s => s.id === task.subjectId) || { name: 'General', color: '#64748b' };
+        const typeInfo = TASK_TYPES[task.type] || TASK_TYPES.delivery;
+        const item = document.createElement('div');
+        const isSelected = (index === selectedSearchItemIndex);
+
+        item.className = `search-result-item flex items-center justify-between gap-3 p-3 rounded-2xl border transition-all cursor-pointer ${
+          isSelected ? 'bg-indigo-50/80 border-indigo-200' : 'bg-slate-50/60 hover:bg-slate-100/80 border-slate-100'
+        }`;
+        item.setAttribute('data-task-id', task.id);
+        item.setAttribute('data-index', index);
+
+        item.onclick = () => selectSearchResult(task.id);
+
+        item.innerHTML = `
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+              <span class="inline-flex items-center gap-1 text-[11px] font-extrabold px-2 py-0.5 rounded-lg" style="background-color: ${sub.color}18; color: ${sub.color};">
+                <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${sub.color}"></span>
+                <span class="truncate">${escapeHtml(sub.name)}</span>
+              </span>
+              <span class="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-lg border ${typeInfo.badgeClass}">
+                <span>${typeInfo.icon}</span>
+                <span>${typeInfo.shortLabel}</span>
+              </span>
+              <span class="text-[11px] font-semibold text-slate-400 ml-auto">${task.date} (${task.time || '23:59'})</span>
+            </div>
+            <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate ${task.completed ? 'line-through text-slate-400' : ''}">
+              ${escapeHtml(task.title)}
+            </h4>
+            ${task.description ? `<p class="text-xs text-slate-500 truncate mt-0.5">${escapeHtml(task.description)}</p>` : ''}
+          </div>
+          <span class="text-indigo-600 flex-shrink-0 opacity-0 group-hover:opacity-100 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </span>
+        `;
+
+        container.appendChild(item);
+      });
+    }
+
+    window.selectSearchResult = function(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      closeSearchModal();
+
+      if (currentMainView === 'timeline') {
+        renderTimelineView();
+        setTimeout(() => {
+          const cards = document.querySelectorAll(`[data-task-id="${taskId}"]`);
+          if (cards.length > 0) {
+            cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            cards[0].classList.add('task-card-highlight');
+            setTimeout(() => cards[0].classList.remove('task-card-highlight'), 3000);
+          }
+        }, 200);
+        return;
+      }
+
+      // Jump to task's week
+      const taskDate = new Date(task.date + 'T00:00:00');
+      currentWeekStart = getMonday(taskDate);
+      selectedMobileDayIndex = (taskDate.getDay() + 6) % 7;
+
+      renderBoard();
+      scrollToDayStrip();
+
+      setTimeout(() => {
+        const card = document.getElementById(`task-card-${task.id}`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+          card.classList.add('task-card-highlight');
+          setTimeout(() => {
+            card.classList.remove('task-card-highlight');
+          }, 3000);
+        }
+      }, 250);
+    };
+
+    // Live search input event listeners
+    setTimeout(() => {
+      const cmdInput = document.getElementById('commandPaletteInput');
+      if (cmdInput) {
+        cmdInput.addEventListener('input', () => {
+          selectedSearchItemIndex = -1;
+          renderCommandPaletteResults();
+        });
+
+        cmdInput.addEventListener('keydown', (e) => {
+          const container = document.getElementById('commandPaletteResults');
+          if (!container) return;
+          const items = container.querySelectorAll('.search-result-item');
+          if (items.length === 0) return;
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedSearchItemIndex = (selectedSearchItemIndex + 1) % items.length;
+            highlightCommandPaletteItem(items);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedSearchItemIndex = (selectedSearchItemIndex - 1 + items.length) % items.length;
+            highlightCommandPaletteItem(items);
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedSearchItemIndex >= 0 && items[selectedSearchItemIndex]) {
+              const taskId = items[selectedSearchItemIndex].getAttribute('data-task-id');
+              selectSearchResult(taskId);
+            } else if (items.length > 0) {
+              const taskId = items[0].getAttribute('data-task-id');
+              selectSearchResult(taskId);
+            }
+          }
+        });
+      }
+    }, 100);
+
+    function highlightCommandPaletteItem(items) {
+      items.forEach((item, idx) => {
+        if (idx === selectedSearchItemIndex) {
+          item.className = 'search-result-item is-selected flex items-center justify-between gap-3 p-3 rounded-2xl border transition-all cursor-pointer bg-indigo-50/90 border-indigo-300';
+          item.scrollIntoView({ block: 'nearest' });
+        } else {
+          item.className = 'search-result-item flex items-center justify-between gap-3 p-3 rounded-2xl border transition-all cursor-pointer bg-slate-50/60 hover:bg-slate-100/80 border-slate-100';
+        }
+      });
+    }
+
+    /* =========================================================
+       TASK MODAL & ACTIONS
+       ========================================================= */
     window.openNewTaskForDate = function(dateYmd) {
       document.getElementById('taskIdInput').value = '';
       document.getElementById('taskForm').reset();
       dismissedUrls.clear();
       setTaskDescContent('');
       closeLinkPopover();
+      selectModalTaskType('delivery');
+      currentEditingTaskSubtasks = [];
+      const subtaskInput = document.getElementById('modalSubtaskInput');
+      if (subtaskInput) subtaskInput.value = '';
+      renderTaskModalSubtasks();
       document.getElementById('modalTitle').textContent = 'Nueva tarea';
       document.getElementById('taskDate').value = dateYmd;
       document.getElementById('taskTime').value = '23:59';
@@ -3831,6 +4708,11 @@
       document.getElementById('taskIdInput').value = task.id;
       document.getElementById('taskTitle').value = task.title;
       document.getElementById('taskSubject').value = task.subjectId;
+      selectModalTaskType(task.type || 'delivery');
+      currentEditingTaskSubtasks = task.subtasks ? JSON.parse(JSON.stringify(task.subtasks)) : [];
+      const subtaskInput = document.getElementById('modalSubtaskInput');
+      if (subtaskInput) subtaskInput.value = '';
+      renderTaskModalSubtasks();
       document.getElementById('taskDate').value = task.date;
       document.getElementById('taskTime').value = task.time || '23:59';
       dismissedUrls.clear();
@@ -3855,6 +4737,7 @@
         () => {
           tasks = tasks.filter(t => t.id !== taskId);
           renderBoard();
+          if (currentMainView === 'timeline') renderTimelineView();
           persistEncryptedUserData();
           if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
             UniTaskCloudDB.deleteTask(currentUser.username, taskId);
@@ -3966,7 +4849,9 @@
       document.getElementById('subjectsModal'),
       document.getElementById('confirmModal'),
       document.getElementById('cloudConfigModal'),
-      document.getElementById('attachmentViewerModal')
+      document.getElementById('attachmentViewerModal'),
+      document.getElementById('searchModal'),
+      document.getElementById('shortcutsModal')
     ].forEach(modal => {
       if (modal) {
         modal.addEventListener('click', (e) => {
@@ -4041,8 +4926,28 @@
       const today = new Date();
       openNewTaskForDate(formatDateToYMD(today));
     }
-    document.getElementById('btnNewTask').addEventListener('click', openDefaultNewTask);
-    document.getElementById('mobileFabNewTask').addEventListener('click', openDefaultNewTask);
+    window.openDefaultNewTask = openDefaultNewTask;
+
+    const btnNewTaskEl = document.getElementById('btnNewTask');
+    if (btnNewTaskEl) btnNewTaskEl.addEventListener('click', openDefaultNewTask);
+    const mobileFabEl = document.getElementById('mobileFabNewTask');
+    if (mobileFabEl) mobileFabEl.addEventListener('click', openDefaultNewTask);
+
+    const btnOpenSearchEl = document.getElementById('btnOpenSearch');
+    if (btnOpenSearchEl) {
+      btnOpenSearchEl.addEventListener('click', (e) => {
+        e.preventDefault();
+        openSearchModal();
+      });
+    }
+
+    const btnShortcutsHelpEl = document.getElementById('btnShortcutsHelp');
+    if (btnShortcutsHelpEl) {
+      btnShortcutsHelpEl.addEventListener('click', (e) => {
+        e.preventDefault();
+        openShortcutsModal();
+      });
+    }
 
     document.getElementById('btnCloseTaskModal').addEventListener('click', () => {
       closeLinkPopover();
@@ -4062,6 +4967,7 @@
       const time = document.getElementById('taskTime').value;
       const description = getTaskDescContent();
       const priority = document.getElementById('taskPriority').value;
+      const type = document.getElementById('taskType') ? document.getElementById('taskType').value : 'delivery';
 
       if (!title || !date || !subjectId) return;
 
@@ -4074,6 +4980,8 @@
           task.time = time;
           task.description = description;
           task.priority = priority;
+          task.type = type;
+          task.subtasks = [...currentEditingTaskSubtasks];
           task.attachments = [...currentEditingTaskAttachments];
           if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
             UniTaskCloudDB.saveTask(currentUser.username, task);
@@ -4089,6 +4997,8 @@
           time,
           description,
           priority,
+          type,
+          subtasks: [...currentEditingTaskSubtasks],
           completed: false,
           attachments: [...currentEditingTaskAttachments]
         };
@@ -4100,8 +5010,12 @@
       }
 
       currentEditingTaskAttachments = [];
+      currentEditingTaskSubtasks = [];
       closeModalEl(document.getElementById('taskModal'));
       renderBoard();
+      if (currentMainView === 'timeline') {
+        renderTimelineView();
+      }
       persistEncryptedUserData();
     });
 
@@ -4190,8 +5104,23 @@
 
     document.getElementById('btnToday').addEventListener('click', goToToday);
 
-    // Atajos de teclado para navegación de fechas (T: Hoy, N: Semana siguiente, P: Semana anterior)
+    // Atajos de teclado globales (Ctrl+K / /: Búsqueda, C: Nueva tarea, T: Hoy, N: Sig. semana, P: Ant. semana, ?: Ayuda atajos, Esc: Cerrar)
     document.addEventListener('keydown', (e) => {
+      const authScreen = document.getElementById('authScreen');
+      const isAuthActive = authScreen && !authScreen.classList.contains('hidden');
+
+      // Cerrar modales activos con tecla Escape
+      if (e.key === 'Escape') {
+        const activeModal = document.querySelector('.modal-backdrop.is-active');
+        if (activeModal) {
+          e.preventDefault();
+          if (activeModal.id === 'subjectsModal') editingSubjectId = null;
+          if (activeModal.id === 'taskModal') closeLinkPopover();
+          closeModalEl(activeModal);
+          return;
+        }
+      }
+
       // Ignorar si el usuario está interactuando con inputs, select, textarea o editables
       const target = e.target;
       if (target && (
@@ -4203,41 +5132,35 @@
         return;
       }
 
-      // Cerrar modales activos con tecla Escape si no se está editando dentro de un input
-      if (e.key === 'Escape') {
-        const activeModal = document.querySelector('.modal-backdrop.is-active');
-        if (activeModal) {
-          e.preventDefault();
-          if (activeModal.id === 'subjectsModal') editingSubjectId = null;
-          closeModalEl(activeModal);
-          return;
-        }
-      }
-
-      // Ignorar combinaciones con teclas modificadoras del sistema (Ctrl, Alt, Meta/Cmd)
-      if (e.ctrlKey || e.altKey || e.metaKey) return;
-
       // Ignorar si la pantalla de login/registro está activa o no hay usuario
-      const authScreen = document.getElementById('authScreen');
-      if (authScreen && !authScreen.classList.contains('hidden')) {
+      if (isAuthActive || !currentUser) {
         return;
       }
-      if (!currentUser) return;
 
-      // Ignorar si hay algún modal abierto
+      // Si hay algún modal abierto, no procesar atajos simples
       const activeModal = document.querySelector('.modal-backdrop.is-active');
       if (activeModal) {
         return;
       }
 
+      // Tecla ? para ver atajos de teclado
+      if (e.key === '?' || (e.shiftKey && (e.key === '/' || e.code === 'Slash'))) {
+        e.preventDefault();
+        openShortcutsModal();
+        return;
+      }
+
+      // Ignorar combinaciones con teclas modificadoras para el resto de atajos
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
       const key = e.key.toUpperCase();
-      if (key === 'T') {
+      if (key === 'T' || e.code === 'KeyT') {
         e.preventDefault();
         window.goToToday();
-      } else if (key === 'N') {
+      } else if (key === 'N' || e.code === 'KeyN') {
         e.preventDefault();
         window.goToNextWeek();
-      } else if (key === 'P') {
+      } else if (key === 'P' || e.code === 'KeyP') {
         e.preventDefault();
         window.goToPrevWeek();
       }

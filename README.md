@@ -37,13 +37,34 @@
 
 - 🗓️ **Tablero Semanal**:
   - Navegación ágil entre semanas y salto inmediato a "Hoy".
-  - ⌨️ **Atajos de Teclado**:
-    - `T`: Ir al día de hoy.
-    - `N`: Ir a la semana que viene (siguiente).
-    - `P`: Ir a la semana anterior.
-    - `Esc`: Cerrar modales abiertos.
-  - Barra de progreso que calcula el porcentaje de cumplimiento semanal.
-  - Prioridades visuales: 🔴 Alta, 🟡 Media, 🟢 Baja.
+- 🔍 **Búsqueda Global y Command Palette (`Ctrl + K` o `/`)**:
+  - Buscador inteligente en tiempo real por título, asignatura, descripción y subtareas.
+  - Navegación ágil por teclado (`↑` / `↓` / `Enter`) y filtros rápidos (Todos, Pendientes, Completadas, Exámenes).
+  - Salto automático a la semana correspondiente con destello visual de foco (`task-card-highlight`).
+
+- 🗂️ **Arrastrar y Soltar (Drag & Drop) entre Días**:
+  - Mueve tareas entre columnas de días arrastrando directamente en el tablero semanal.
+  - Compatible con el sistema de adjuntos y persistencia cifrada automática.
+
+- ✅ **Subtareas / Lista de Comprobación (Checklist)**:
+  - Desglosa entregas complejas en pasos o hitos específicos.
+  - Indicador de micro-progreso visual en cada tarjeta con casillas interactivas directas.
+
+- 🏷️ **Tipología de Tareas con Iconos**:
+  - Clasificación visual por tipo: 📦 Práctica/Entrega, 📝 Examen, 👥 Trabajo Grupal, 🎓 Tutoría, 📌 Otro.
+  - Badges de color distintivos en tarjetas y listados.
+
+- ⏳ **Vista Panorámica de Línea de Tiempo (Timeline)**:
+  - Visualiza todo el cuatrimestre o curso académico en una perspectiva cronológica continua.
+  - Clasificación inteligente de tareas: *Vencidas*, *Hoy*, *Esta semana*, *Próximas* y *Completadas*.
+
+- ⌨️ **Atajos de Teclado de Navegación**:
+  - `T`: Volver al día de hoy.
+  - `N`: Ir a la semana siguiente.
+  - `P`: Ir a la semana anterior.
+  - `?`: Abrir la chuleta de atajos de teclado.
+  - `Esc`: Cerrar modales o ventanas activas.
+  - Doble clic en cualquier columna de día para crear una tarea en esa fecha concreta.
 
 - 🎨 **Gestión de Asignaturas**:
   - Colores personalizados por materia.
@@ -54,7 +75,8 @@
 
 ## 🛠️ Tecnologías
 
-- **HTML5 & CSS3** con diseño adaptativo.
+- **HTML5 & CSS3** con diseño adaptativo y micro-animaciones.
 - **Web Crypto API** nativa del navegador (`crypto.subtle`).
-- **IndexedDB** para persistencia estructurada local.
+- **IndexedDB** para persistencia estructurada local cifrada.
+- **Service Worker & PWA** para soporte offline total.
 - **Tailwind CSS** (vía CDN) & **Google Fonts** (Plus Jakarta Sans).
