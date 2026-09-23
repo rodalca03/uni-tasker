@@ -37,6 +37,11 @@
 
 - 🗓️ **Tablero Semanal**:
   - Navegación ágil entre semanas y salto inmediato a "Hoy".
+  - ⌨️ **Atajos de Teclado**:
+    - `T`: Ir al día de hoy.
+    - `N`: Ir a la semana que viene (siguiente).
+    - `P`: Ir a la semana anterior.
+    - `Esc`: Cerrar modales abiertos.
   - Barra de progreso que calcula el porcentaje de cumplimiento semanal.
   - Prioridades visuales: 🔴 Alta, 🟡 Media, 🟢 Baja.
 

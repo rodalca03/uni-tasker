@@ -653,17 +653,17 @@
         <!-- Row 1 on mobile / Left group on Desktop: Week Navigation, Range and (on mobile) Progress -->
         <div class="flex items-center justify-between lg:justify-start gap-2 sm:gap-2.5 min-w-0 flex-shrink-0">
           <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
-            <button id="btnPrevWeek" title="Semana anterior" class="btn-action w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200/80 transition-colors">
+            <button id="btnPrevWeek" title="Semana anterior (P)" class="btn-action w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200/80 transition-colors">
               <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             
-            <button id="btnToday" class="btn-action h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm font-extrabold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-colors">
+            <button id="btnToday" title="Ir a hoy (T)" class="btn-action h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm font-extrabold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-colors">
               Hoy
             </button>
 
-            <button id="btnNextWeek" title="Semana siguiente" class="btn-action w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200/80 transition-colors">
+            <button id="btnNextWeek" title="Semana siguiente (N)" class="btn-action w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200/80 transition-colors">
               <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
               </svg>
@@ -4163,15 +4163,20 @@
       }, 150);
     }
 
-    document.getElementById('btnPrevWeek').addEventListener('click', () => {
+    function goToPrevWeek() {
       currentWeekStart.setDate(currentWeekStart.getDate() - 7);
       animateBoardTransition();
-    });
+    }
+    window.goToPrevWeek = goToPrevWeek;
 
-    document.getElementById('btnNextWeek').addEventListener('click', () => {
+    function goToNextWeek() {
       currentWeekStart.setDate(currentWeekStart.getDate() + 7);
       animateBoardTransition();
-    });
+    }
+    window.goToNextWeek = goToNextWeek;
+
+    document.getElementById('btnPrevWeek').addEventListener('click', goToPrevWeek);
+    document.getElementById('btnNextWeek').addEventListener('click', goToNextWeek);
 
     window.goToToday = function() {
       currentWeekStart = getMonday(new Date());
@@ -4184,6 +4189,59 @@
     };
 
     document.getElementById('btnToday').addEventListener('click', goToToday);
+
+    // Atajos de teclado para navegación de fechas (T: Hoy, N: Semana siguiente, P: Semana anterior)
+    document.addEventListener('keydown', (e) => {
+      // Ignorar si el usuario está interactuando con inputs, select, textarea o editables
+      const target = e.target;
+      if (target && (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.isContentEditable
+      )) {
+        return;
+      }
+
+      // Cerrar modales activos con tecla Escape si no se está editando dentro de un input
+      if (e.key === 'Escape') {
+        const activeModal = document.querySelector('.modal-backdrop.is-active');
+        if (activeModal) {
+          e.preventDefault();
+          if (activeModal.id === 'subjectsModal') editingSubjectId = null;
+          closeModalEl(activeModal);
+          return;
+        }
+      }
+
+      // Ignorar combinaciones con teclas modificadoras del sistema (Ctrl, Alt, Meta/Cmd)
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      // Ignorar si la pantalla de login/registro está activa o no hay usuario
+      const authScreen = document.getElementById('authScreen');
+      if (authScreen && !authScreen.classList.contains('hidden')) {
+        return;
+      }
+      if (!currentUser) return;
+
+      // Ignorar si hay algún modal abierto
+      const activeModal = document.querySelector('.modal-backdrop.is-active');
+      if (activeModal) {
+        return;
+      }
+
+      const key = e.key.toUpperCase();
+      if (key === 'T') {
+        e.preventDefault();
+        window.goToToday();
+      } else if (key === 'N') {
+        e.preventDefault();
+        window.goToNextWeek();
+      } else if (key === 'P') {
+        e.preventDefault();
+        window.goToPrevWeek();
+      }
+    });
 
     // Desktop horizontal scroll buttons & mouse wheel support
     const weeklyBoardEl = document.getElementById('weeklyBoard');
