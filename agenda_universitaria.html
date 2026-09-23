@@ -5194,42 +5194,6 @@
       }
     });
 
-    // Desktop horizontal scroll buttons & mouse wheel support
-    const weeklyBoardEl = document.getElementById('weeklyBoard');
-    const btnScrollLeft = document.getElementById('btnScrollBoardLeft');
-    const btnScrollRight = document.getElementById('btnScrollBoardRight');
-
-    if (btnScrollLeft && weeklyBoardEl) {
-      btnScrollLeft.addEventListener('click', () => {
-        const colWidth = weeklyBoardEl.clientWidth / 4;
-        weeklyBoardEl.scrollBy({ left: -(colWidth * 2), behavior: 'smooth' });
-      });
-    }
-
-    if (btnScrollRight && weeklyBoardEl) {
-      btnScrollRight.addEventListener('click', () => {
-        const colWidth = weeklyBoardEl.clientWidth / 4;
-        weeklyBoardEl.scrollBy({ left: (colWidth * 2), behavior: 'smooth' });
-      });
-    }
-
-    if (weeklyBoardEl) {
-      weeklyBoardEl.addEventListener('wheel', (e) => {
-        if (window.innerWidth >= 1024) {
-          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-            const maxScroll = weeklyBoardEl.scrollWidth - weeklyBoardEl.clientWidth;
-            if (maxScroll > 0) {
-              if ((e.deltaY > 0 && weeklyBoardEl.scrollLeft < maxScroll) ||
-                  (e.deltaY < 0 && weeklyBoardEl.scrollLeft > 0)) {
-                e.preventDefault();
-                weeklyBoardEl.scrollLeft += e.deltaY;
-              }
-            }
-          }
-        }
-      }, { passive: false });
-    }
-
     document.querySelectorAll('.filter-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-tab-btn').forEach(b => {
