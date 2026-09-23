@@ -740,36 +740,39 @@
         </div>
 
         <!-- Row 2 on mobile / Middle & Right groups on Desktop -->
-        <div class="flex items-center justify-between lg:justify-end gap-1.5 sm:gap-2.5 min-w-0 flex-1 w-full lg:w-auto">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between lg:justify-end gap-2 sm:gap-2.5 min-w-0 flex-1 w-full lg:w-auto">
           <!-- Subject Filter Dropdown -->
-          <div class="relative flex-1 min-w-0 max-w-full sm:max-w-[200px]">
-            <select id="filterSubject" class="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 py-1 pl-2 sm:pl-3 pr-6 sm:pr-7 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors cursor-pointer appearance-none truncate">
+          <div class="relative w-full sm:w-auto sm:min-w-[150px] sm:max-w-[200px] flex-shrink-0">
+            <select id="filterSubject" class="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 py-1 pl-2.5 sm:pl-3 pr-7 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors cursor-pointer appearance-none truncate">
               <option value="ALL">Todas las asignaturas</option>
             </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 sm:px-2 text-slate-400">
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
               <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
           </div>
 
-          <!-- Main View Mode Switcher (Semanal vs Timeline) -->
-          <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0">
-            <button id="btnViewWeekly" onclick="switchMainView('board')" title="Vista semanal por columnas" class="main-view-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-              <span>Semanal</span>
-            </button>
-            <button id="btnViewTimeline" onclick="switchMainView('timeline')" title="Vista cronológica completa" class="main-view-btn px-2 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <span>Timeline</span>
-            </button>
-          </div>
+          <!-- Mobile Controls Row (View Switcher + Status Tabs) -->
+          <div class="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar py-0.5 min-w-0">
+            <!-- Main View Mode Switcher (Semanal vs Timeline) -->
+            <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0">
+              <button id="btnViewWeekly" onclick="switchMainView('board')" title="Vista semanal por columnas" class="main-view-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                <span class="whitespace-nowrap">Semanal</span>
+              </button>
+              <button id="btnViewTimeline" onclick="switchMainView('timeline')" title="Vista cronológica completa" class="main-view-btn px-2 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="whitespace-nowrap">Timeline</span>
+              </button>
+            </div>
 
-          <!-- Status Filter Tabs -->
-          <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0 max-w-full">
-            <button data-filter="all" class="filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Todas</button>
-            <button data-filter="pending" class="filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Pendientes</button>
-            <button data-filter="completed" class="filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Entregadas</button>
+            <!-- Status Filter Tabs -->
+            <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0">
+              <button data-filter="all" class="filter-tab-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Todas</button>
+              <button data-filter="pending" class="filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Pendientes</button>
+              <button data-filter="completed" class="filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Entregadas</button>
+            </div>
           </div>
 
           <!-- Desktop Weekly Progress Bar & Stats -->
