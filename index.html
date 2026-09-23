@@ -1891,12 +1891,54 @@
       screen.classList.remove('opacity-0', 'pointer-events-none', 'scale-105');
     }
 
+    function scrollToToday(smooth = true) {
+      const todayIndex = getInitialDayIndex();
+      selectedMobileDayIndex = todayIndex;
+
+      // 1. Desktop / Horizontal Weekly Board Scroll
+      const board = document.getElementById('weeklyBoard');
+      if (board) {
+        const todayCol = document.getElementById(`day-column-${todayIndex}`);
+        if (todayCol && board.scrollWidth > board.clientWidth) {
+          const boardRect = board.getBoundingClientRect();
+          const colRect = todayCol.getBoundingClientRect();
+          const targetScrollLeft = colRect.left - boardRect.left + board.scrollLeft;
+
+          board.scrollTo({
+            left: Math.max(0, targetScrollLeft),
+            behavior: smooth ? 'smooth' : 'auto'
+          });
+        }
+      }
+
+      // 2. Mobile Day Strip Horizontal Scroll (if overflowing on smaller screens)
+      const mobileStrip = document.getElementById('mobileDayStrip');
+      if (mobileStrip && mobileStrip.children[todayIndex]) {
+        const todayBtn = mobileStrip.children[todayIndex];
+        if (mobileStrip.scrollWidth > mobileStrip.clientWidth) {
+          const stripRect = mobileStrip.getBoundingClientRect();
+          const btnRect = todayBtn.getBoundingClientRect();
+          const targetBtnLeft = btnRect.left - stripRect.left + mobileStrip.scrollLeft - (mobileStrip.clientWidth / 2) + (btnRect.width / 2);
+          mobileStrip.scrollTo({
+            left: Math.max(0, targetBtnLeft),
+            behavior: smooth ? 'smooth' : 'auto'
+          });
+        }
+      }
+    }
+    window.scrollToToday = scrollToToday;
+
     function hideAuthScreen() {
       const screen = document.getElementById('authScreen');
       screen.classList.add('opacity-0', 'pointer-events-none', 'scale-105');
       setTimeout(() => {
         screen.classList.add('hidden');
       }, 350);
+
+      // Scroll horizontal automático al día de hoy al iniciar sesión
+      setTimeout(() => {
+        scrollToToday(true);
+      }, 150);
     }
 
     document.getElementById('authForm').addEventListener('submit', async (e) => {
@@ -2119,6 +2161,8 @@
       currentUser = { username, displayName, encKey, isGuest };
       subjects = data.subjects || [];
       tasks = data.tasks || [];
+      currentWeekStart = getMonday(new Date());
+      selectedMobileDayIndex = getInitialDayIndex();
 
       await saveTemporarySession(username, displayName, encKey, isGuest);
 
@@ -2180,7 +2224,11 @@
       currentUser = null;
       subjects = [];
       tasks = [];
+      currentWeekStart = getMonday(new Date());
+      selectedMobileDayIndex = getInitialDayIndex();
       renderBoard();
+      const board = document.getElementById('weeklyBoard');
+      if (board) board.scrollLeft = 0;
       document.getElementById('authForm').reset();
       setAuthMode('login');
       showAuthScreen();
@@ -3795,15 +3843,9 @@
       selectedMobileDayIndex = getInitialDayIndex();
       animateBoardTransition();
       scrollToDayStrip();
-      if (window.innerWidth >= 1024) {
-        setTimeout(() => {
-          const board = document.getElementById('weeklyBoard');
-          const todayCol = document.getElementById(`day-column-${selectedMobileDayIndex}`);
-          if (todayCol && board) {
-            todayCol.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
-          }
-        }, 200);
-      }
+      setTimeout(() => {
+        scrollToToday(true);
+      }, 200);
     };
 
     document.getElementById('btnToday').addEventListener('click', goToToday);
