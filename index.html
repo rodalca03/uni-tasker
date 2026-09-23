@@ -1385,6 +1385,14 @@
       </div>
       <div class="p-5 space-y-2.5 overflow-y-auto custom-scrollbar text-xs sm:text-sm">
         <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Buscar tareas / Command Palette</span>
+          <div class="flex items-center gap-1"><kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">Ctrl</kbd>+<kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">K</kbd> <span class="text-slate-400">o</span> <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">/</kbd></div>
+        </div>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Crear nueva tarea</span>
+          <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">C</kbd>
+        </div>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
           <span class="text-slate-700 font-medium">Ir a la semana actual (Hoy)</span>
           <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">T</kbd>
         </div>
@@ -5109,6 +5117,20 @@
       const authScreen = document.getElementById('authScreen');
       const isAuthActive = authScreen && !authScreen.classList.contains('hidden');
 
+      // Command Palette (Ctrl+K o Cmd+K) accesible globalmente
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        if (!isAuthActive && currentUser) {
+          e.preventDefault();
+          const searchModal = document.getElementById('searchModal');
+          if (searchModal && searchModal.classList.contains('is-active')) {
+            closeSearchModal();
+          } else {
+            openSearchModal();
+          }
+        }
+        return;
+      }
+
       // Cerrar modales activos con tecla Escape
       if (e.key === 'Escape') {
         const activeModal = document.querySelector('.modal-backdrop.is-active');
@@ -5143,6 +5165,13 @@
         return;
       }
 
+      // Tecla / para abrir Paleta de comandos / Búsqueda (sin Shift)
+      if (e.key === '/' || (!e.shiftKey && e.code === 'Slash')) {
+        e.preventDefault();
+        openSearchModal();
+        return;
+      }
+
       // Tecla ? para ver atajos de teclado
       if (e.key === '?' || (e.shiftKey && (e.key === '/' || e.code === 'Slash'))) {
         e.preventDefault();
@@ -5154,7 +5183,10 @@
       if (e.ctrlKey || e.altKey || e.metaKey) return;
 
       const key = e.key.toUpperCase();
-      if (key === 'T' || e.code === 'KeyT') {
+      if (key === 'C' || e.code === 'KeyC') {
+        e.preventDefault();
+        openDefaultNewTask();
+      } else if (key === 'T' || e.code === 'KeyT') {
         e.preventDefault();
         window.goToToday();
       } else if (key === 'N' || e.code === 'KeyN') {

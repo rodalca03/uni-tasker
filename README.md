@@ -58,7 +58,9 @@
   - Visualiza todo el cuatrimestre o curso académico en una perspectiva cronológica continua.
   - Clasificación inteligente de tareas: *Vencidas*, *Hoy*, *Esta semana*, *Próximas* y *Completadas*.
 
-- ⌨️ **Atajos de Teclado de Navegación**:
+- ⌨️ **Atajos de Teclado de Navegación y Productividad**:
+  - `Ctrl + K` o `/`: Abrir la paleta de comandos y búsqueda global.
+  - `C`: Abrir modal de creación de nueva tarea.
   - `T`: Volver al día de hoy.
   - `N`: Ir a la semana siguiente.
   - `P`: Ir a la semana anterior.
