@@ -2197,6 +2197,10 @@
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
+    const MONTH_SHORT = [
+      'Ene.', 'Feb.', 'Mar.', 'Abr.', 'May.', 'Jun.',
+      'Jul.', 'Ago.', 'Sep.', 'Oct.', 'Nov.', 'Dic.'
+    ];
 
     /* =========================================================
        4. AUTHENTICATION (FULL SCREEN EXPERIENCE)
@@ -2665,9 +2669,18 @@
       currentWeekEnd.setDate(currentWeekEnd.getDate() + 6);
 
       const isSameMonth = currentWeekStart.getMonth() === currentWeekEnd.getMonth();
-      const rangeText = isSameMonth
-        ? `${currentWeekStart.getDate()} - ${currentWeekEnd.getDate()} de ${MONTH_NAMES[currentWeekStart.getMonth()]} ${currentWeekEnd.getFullYear()}`
-        : `${currentWeekStart.getDate()} ${MONTH_NAMES[currentWeekStart.getMonth()].slice(0, 3)} - ${currentWeekEnd.getDate()} ${MONTH_NAMES[currentWeekStart.getMonth()].slice(0, 3)} ${currentWeekEnd.getFullYear()}`;
+      const isSameYear = currentWeekStart.getFullYear() === currentWeekEnd.getFullYear();
+      const startMonth = MONTH_SHORT[currentWeekStart.getMonth()];
+      const endMonth = MONTH_SHORT[currentWeekEnd.getMonth()];
+
+      let rangeText = '';
+      if (isSameMonth) {
+        rangeText = `${currentWeekStart.getDate()} - ${currentWeekEnd.getDate()} de ${startMonth} ${currentWeekEnd.getFullYear()}`;
+      } else if (isSameYear) {
+        rangeText = `${currentWeekStart.getDate()} ${startMonth} - ${currentWeekEnd.getDate()} ${endMonth} ${currentWeekEnd.getFullYear()}`;
+      } else {
+        rangeText = `${currentWeekStart.getDate()} ${startMonth} ${currentWeekStart.getFullYear()} - ${currentWeekEnd.getDate()} ${endMonth} ${currentWeekEnd.getFullYear()}`;
+      }
       
       document.getElementById('currentWeekRange').textContent = rangeText;
 
