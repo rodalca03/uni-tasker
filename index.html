@@ -742,7 +742,7 @@
         <!-- Row 2 on mobile / Middle & Right groups on Desktop -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between lg:justify-end gap-2 sm:gap-2.5 min-w-0 flex-1 w-full lg:w-auto">
           <!-- Subject Filter Dropdown -->
-          <div class="relative w-full sm:w-auto sm:min-w-[150px] sm:max-w-[200px] flex-shrink-0">
+          <div class="relative w-full sm:w-40 xl:w-44 max-w-[170px] xl:max-w-[185px] flex-shrink-0">
             <select id="filterSubject" class="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 py-1 pl-2.5 sm:pl-3 pr-7 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors cursor-pointer appearance-none truncate">
               <option value="ALL">Todas las asignaturas</option>
             </select>
@@ -754,7 +754,7 @@
           </div>
 
           <!-- Mobile Controls Row (View Switcher + Status Tabs) -->
-          <div class="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar py-0.5 min-w-0">
+          <div class="flex items-center justify-between gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar py-0.5 flex-shrink-0">
             <!-- Main View Mode Switcher (Semanal vs Timeline) -->
             <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0">
               <button id="btnViewWeekly" onclick="switchMainView('board')" title="Vista semanal por columnas" class="main-view-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs flex items-center gap-1">
@@ -777,7 +777,7 @@
 
           <!-- Desktop Weekly Progress Bar & Stats -->
           <div class="hidden lg:flex items-center gap-2 sm:gap-2.5 bg-slate-50/90 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-slate-200/70 min-w-0 flex-shrink-0">
-            <div class="flex flex-col justify-center min-w-[110px] sm:min-w-[130px]">
+            <div class="flex flex-col justify-center min-w-[95px] xl:min-w-[125px]">
               <div class="flex items-center justify-between text-[11px] sm:text-xs font-bold text-slate-700 leading-tight mb-1">
                 <span id="weekStatsText" class="truncate">0 de 0 completadas</span>
                 <span id="weekStatsPercent" class="text-indigo-600 font-extrabold ml-1.5 flex-shrink-0">0%</span>
