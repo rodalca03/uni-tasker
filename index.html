@@ -2115,6 +2115,10 @@
           }
         }
 
+        if (UniTaskCloudDB.isConfigured && userRecord) {
+          await UniTaskCloudDB.saveUser(userRecord);
+        }
+
         await activateUserSession(userRecord.username, userRecord.displayName || userRecord.username, encKey, false, userData);
         hideAuthScreen();
         showToast(`Sesión iniciada. Tareas y asignaturas sincronizadas ☁️`);
@@ -2257,6 +2261,10 @@
 
       // Real-time synchronization across devices for tasks and subjects
       if (UniTaskCloudDB.isConfigured && !isGuest) {
+        const localUser = await UniTaskDB.getLocalUser(username);
+        if (localUser) {
+          await UniTaskCloudDB.saveUser(localUser);
+        }
         UniTaskCloudDB.listenToUserData(username, handleRemoteDataUpdate);
       }
     }
@@ -4406,6 +4414,26 @@
       }, 1000);
     });
 
+    /* Automatic Cloud Account Migration */
+    async function syncLocalAccountsToCloud() {
+      if (!UniTaskCloudDB.isConfigured || !UniTaskDB.db) return;
+      try {
+        const tx = UniTaskDB.db.transaction('users', 'readonly');
+        const store = tx.objectStore('users');
+        const req = store.getAll();
+        req.onsuccess = async () => {
+          const allUsers = req.result || [];
+          for (const u of allUsers) {
+            if (u && u.username) {
+              await UniTaskCloudDB.saveUser(u);
+            }
+          }
+        };
+      } catch (e) {
+        console.warn('Error sincronizando cuentas locales a la nube:', e);
+      }
+    }
+
     /* =========================================================
        APP BOOTSTRAP (WITH RELOAD SESSION PERSISTENCE & CLOUD)
        ========================================================= */
@@ -4413,6 +4441,7 @@
       initTaskDescriptionEditor();
       await UniTaskDB.init();
       await UniTaskCloudDB.init();
+      await syncLocalAccountsToCloud();
       await checkUrlCloudConfig();
 
       // Check if there is an active session from before page reload
