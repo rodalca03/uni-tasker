@@ -702,59 +702,62 @@
     
     <!-- Top Bar: Navigation, Filters and Progress in One Line -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs px-2.5 sm:px-4 py-2 sm:py-2.5 mb-3.5 transition-all min-w-0 overflow-hidden">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-2.5 min-w-0">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 min-w-0">
         
-        <!-- Row 1 on mobile / Left group on Desktop: Week Navigation, Range and (on mobile) Progress -->
-        <div class="flex items-center justify-between lg:justify-start gap-2 sm:gap-2.5 min-w-0 flex-shrink-0">
-          <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
-            <button id="btnPrevWeek" title="Semana anterior (P)" class="btn-action w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200/80 transition-colors">
-              <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <button id="btnToday" title="Ir a hoy (T)" class="btn-action h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm font-extrabold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-colors">
-              Hoy
-            </button>
+        <!-- Level 1 on mobile / Left group on Desktop: Week Navigation, Range and (on mobile) Progress -->
+        <div class="flex items-center justify-between lg:justify-start gap-2 min-w-0 w-full lg:w-auto flex-shrink-0">
+          <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
+              <button id="btnPrevWeek" title="Semana anterior (P)" class="btn-action w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200/80 transition-colors">
+                <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              <button id="btnToday" title="Ir a hoy (T)" class="btn-action h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm font-extrabold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-colors">
+                Hoy
+              </button>
 
-            <button id="btnNextWeek" title="Semana siguiente (N)" class="btn-action w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200/80 transition-colors">
-              <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
+              <button id="btnNextWeek" title="Semana siguiente (N)" class="btn-action w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200/80 transition-colors">
+                <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
 
-          <div class="flex items-center gap-2 min-w-0">
-            <span id="currentWeekRange" class="font-extrabold text-slate-900 text-xs sm:text-sm tracking-tight truncate">
-              Cargando semana...
-            </span>
+            <div class="flex items-center min-w-0">
+              <span id="currentWeekRange" class="font-extrabold text-slate-900 text-xs sm:text-sm tracking-tight truncate">
+                Cargando semana...
+              </span>
+            </div>
           </div>
 
           <!-- Mobile Compact Progress Badge -->
           <div class="flex lg:hidden items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200/70 flex-shrink-0">
             <span id="weekStatsPercentMobile" class="text-xs font-extrabold text-indigo-600">0%</span>
-            <div class="w-10 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+            <div class="w-12 bg-slate-200 rounded-full h-1.5 overflow-hidden">
               <div id="weekProgressBarMobile" class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
           </div>
         </div>
 
-        <!-- Row 2 on mobile / Middle & Right groups on Desktop -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between lg:justify-end gap-2 sm:gap-2.5 min-w-0 flex-1 w-full lg:w-auto">
-          <!-- Subject Filter Dropdown -->
-          <div class="relative w-full sm:w-40 xl:w-44 max-w-[170px] xl:max-w-[185px] flex-shrink-0">
-            <select id="filterSubject" class="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 py-1 pl-2.5 sm:pl-3 pr-7 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors cursor-pointer appearance-none truncate">
-              <option value="ALL">Todas las asignaturas</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-              <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
+        <!-- Levels 2 & 3 on mobile / Middle & Right groups on Desktop -->
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between lg:justify-end gap-2 sm:gap-2.5 min-w-0 flex-1 w-full lg:w-auto">
+          
+          <!-- Level 2 on mobile: Todas las asignaturas + Semanal/Timeline -->
+          <div class="flex items-center justify-between gap-2 w-full lg:w-auto flex-shrink-0">
+            <!-- Subject Filter Dropdown -->
+            <div class="relative flex-1 lg:flex-initial sm:w-40 xl:w-44 lg:max-w-[170px] xl:max-w-[185px] min-w-0 flex-shrink-0">
+              <select id="filterSubject" class="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 py-1 pl-2.5 sm:pl-3 pr-7 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors cursor-pointer appearance-none truncate">
+                <option value="ALL">Todas las asignaturas</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
-          </div>
 
-          <!-- Mobile Controls Row (View Switcher + Status Tabs) -->
-          <div class="flex items-center justify-between gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar py-0.5 flex-shrink-0">
             <!-- Main View Mode Switcher (Semanal vs Timeline) -->
             <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0">
               <button id="btnViewWeekly" onclick="switchMainView('board')" title="Vista semanal por columnas" class="main-view-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs flex items-center gap-1">
@@ -766,12 +769,14 @@
                 <span class="whitespace-nowrap">Timeline</span>
               </button>
             </div>
+          </div>
 
-            <!-- Status Filter Tabs -->
-            <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0">
-              <button data-filter="all" class="filter-tab-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Todas</button>
-              <button data-filter="pending" class="filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Pendientes</button>
-              <button data-filter="completed" class="filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Entregadas</button>
+          <!-- Level 3 on mobile: Todas Pendientes Entregadas (ocupando todo el ancho del div) -->
+          <div class="w-full lg:w-auto flex-shrink-0">
+            <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center w-full lg:w-auto">
+              <button data-filter="all" class="filter-tab-btn flex-1 lg:flex-initial px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Todas</button>
+              <button data-filter="pending" class="filter-tab-btn flex-1 lg:flex-initial px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Pendientes</button>
+              <button data-filter="completed" class="filter-tab-btn flex-1 lg:flex-initial px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center">Entregadas</button>
             </div>
           </div>
 
@@ -5210,9 +5215,9 @@
     document.querySelectorAll('.filter-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-tab-btn').forEach(b => {
-          b.className = 'filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center';
+          b.className = 'filter-tab-btn flex-1 lg:flex-initial px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center';
         });
-        btn.className = 'filter-tab-btn px-1.5 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center';
+        btn.className = 'filter-tab-btn flex-1 lg:flex-initial px-1.5 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs whitespace-nowrap text-center';
         activeFilter = btn.getAttribute('data-filter');
         renderBoard();
       });
