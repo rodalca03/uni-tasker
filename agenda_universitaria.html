@@ -90,6 +90,13 @@
       display: inline-block !important;
     }
 
+    /* Never show install button on PC / desktop screens */
+    @media (min-width: 768px) {
+      #btnInstallApp {
+        display: none !important;
+      }
+    }
+
     /* Safe area for modern mobile notches & home bars */
     .safe-area-bottom {
       padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
@@ -609,89 +616,188 @@
        MAIN APPLICATION (TOP APP BAR & BOARD)
        ========================================================= -->
   <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/90 sticky top-0 z-30 shadow-xs transition-all">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16 sm:h-18 gap-3">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-18 gap-2 sm:gap-4">
         
-        <!-- Logo & Title -->
-        <div class="flex items-center space-x-3 cursor-pointer select-none group min-w-0" onclick="goToToday()">
-          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-md shadow-indigo-100 border border-slate-100 group-hover:scale-105 transition-all duration-200 bg-white flex items-center justify-center p-1 flex-shrink-0">
+        <!-- Left Section: Logo & Title -->
+        <div class="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer select-none group flex-shrink-0" onclick="goToToday()">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl overflow-hidden shadow-md shadow-indigo-100 border border-slate-100 group-hover:scale-105 transition-all duration-200 bg-white flex items-center justify-center p-1 flex-shrink-0">
             <img src="assets/logo.png" alt="Studeo Logo" class="w-full h-full object-contain rounded-xl" />
           </div>
           <div class="min-w-0">
-            <div class="flex items-center gap-2">
-              <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight leading-none truncate">Studeo</h1>
-              <span id="cryptoStatusPill" title="Base de datos local protegida con cifrado AES-256-GCM" class="hidden xs:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex-shrink-0">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center gap-1.5 sm:gap-2">
+              <h1 class="text-base sm:text-lg lg:text-xl font-extrabold text-slate-900 tracking-tight leading-none truncate">Studeo</h1>
+              <span id="cryptoStatusPill" title="Base de datos local protegida con cifrado AES-256-GCM" class="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex-shrink-0">
+                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                 </svg>
                 <span>AES-256</span>
               </span>
               <!-- Cloud Sync Status Pill & Button -->
-              <button id="btnCloudStatusHeader" onclick="openCloudConfigModal()" title="Estado de sincronización en la nube (Firebase)" class="hidden xs:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 transition cursor-pointer flex-shrink-0">
-                <svg id="iconCloudHeader" class="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button id="btnCloudStatusHeader" onclick="openCloudConfigModal()" title="Estado de sincronización en la nube (Firebase)" class="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 transition cursor-pointer flex-shrink-0">
+                <svg id="iconCloudHeader" class="w-2.5 h-2.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
                 </svg>
                 <span id="cloudStatusLabel">Solo Local</span>
               </button>
             </div>
-            <p class="text-xs text-slate-500 font-medium leading-tight truncate">Agenda académica</p>
+            <p class="text-[11px] sm:text-xs text-slate-400 font-medium leading-tight truncate">Agenda académica</p>
           </div>
         </div>
 
-        <!-- Desktop Action Buttons & Profile -->
+        <!-- Center Section: Centered VS Code-Style Search Bar -->
+        <div class="flex-1 max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl mx-2 sm:mx-4 flex items-center justify-center min-w-0">
+          <button id="btnOpenSearch" onclick="openSearchModal()" title="Buscar tareas, exámenes, asignaturas... (Ctrl+K o /)" 
+                  class="w-full h-9 sm:h-10 px-3 sm:px-3.5 bg-slate-100/90 hover:bg-slate-200/80 border border-slate-200/90 hover:border-slate-300 rounded-xl sm:rounded-2xl transition-all flex items-center justify-between text-xs sm:text-sm text-slate-500 group shadow-2xs hover:shadow-xs min-w-0">
+            <div class="flex items-center gap-2 sm:gap-2.5 min-w-0 truncate">
+              <svg class="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span class="text-slate-500 truncate font-medium hidden sm:inline">Buscar tareas, exámenes, asignaturas...</span>
+              <span class="text-slate-500 truncate font-medium sm:hidden">Buscar...</span>
+            </div>
+            <div class="hidden xs:flex items-center gap-1 flex-shrink-0 text-[10px] sm:text-[11px] font-mono font-semibold text-slate-400 bg-white px-1.5 sm:px-2 py-0.5 rounded-lg border border-slate-200/80 shadow-2xs group-hover:text-slate-600">
+              <span class="hidden sm:inline">Ctrl</span><span>K</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Right Section: Actions & Profile -->
         <div class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
-          <!-- PWA Install Button (Chrome / Android / Desktop) -->
-          <button id="btnInstallApp" class="pwa-install-btn hidden btn-action px-3 py-2 text-xs sm:text-sm font-extrabold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-2xl transition-all items-center gap-1.5 shadow-2xs">
-            <svg class="w-4.5 h-4.5 text-indigo-600 flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          
+          <!-- PWA Install Button (ONLY on mobile, hidden on PC) -->
+          <button id="btnInstallApp" class="pwa-install-btn hidden md:!hidden btn-action px-2.5 py-1.5 text-xs font-extrabold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-all items-center gap-1.5 shadow-2xs">
+            <svg class="w-4 h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
             </svg>
-            <span class="hidden xs:inline">Instalar app</span>
-            <span class="xs:hidden">Instalar</span>
+            <span>Instalar</span>
           </button>
 
-          <button id="btnOpenSearch" onclick="openSearchModal()" title="Buscar tareas" class="btn-action px-3 py-2 text-xs sm:text-sm font-bold text-slate-700 bg-slate-100/90 hover:bg-slate-200/90 rounded-2xl transition-all inline-flex items-center gap-1.5 sm:gap-2 border border-slate-200/70 shadow-xs">
-            <svg class="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <span class="hidden md:inline">Buscar</span>
-          </button>
+          <!-- Fused 'Nuevo' + 'Asignaturas' Split Button -->
+          <div class="relative inline-flex rounded-2xl shadow-sm shadow-indigo-100" id="newTaskButtonGroup">
+            <button id="btnNewTask" onclick="openDefaultNewTask()" title="Crear nueva tarea (C)" class="btn-action px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 rounded-l-2xl transition-all inline-flex items-center gap-1.5 sm:gap-2">
+              <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.5] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              <span class="hidden sm:inline">Nueva tarea</span>
+              <span class="sm:hidden">Nuevo</span>
+            </button>
+            <button id="btnNewDropdownToggle" onclick="toggleNewActionMenu(event)" title="Opciones: Asignaturas y Tareas" class="btn-action px-2 sm:px-2.5 py-2 sm:py-2.5 text-white bg-indigo-500 hover:bg-indigo-600 border-l border-indigo-400/40 rounded-r-2xl transition-all inline-flex items-center justify-center">
+              <svg id="iconNewDropdown" class="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
 
-          <button id="btnShortcutsHelp" onclick="openShortcutsModal()" title="Atajos de teclado (?)" class="btn-action w-9 h-9 hidden sm:inline-flex items-center justify-center text-slate-500 hover:text-indigo-600 bg-slate-100/90 hover:bg-slate-200/90 rounded-2xl transition-all border border-slate-200/70 shadow-xs">
-            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
-          </button>
-
-          <button id="btnManageSubjects" class="btn-action hidden sm:inline-flex px-3.5 py-2.5 text-sm font-bold text-slate-700 bg-slate-100/90 hover:bg-slate-200/90 rounded-2xl transition-all items-center gap-2 border border-slate-200/70 shadow-xs">
-            <svg class="w-4.5 h-4.5 text-slate-500 flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-            </svg>
-            <span>Asignaturas</span>
-          </button>
-
-          <button id="btnNewTask" class="btn-action hidden sm:inline-flex px-4 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 rounded-2xl shadow-sm shadow-indigo-200 transition-all items-center gap-2">
-            <svg class="w-4.5 h-4.5 stroke-[2.5] flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Nueva tarea</span>
-          </button>
-
-          <!-- User Profile Chip & Logout -->
-          <div class="relative">
-            <div id="userProfileBtn" class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-2xl bg-slate-100/90 border border-slate-200/80 hover:bg-slate-200/90 transition-colors cursor-pointer select-none">
-              <div id="userAvatar" class="w-8 h-8 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-brand-500 text-white flex items-center justify-center font-extrabold text-sm shadow-xs">
-                U
-              </div>
-              <span id="userNameLabel" class="hidden md:inline text-xs sm:text-sm font-bold text-slate-700 max-w-[120px] truncate">
-                Usuario
-              </span>
-              <button id="btnLogout" title="Cerrar sesión segura" class="hidden sm:inline-flex text-slate-400 hover:text-rose-600 p-1 rounded-lg transition items-center justify-center">
-                <svg class="w-4.5 h-4.5 flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
+            <!-- Dropdown Menu for New / Asignaturas -->
+            <div id="newActionMenu" class="hidden absolute right-0 top-full mt-2 w-56 sm:w-60 bg-white rounded-2xl shadow-xl border border-slate-100 py-1.5 z-40 animate-fade-in">
+              <button onclick="openDefaultNewTask(); closeAllHeaderMenus();" class="w-full text-left px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-700 hover:bg-indigo-50/70 hover:text-indigo-600 flex items-center gap-2.5 transition">
+                <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                </span>
+                <div class="min-w-0 flex-1">
+                  <div class="font-extrabold text-slate-800">Nueva tarea</div>
+                  <div class="text-[11px] text-slate-400 font-medium">Atajo rápido: tecla C</div>
+                </div>
+              </button>
+              <button id="btnManageSubjects" onclick="openManageSubjects(); closeAllHeaderMenus();" class="w-full text-left px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-700 hover:bg-indigo-50/70 hover:text-indigo-600 flex items-center gap-2.5 transition border-t border-slate-100">
+                <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                </span>
+                <div class="min-w-0 flex-1">
+                  <div class="font-extrabold text-slate-800">Asignaturas</div>
+                  <div class="text-[11px] text-slate-400 font-medium">Gestionar o crear materias</div>
+                </div>
               </button>
             </div>
           </div>
+
+          <!-- User Profile Chip & Dropdown with Shortcuts -->
+          <div class="relative" id="userProfileContainer">
+            <button id="userProfileBtn" onclick="toggleUserProfileDropdown(event)" title="Perfil y atajos" class="btn-action flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-2xl bg-slate-100/90 border border-slate-200/80 hover:bg-slate-200/90 transition-all cursor-pointer select-none">
+              <div id="userAvatar" class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-brand-500 text-white flex items-center justify-center font-extrabold text-xs sm:text-sm shadow-xs flex-shrink-0">
+                U
+              </div>
+              <span id="userNameLabel" class="hidden md:inline text-xs sm:text-sm font-bold text-slate-700 max-w-[110px] truncate">
+                Usuario
+              </span>
+              <svg id="userProfileChevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 hidden sm:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <!-- Profile Dropdown Menu -->
+            <div id="userProfileDropdown" class="hidden absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-4 z-50 animate-fade-in">
+              <!-- Profile Header Info -->
+              <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+                <div id="userProfileMenuAvatar" class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-brand-500 text-white flex items-center justify-center font-black text-lg shadow-sm flex-shrink-0">
+                  U
+                </div>
+                <div class="min-w-0 flex-1">
+                  <h4 id="userProfileMenuName" class="text-sm font-extrabold text-slate-900 truncate">Usuario</h4>
+                  <p id="userProfileMenuUsername" class="text-xs text-slate-400 font-semibold truncate">@usuario</p>
+                </div>
+              </div>
+
+              <!-- Quick Account Actions -->
+              <div class="py-2.5 space-y-1">
+                <button onclick="openCloudConfigModal(); closeAllHeaderMenus();" class="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-indigo-600 rounded-xl flex items-center justify-between transition">
+                  <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+                    <span>Sincronización en la nube</span>
+                  </span>
+                  <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-bold">Firebase</span>
+                </button>
+                <button id="btnLogout" onclick="closeAllHeaderMenus(); promptLogout();" class="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl flex items-center gap-2 transition">
+                  <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                  <span>Cerrar sesión segura</span>
+                </button>
+              </div>
+
+              <!-- Keyboard Shortcuts Section ("y abajo salgan los atajos de teclado") -->
+              <div class="pt-3 border-t border-slate-100">
+                <div class="flex items-center justify-between mb-2 px-1">
+                  <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <span>⌨️</span>
+                    <span>Atajos de teclado</span>
+                  </span>
+                  <button id="btnShortcutsHelp" onclick="closeAllHeaderMenus(); openShortcutsModal();" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 transition">
+                    Ver todos
+                  </button>
+                </div>
+
+                <div class="space-y-1.5 bg-slate-50/80 rounded-2xl p-2.5 border border-slate-100 text-xs">
+                  <div class="flex items-center justify-between py-0.5">
+                    <span class="text-slate-600 font-medium">Nueva tarea</span>
+                    <kbd class="px-1.5 py-0.5 rounded bg-white font-mono font-bold text-slate-800 border border-slate-200 text-[10px] shadow-2xs">C</kbd>
+                  </div>
+                  <div class="flex items-center justify-between py-0.5">
+                    <span class="text-slate-600 font-medium">Buscar tareas</span>
+                    <div class="flex items-center gap-0.5">
+                      <kbd class="px-1.5 py-0.5 rounded bg-white font-mono font-bold text-slate-800 border border-slate-200 text-[10px] shadow-2xs">Ctrl</kbd>
+                      <span class="text-slate-400">+</span>
+                      <kbd class="px-1.5 py-0.5 rounded bg-white font-mono font-bold text-slate-800 border border-slate-200 text-[10px] shadow-2xs">K</kbd>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between py-0.5">
+                    <span class="text-slate-600 font-medium">Ir a hoy</span>
+                    <kbd class="px-1.5 py-0.5 rounded bg-white font-mono font-bold text-slate-800 border border-slate-200 text-[10px] shadow-2xs">T</kbd>
+                  </div>
+                  <div class="flex items-center justify-between py-0.5">
+                    <span class="text-slate-600 font-medium">Semana sig. / ant.</span>
+                    <div class="flex items-center gap-1">
+                      <kbd class="px-1.5 py-0.5 rounded bg-white font-mono font-bold text-slate-800 border border-slate-200 text-[10px] shadow-2xs">N</kbd>
+                      <kbd class="px-1.5 py-0.5 rounded bg-white font-mono font-bold text-slate-800 border border-slate-200 text-[10px] shadow-2xs">P</kbd>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between py-0.5">
+                    <span class="text-slate-600 font-medium">Cerrar modales</span>
+                    <kbd class="px-1.5 py-0.5 rounded bg-white font-mono font-bold text-slate-800 border border-slate-200 text-[10px] shadow-2xs">Esc</kbd>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -2196,6 +2302,47 @@
       );
     }
 
+    function isTaskDueSoon(task) {
+      if (!task || task.completed || !task.date) return false;
+      const parts = task.date.split('-').map(Number);
+      if (parts.length !== 3 || parts.some(isNaN)) return false;
+      const timeStr = (task.time && task.time.includes(':')) ? task.time : '23:59';
+      const [hh, mm] = timeStr.split(':').map(Number);
+      const dueDateTime = new Date(parts[0], parts[1] - 1, parts[2], isNaN(hh) ? 23 : hh, isNaN(mm) ? 59 : mm, 0, 0);
+      if (isNaN(dueDateTime.getTime())) return false;
+      const diffMs = dueDateTime.getTime() - Date.now();
+      return diffMs <= 3 * 60 * 60 * 1000;
+    }
+
+    function updateTaskUrgencyStyles() {
+      if (!tasks || tasks.length === 0) return;
+      tasks.forEach(task => {
+        const card = document.getElementById(`task-card-${task.id}`);
+        if (!card) return;
+        const timeBadge = card.querySelector('.task-time-badge');
+        const timeIcon = card.querySelector('.task-time-icon');
+        if (!timeBadge) return;
+        const dueSoon = isTaskDueSoon(task);
+        if (dueSoon) {
+          timeBadge.classList.remove('text-slate-500');
+          timeBadge.classList.add('text-red-600', 'font-extrabold');
+          if (timeIcon) {
+            timeIcon.classList.remove('text-slate-400');
+            timeIcon.classList.add('text-red-500');
+          }
+          timeBadge.setAttribute('title', 'Quedan menos de 3 horas para la entrega');
+        } else {
+          timeBadge.classList.remove('text-red-600', 'font-extrabold');
+          timeBadge.classList.add('text-slate-500');
+          if (timeIcon) {
+            timeIcon.classList.remove('text-red-500');
+            timeIcon.classList.add('text-slate-400');
+          }
+          timeBadge.removeAttribute('title');
+        }
+      });
+    }
+
     const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
     const DAY_SHORT = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
     const MONTH_NAMES = [
@@ -2552,6 +2699,13 @@
       document.getElementById('userNameLabel').textContent = displayName;
       document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
 
+      const profileMenuName = document.getElementById('userProfileMenuName');
+      const profileMenuUsername = document.getElementById('userProfileMenuUsername');
+      const profileMenuAvatar = document.getElementById('userProfileMenuAvatar');
+      if (profileMenuName) profileMenuName.textContent = displayName;
+      if (profileMenuUsername) profileMenuUsername.textContent = isGuest ? 'Modo Demo (Invitado)' : `@${username}`;
+      if (profileMenuAvatar) profileMenuAvatar.textContent = displayName.charAt(0).toUpperCase();
+
       const cryptoPill = document.getElementById('cryptoStatusPill');
       if (isGuest) {
         cryptoPill.innerHTML = `<span>Modo Demo</span>`;
@@ -2630,10 +2784,65 @@
       );
     };
 
-    document.getElementById('btnLogout').addEventListener('click', (e) => {
-      e.stopPropagation();
-      promptLogout();
+    window.toggleNewActionMenu = function(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('newActionMenu');
+      const icon = document.getElementById('iconNewDropdown');
+      if (!menu) return;
+      const isHidden = menu.classList.contains('hidden');
+      closeAllHeaderMenus();
+      if (isHidden) {
+        menu.classList.remove('hidden');
+        if (icon) icon.classList.add('rotate-180');
+      }
+    };
+
+    window.closeNewActionMenu = function() {
+      const menu = document.getElementById('newActionMenu');
+      const icon = document.getElementById('iconNewDropdown');
+      if (menu) menu.classList.add('hidden');
+      if (icon) icon.classList.remove('rotate-180');
+    };
+
+    window.toggleUserProfileDropdown = function(e) {
+      if (e) e.stopPropagation();
+      const dropdown = document.getElementById('userProfileDropdown');
+      const chevron = document.getElementById('userProfileChevron');
+      if (!dropdown) return;
+      const isHidden = dropdown.classList.contains('hidden');
+      closeAllHeaderMenus();
+      if (isHidden) {
+        dropdown.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+      }
+    };
+
+    window.closeAllHeaderMenus = function() {
+      const pDropdown = document.getElementById('userProfileDropdown');
+      const pChevron = document.getElementById('userProfileChevron');
+      if (pDropdown) pDropdown.classList.add('hidden');
+      if (pChevron) pChevron.classList.remove('rotate-180');
+
+      const nMenu = document.getElementById('newActionMenu');
+      const nIcon = document.getElementById('iconNewDropdown');
+      if (nMenu) nMenu.classList.add('hidden');
+      if (nIcon) nIcon.classList.remove('rotate-180');
+    };
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#userProfileContainer') && !e.target.closest('#newTaskButtonGroup')) {
+        closeAllHeaderMenus();
+      }
     });
+
+    const logoutBtnEl = document.getElementById('btnLogout');
+    if (logoutBtnEl) {
+      logoutBtnEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeAllHeaderMenus();
+        promptLogout();
+      });
+    }
 
     window.openManageSubjects = function() {
       editingSubjectId = null;
@@ -3069,6 +3278,7 @@
     function createTaskCard(task) {
       const subject = subjects.find(s => s.id === task.subjectId) || { name: 'General', color: '#64748b' };
       const taskTypeInfo = TASK_TYPES[task.type] || TASK_TYPES.delivery;
+      const isDueSoon = isTaskDueSoon(task);
 
       const card = document.createElement('div');
       card.id = `task-card-${task.id}`;
@@ -3112,8 +3322,10 @@
             <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${subject.color}"></span>
             <span class="truncate">${escapeHtml(subject.name)}</span>
           </span>
-          <span class="text-xs sm:text-[13px] font-bold text-slate-500 flex items-center gap-1 flex-shrink-0">
-            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <span class="task-time-badge text-xs sm:text-[13px] font-bold flex items-center gap-1 flex-shrink-0 ${
+            isDueSoon ? 'text-red-600 font-extrabold' : 'text-slate-500'
+          }" ${isDueSoon ? 'title="Quedan menos de 3 horas para la entrega"' : ''}>
+            <svg class="task-time-icon w-3.5 h-3.5 ${isDueSoon ? 'text-red-500' : 'text-slate-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             ${task.time || '23:59'}
@@ -4446,8 +4658,8 @@
                         <span>${typeInfo.shortLabel}</span>
                       </span>
                       ${relativeBadge}
-                      <span class="text-xs font-semibold text-slate-400 ml-auto flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <span class="text-xs font-semibold ${isTaskDueSoon(t) ? 'text-red-600 font-bold' : 'text-slate-400'} ml-auto flex items-center gap-1" ${isTaskDueSoon(t) ? 'title="Quedan menos de 3 horas para la entrega"' : ''}>
+                        <svg class="w-3.5 h-3.5 ${isTaskDueSoon(t) ? 'text-red-500' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         <span>${formattedDate} (${t.time || '23:59'})</span>
                       </span>
                     </div>
@@ -4594,7 +4806,7 @@
                 <span>${typeInfo.icon}</span>
                 <span>${typeInfo.shortLabel}</span>
               </span>
-              <span class="text-[11px] font-semibold text-slate-400 ml-auto">${task.date} (${task.time || '23:59'})</span>
+              <span class="text-[11px] font-semibold ${isTaskDueSoon(task) ? 'text-red-600 font-bold' : 'text-slate-400'} ml-auto">${task.date} (${task.time || '23:59'})</span>
             </div>
             <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate ${task.completed ? 'line-through text-slate-400' : ''}">
               ${escapeHtml(task.title)}
@@ -5145,8 +5357,9 @@
         return;
       }
 
-      // Cerrar modales activos con tecla Escape
+      // Cerrar modales activos o menús con tecla Escape
       if (e.key === 'Escape') {
+        closeAllHeaderMenus();
         const activeModal = document.querySelector('.modal-backdrop.is-active');
         if (activeModal) {
           e.preventDefault();
@@ -5592,6 +5805,13 @@
       if (!restored) {
         showAuthScreen();
       }
+
+      // Check urgency styles every minute in real time
+      setInterval(() => {
+        if (document.visibilityState === 'visible' && currentUser) {
+          updateTaskUrgencyStyles();
+        }
+      }, 60000);
     };
   </script>
 </body>
