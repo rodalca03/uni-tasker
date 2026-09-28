@@ -878,8 +878,8 @@
             <div class="relative flex-1 lg:flex-initial sm:w-36 xl:w-40 lg:max-w-[155px] xl:max-w-[170px] min-w-0 flex-shrink-0">
               <select id="mainViewSelect" onchange="switchMainView(this.value)" class="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 py-1 pl-2.5 sm:pl-3 pr-7 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors cursor-pointer appearance-none truncate" title="Seleccionar vista (Timeline: l, 4 días: s, Semana: w, Mes: m)">
                 <option value="timeline">Timeline (l)</option>
-                <option value="4days">4 días (s)</option>
-                <option value="week" selected>Semana (w)</option>
+                <option value="4days" selected>4 días (s)</option>
+                <option value="week">Semana (w)</option>
                 <option value="month">Mes (m)</option>
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
@@ -2286,7 +2286,7 @@
       }
     };
 
-    let currentMainView = 'week'; // 'timeline', '4days', 'week', 'month'
+    let currentMainView = '4days'; // 'timeline', '4days', 'week', 'month'
     let currentMonthDate = new Date();
     let currentEditingTaskSubtasks = [];
     let searchActiveFilter = 'all';
@@ -2871,7 +2871,7 @@
       }
 
       refreshSubjectSelects();
-      renderBoard();
+      switchMainView('4days');
       renderQuickTasks();
 
       // Real-time synchronization across devices for tasks, subjects, and quick tasks
@@ -2929,7 +2929,7 @@
       renderQuickTasks();
       currentWeekStart = getMonday(new Date());
       selectedMobileDayIndex = getInitialDayIndex();
-      renderBoard();
+      switchMainView('4days');
       const board = document.getElementById('weeklyBoard');
       if (board) board.scrollLeft = 0;
       document.getElementById('authForm').reset();
@@ -4827,7 +4827,7 @@
     /* =========================================================
        TIMELINE VIEW (CHRONOLOGICAL OVERVIEW)
        ========================================================= */
-    window.switchMainView = function(view) {
+    function switchMainView(view) {
       if (view === 'board') view = 'week';
       currentMainView = view;
 
@@ -4872,7 +4872,8 @@
           }, 80);
         }
       }
-    };
+    }
+    window.switchMainView = switchMainView;
 
     function renderTimelineView() {
       const container = document.getElementById('timelineContent');
