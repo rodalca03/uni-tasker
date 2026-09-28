@@ -707,14 +707,6 @@
             </div>
           </div>
 
-          <!-- Mobile ONLY: Quick Tasks button -->
-          <button id="btnOpenQuickTasksMobile" onclick="toggleQuickTasksPanel()" title="Notas" 
-                  class="sm:hidden btn-action w-9 h-9 rounded-2xl bg-slate-100/90 hover:bg-slate-200/90 border border-slate-200/80 flex items-center justify-center text-slate-600 active:scale-95 transition-all shadow-2xs relative flex-shrink-0">
-            <svg class="w-4.5 h-4.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-            <span id="quickTasksBadgeMobile" class="hidden absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-indigo-600 text-white text-[9px] font-black flex items-center justify-center leading-none shadow-xs">0</span>
-          </button>
 
           <!-- Mobile ONLY: Square search button with rounded corners, right next to the user name in top right -->
           <button id="btnOpenSearchMobile" onclick="openSearchModal()" title="Buscar tareas" 
@@ -986,18 +978,23 @@
       </svg>
     </button>
 
+    <!-- Notas (Quick Tasks) Button on Mobile -->
+    <button id="btnOpenQuickTasksBottomNav" onclick="toggleQuickTasksPanel()" title="Notas" class="flex flex-col items-center justify-center py-1 px-3 text-slate-600 active:text-indigo-600 transition-colors relative">
+      <div class="relative">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+        <span id="quickTasksBadgeMobile" class="hidden absolute -top-1 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-indigo-600 text-white text-[9px] font-black flex items-center justify-center leading-none shadow-xs">0</span>
+      </div>
+      <span class="text-[11px] font-bold mt-0.5">Notas</span>
+    </button>
+
+    <!-- Mobile View Mode Toggle (Semana vs Por Día) -->
     <button id="btnMobileToggleView" class="flex flex-col items-center justify-center py-1 px-3 text-slate-600 active:text-indigo-600 transition-colors">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
       <span id="btnMobileToggleViewLabel" class="text-[11px] font-bold mt-0.5">Semana</span>
-    </button>
-
-    <button onclick="promptLogout()" class="flex flex-col items-center justify-center py-1 px-3 text-slate-600 active:text-rose-600 transition-colors">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-      </svg>
-      <span class="text-[11px] font-bold mt-0.5">Salir</span>
     </button>
   </nav>
 
