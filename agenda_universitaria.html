@@ -651,6 +651,16 @@
             <span>Instalar</span>
           </button>
 
+          <!-- Desktop ONLY: Quick Tasks Button (Atajo: Q) -->
+          <button id="btnToggleQuickTasks" onclick="toggleQuickTasksPanel()" title="Notas (Atajo: Q)" 
+                  class="hidden sm:inline-flex btn-action items-center gap-1.5 px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-2xl transition-all shadow-2xs hover:shadow-xs group select-none">
+            <svg class="w-4 h-4 text-indigo-600 group-hover:scale-110 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            <span class="hidden md:inline font-bold">Notas</span>
+            <span id="quickTasksBadge" class="hidden px-1.5 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white leading-none">0</span>
+          </button>
+
           <!-- Desktop ONLY: Fused 'Nuevo' + 'Asignaturas' Split Button (HIDDEN on mobile) -->
           <div class="relative hidden sm:inline-flex rounded-2xl shadow-sm shadow-indigo-100" id="newTaskButtonGroup">
             <button id="btnNewTask" onclick="openDefaultNewTask()" title="Crear nueva tarea (C)" class="btn-action px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 rounded-l-2xl transition-all inline-flex items-center gap-2">
@@ -676,6 +686,15 @@
                   <div class="text-[11px] text-slate-400 font-medium">Atajo rápido: tecla C</div>
                 </div>
               </button>
+              <button onclick="openQuickTasksPanel(); closeAllHeaderMenus();" class="w-full text-left px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-700 hover:bg-indigo-50/70 hover:text-indigo-600 flex items-center gap-2.5 transition border-t border-slate-100">
+                <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                </span>
+                <div class="min-w-0 flex-1">
+                  <div class="font-extrabold text-slate-800">Notas</div>
+                  <div class="text-[11px] text-slate-400 font-medium">Atajo rápido: tecla Q</div>
+                </div>
+              </button>
               <button id="btnManageSubjects" onclick="openManageSubjects(); closeAllHeaderMenus();" class="w-full text-left px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-700 hover:bg-indigo-50/70 hover:text-indigo-600 flex items-center gap-2.5 transition border-t border-slate-100">
                 <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
@@ -687,6 +706,15 @@
               </button>
             </div>
           </div>
+
+          <!-- Mobile ONLY: Quick Tasks button -->
+          <button id="btnOpenQuickTasksMobile" onclick="toggleQuickTasksPanel()" title="Notas" 
+                  class="sm:hidden btn-action w-9 h-9 rounded-2xl bg-slate-100/90 hover:bg-slate-200/90 border border-slate-200/80 flex items-center justify-center text-slate-600 active:scale-95 transition-all shadow-2xs relative flex-shrink-0">
+            <svg class="w-4.5 h-4.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            <span id="quickTasksBadgeMobile" class="hidden absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-indigo-600 text-white text-[9px] font-black flex items-center justify-center leading-none shadow-xs">0</span>
+          </button>
 
           <!-- Mobile ONLY: Square search button with rounded corners, right next to the user name in top right -->
           <button id="btnOpenSearchMobile" onclick="openSearchModal()" title="Buscar tareas" 
@@ -747,6 +775,10 @@
                   <div class="flex items-center justify-between py-0.5">
                     <span class="text-slate-600 font-medium">Nueva tarea</span>
                     <kbd class="px-1.5 py-0.5 rounded bg-white font-mono font-bold text-slate-800 border border-slate-200 text-[10px] shadow-2xs">C</kbd>
+                  </div>
+                  <div class="flex items-center justify-between py-0.5">
+                    <span class="text-slate-600 font-medium">Notas</span>
+                    <kbd class="px-1.5 py-0.5 rounded bg-white font-mono font-bold text-slate-800 border border-slate-200 text-[10px] shadow-2xs">Q</kbd>
                   </div>
                   <div class="flex items-center justify-between py-0.5">
                     <span class="text-slate-600 font-medium">Buscar tareas</span>
@@ -969,6 +1001,93 @@
     </button>
   </nav>
 
+  <!-- =========================================================
+       QUICK TASKS SLIDE-OVER DRAWER (TAREAS SUELTAS)
+       ========================================================= -->
+  <div id="quickTasksDrawerBackdrop" class="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xs transition-opacity duration-300 opacity-0 pointer-events-none" onclick="closeQuickTasksPanel()"></div>
+
+  <aside id="quickTasksDrawer" aria-label="Panel de notas" class="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[380px] max-w-full bg-white shadow-2xl border-l border-slate-200/90 flex flex-col transform translate-x-full transition-transform duration-300 ease-out">
+    
+    <!-- Drawer Header -->
+    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 flex-shrink-0">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold flex-shrink-0">
+          <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <h2 class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight leading-tight">Notas</h2>
+            <span id="quickTasksPendingCountBadge" class="px-2 py-0.5 rounded-full text-[11px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200">0 pendientes</span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-medium truncate mt-0.5">Lista rápida sin fechas ni asignaturas</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-1">
+        <button onclick="closeQuickTasksPanel()" title="Cerrar (Esc o Q)" class="btn-action w-8 h-8 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 flex items-center justify-center transition">
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Ultra-fast single-line input -->
+    <div class="p-3.5 sm:p-4 border-b border-slate-100 bg-slate-50/40 flex-shrink-0">
+      <form id="quickTaskForm" onsubmit="event.preventDefault(); submitNewQuickTask();" class="relative flex items-center">
+        <input 
+          id="quickTaskInput" 
+          type="text" 
+          placeholder="+ Escribe algo y pulsa Enter..." 
+          autocomplete="off"
+          class="w-full h-11 pl-3.5 pr-11 text-xs sm:text-sm font-medium text-slate-800 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 placeholder-slate-400 transition-all shadow-xs"
+          maxlength="240"
+        />
+        <button 
+          type="submit" 
+          id="btnSubmitQuickTask" 
+          title="Añadir nota (Enter)"
+          class="absolute right-1.5 w-8 h-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white flex items-center justify-center transition-all shadow-2xs"
+        >
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+        </button>
+      </form>
+      <div class="flex items-center justify-between text-[11px] text-slate-400 font-medium mt-1.5 px-1">
+        <span>Pulsa <kbd class="px-1 py-0.5 rounded bg-white font-mono font-bold text-slate-600 border border-slate-200 text-[10px]">Enter</kbd> para añadir</span>
+        <span id="quickTasksCompletedStat"></span>
+      </div>
+    </div>
+
+    <!-- Items list (scrollable) -->
+    <div id="quickTasksList" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-1.5 custom-scrollbar">
+      <!-- Dynamically rendered items -->
+    </div>
+
+    <!-- Drawer Footer (Clean Actions) -->
+    <div class="p-3 sm:p-4 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between flex-shrink-0">
+      <button 
+        id="btnClearCompletedQuickTasks" 
+        onclick="clearCompletedQuickTasks()" 
+        class="hidden text-xs font-bold text-slate-500 hover:text-rose-600 transition-colors flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-rose-50"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+        <span>Limpiar completadas</span>
+      </button>
+
+      <div class="ml-auto flex items-center gap-1 text-[11px] text-slate-400 font-medium">
+        <span>Atajo:</span>
+        <kbd class="px-1.5 py-0.5 rounded bg-white font-mono font-bold text-slate-600 border border-slate-200 text-[10px]">Q</kbd>
+      </div>
+    </div>
+
+  </aside>
+
   <!-- ================= MODALS ================= -->
 
   <!-- Modal Selector Móvil: ¿Qué deseas crear? (Nueva Tarea o Nueva Asignatura) -->
@@ -1018,6 +1137,23 @@
             <p class="text-xs text-slate-500 font-medium mt-0.5">Crear materia con color personalizado</p>
           </div>
           <svg class="w-5 h-5 text-slate-400 group-hover:text-amber-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+
+        <!-- Option 3: Tarea Suelta -->
+        <button onclick="closeModalEl(document.getElementById('mobileCreateModal')); openQuickTasksPanel();" 
+                class="w-full p-4 rounded-2xl border-2 border-emerald-100 hover:border-emerald-500 bg-emerald-50/40 hover:bg-emerald-50/80 active:scale-98 transition-all flex items-center gap-3.5 text-left group">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-200 group-hover:scale-105 transition-transform flex-shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Notas</h4>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Lista rápida sin fecha de entrega</p>
+          </div>
+          <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
         </button>
@@ -1456,6 +1592,10 @@
           <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">C</kbd>
         </div>
         <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Notas (abrir / cerrar)</span>
+          <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">Q</kbd>
+        </div>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
           <span class="text-slate-700 font-medium">Vista Timeline</span>
           <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">L</kbd>
         </div>
@@ -1845,7 +1985,46 @@
         }
       },
 
-      async syncAllData(username, subjectsList, tasksList) {
+      // ================= QUICK TASKS (TAREAS SUELTAS) EN FIRESTORE =================
+      async getQuickTasks(username) {
+        if (!this.isConfigured || !this.db) return null;
+        const norm = username.toLowerCase().trim();
+        try {
+          const snap = await this.db.collection('users').doc(norm).collection('quickTasks').get();
+          if (snap.empty) return null;
+          const list = [];
+          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+          return list;
+        } catch (err) {
+          console.warn('Error obteniendo tareas sueltas de Firestore:', err);
+          return null;
+        }
+      },
+
+      async saveQuickTask(username, qt) {
+        if (!this.isConfigured || !this.db) return;
+        const norm = username.toLowerCase().trim();
+        try {
+          await this.db.collection('users').doc(norm).collection('quickTasks').doc(qt.id).set({
+            ...qt,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } catch (err) {
+          console.error('Error guardando tarea suelta en Firestore:', err);
+        }
+      },
+
+      async deleteQuickTask(username, qtId) {
+        if (!this.isConfigured || !this.db) return;
+        const norm = username.toLowerCase().trim();
+        try {
+          await this.db.collection('users').doc(norm).collection('quickTasks').doc(qtId).delete();
+        } catch (err) {
+          console.error('Error eliminando tarea suelta en Firestore:', err);
+        }
+      },
+
+      async syncAllData(username, subjectsList, tasksList, quickTasksList = []) {
         if (!this.isConfigured || !this.db) return;
         const norm = username.toLowerCase().trim();
         try {
@@ -1860,6 +2039,11 @@
           tasksList.forEach(t => {
             const ref = userRef.collection('tasks').doc(t.id);
             batch.set(ref, { ...t, updatedAt: new Date().toISOString() }, { merge: true });
+          });
+
+          quickTasksList.forEach(qt => {
+            const ref = userRef.collection('quickTasks').doc(qt.id);
+            batch.set(ref, { ...qt, updatedAt: new Date().toISOString() }, { merge: true });
           });
 
           await batch.commit();
@@ -1904,7 +2088,14 @@
             onUpdate({ type: 'tasks', data: tsks });
           }, err => console.warn('Listener tareas desconectado:', err));
 
-          this.activeListeners = [unsubSubjects, unsubTasks];
+          // 3. Escucha en tiempo real de la colección de tareas sueltas
+          const unsubQuickTasks = userRef.collection('quickTasks').onSnapshot(snap => {
+            const qts = [];
+            snap.forEach(doc => qts.push({ id: doc.id, ...doc.data() }));
+            onUpdate({ type: 'quickTasks', data: qts });
+          }, err => console.warn('Listener tareas sueltas desconectado:', err));
+
+          this.activeListeners = [unsubSubjects, unsubTasks, unsubQuickTasks];
         } catch (e) {
           console.warn('No se pudo suscribir a actualizaciones de Firestore:', e);
         }
@@ -2103,6 +2294,7 @@
 
     let subjects = [];
     let tasks = [];
+    let quickTasks = [];
 
     function createDefaultUserData() {
       const defSubjects = [
@@ -2177,13 +2369,13 @@
         }
       ];
 
-      return { subjects: defSubjects, tasks: defTasks };
+      return { subjects: defSubjects, tasks: defTasks, quickTasks: [] };
     }
 
     async function persistEncryptedUserData() {
       if (!currentUser || currentUser.isGuest) return;
       try {
-        const payload = { subjects, tasks };
+        const payload = { subjects, tasks, quickTasks };
         const encrypted = await UniCrypto.encryptVault(payload, currentUser.encKey);
         await UniTaskDB.saveVault(currentUser.username, encrypted);
       } catch (err) {
@@ -2493,13 +2685,15 @@
         }
 
         // 1. Fetch structured subjects and tasks from Firestore
-        let userData = { subjects: [], tasks: [] };
+        let userData = { subjects: [], tasks: [], quickTasks: [] };
         const cloudSubjects = await UniTaskCloudDB.getSubjects(usernameInput);
         const cloudTasks = await UniTaskCloudDB.getTasks(usernameInput);
+        const cloudQuickTasks = await UniTaskCloudDB.getQuickTasks(usernameInput);
 
         if (cloudSubjects && cloudSubjects.length > 0) {
           userData.subjects = cloudSubjects;
           userData.tasks = cloudTasks || [];
+          userData.quickTasks = cloudQuickTasks || [];
         } else {
           // Fallback to vault if Firestore subcollections aren't populated yet
           const vaultRecord = await UniTaskDB.getVault(usernameInput);
@@ -2507,7 +2701,7 @@
             try {
               userData = await UniCrypto.decryptVault(vaultRecord.iv, vaultRecord.ciphertext, encKey);
               if (UniTaskCloudDB.isConfigured && userData.subjects) {
-                await UniTaskCloudDB.syncAllData(usernameInput, userData.subjects, userData.tasks || []);
+                await UniTaskCloudDB.syncAllData(usernameInput, userData.subjects, userData.tasks || [], userData.quickTasks || []);
               }
             } catch (decErr) {
               console.error('Error descifrando el almacén:', decErr);
@@ -2516,7 +2710,7 @@
           } else {
             userData = createDefaultUserData();
             if (UniTaskCloudDB.isConfigured) {
-              await UniTaskCloudDB.syncAllData(usernameInput, userData.subjects, userData.tasks);
+              await UniTaskCloudDB.syncAllData(usernameInput, userData.subjects, userData.tasks, userData.quickTasks || []);
             }
           }
         }
@@ -2601,20 +2795,22 @@
         if (!session.keyHex) return false;
 
         const encKey = await UniCrypto.importRawKey(session.keyHex);
-        let userData = { subjects: [], tasks: [] };
+        let userData = { subjects: [], tasks: [], quickTasks: [] };
         const cloudSubjects = await UniTaskCloudDB.getSubjects(session.username);
         const cloudTasks = await UniTaskCloudDB.getTasks(session.username);
+        const cloudQuickTasks = await UniTaskCloudDB.getQuickTasks(session.username);
 
         if (cloudSubjects && cloudSubjects.length > 0) {
           userData.subjects = cloudSubjects;
           userData.tasks = cloudTasks || [];
+          userData.quickTasks = cloudQuickTasks || [];
         } else {
           const vaultRecord = await UniTaskDB.getVault(session.username);
           if (vaultRecord && vaultRecord.ciphertext) {
             try {
               userData = await UniCrypto.decryptVault(vaultRecord.iv, vaultRecord.ciphertext, encKey);
               if (UniTaskCloudDB.isConfigured && userData.subjects) {
-                await UniTaskCloudDB.syncAllData(session.username, userData.subjects, userData.tasks || []);
+                await UniTaskCloudDB.syncAllData(session.username, userData.subjects, userData.tasks || [], userData.quickTasks || []);
               }
             } catch (decErr) {
               console.error('Error descifrando almacén restaurado:', decErr);
@@ -2644,6 +2840,7 @@
         type: t.type || 'delivery',
         subtasks: Array.isArray(t.subtasks) ? t.subtasks : []
       }));
+      quickTasks = Array.isArray(data.quickTasks) ? data.quickTasks : [];
       currentWeekStart = getMonday(new Date());
       selectedMobileDayIndex = getInitialDayIndex();
 
@@ -2675,8 +2872,9 @@
 
       refreshSubjectSelects();
       renderBoard();
+      renderQuickTasks();
 
-      // Real-time synchronization across devices for tasks and subjects
+      // Real-time synchronization across devices for tasks, subjects, and quick tasks
       if (UniTaskCloudDB.isConfigured && !isGuest) {
         const localUser = await UniTaskDB.getLocalUser(username);
         if (localUser) {
@@ -2707,6 +2905,14 @@
           persistEncryptedUserData();
           showToast('Tareas y asignaturas sincronizadas en tiempo real ☁️');
         }
+      } else if (update.type === 'quickTasks') {
+        const incomingJson = JSON.stringify(update.data);
+        const currentJson = JSON.stringify(quickTasks);
+        if (incomingJson !== currentJson) {
+          quickTasks = Array.isArray(update.data) ? update.data : [];
+          renderQuickTasks();
+          persistEncryptedUserData();
+        }
       }
     }
 
@@ -2718,6 +2924,9 @@
       currentUser = null;
       subjects = [];
       tasks = [];
+      quickTasks = [];
+      if (window.closeQuickTasksPanel) window.closeQuickTasksPanel();
+      renderQuickTasks();
       currentWeekStart = getMonday(new Date());
       selectedMobileDayIndex = getInitialDayIndex();
       renderBoard();
@@ -5613,7 +5822,231 @@
       updateBoardScrollIndicators();
     });
 
-    // Atajos de teclado globales (Ctrl+K / /: Búsqueda, C: Nueva tarea, T: Hoy, N: Sig. semana, P: Ant. semana, ?: Ayuda atajos, Esc: Cerrar)
+    /* =========================================================
+       QUICK TASKS CONTROLLER (PANEL DE TAREAS SUELTAS)
+       ========================================================= */
+    window.isQuickTasksOpen = function() {
+      const drawer = document.getElementById('quickTasksDrawer');
+      return drawer && !drawer.classList.contains('translate-x-full');
+    };
+
+    window.openQuickTasksPanel = function() {
+      closeAllHeaderMenus();
+      const backdrop = document.getElementById('quickTasksDrawerBackdrop');
+      const drawer = document.getElementById('quickTasksDrawer');
+      if (!backdrop || !drawer) return;
+
+      backdrop.classList.remove('opacity-0', 'pointer-events-none');
+      backdrop.classList.add('opacity-100', 'pointer-events-auto');
+
+      drawer.classList.remove('translate-x-full');
+      drawer.classList.add('translate-x-0');
+
+      setTimeout(() => {
+        const input = document.getElementById('quickTaskInput');
+        if (input) input.focus();
+      }, 120);
+    };
+
+    window.closeQuickTasksPanel = function() {
+      const backdrop = document.getElementById('quickTasksDrawerBackdrop');
+      const drawer = document.getElementById('quickTasksDrawer');
+      if (!backdrop || !drawer) return;
+
+      backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+      backdrop.classList.add('opacity-0', 'pointer-events-none');
+
+      drawer.classList.remove('translate-x-0');
+      drawer.classList.add('translate-x-full');
+    };
+
+    window.toggleQuickTasksPanel = function() {
+      if (window.isQuickTasksOpen()) {
+        window.closeQuickTasksPanel();
+      } else {
+        window.openQuickTasksPanel();
+      }
+    };
+
+    function updateQuickTasksBadge() {
+      const pendingCount = quickTasks.filter(q => !q.completed).length;
+      const completedCount = quickTasks.filter(q => q.completed).length;
+
+      const badgeDesktop = document.getElementById('quickTasksBadge');
+      const badgeMobile = document.getElementById('quickTasksBadgeMobile');
+      const pendingCountBadge = document.getElementById('quickTasksPendingCountBadge');
+      const clearBtn = document.getElementById('btnClearCompletedQuickTasks');
+      const statEl = document.getElementById('quickTasksCompletedStat');
+
+      if (badgeDesktop) {
+        if (pendingCount > 0) {
+          badgeDesktop.textContent = pendingCount > 99 ? '99+' : pendingCount;
+          badgeDesktop.classList.remove('hidden');
+        } else {
+          badgeDesktop.classList.add('hidden');
+        }
+      }
+
+      if (badgeMobile) {
+        if (pendingCount > 0) {
+          badgeMobile.textContent = pendingCount > 99 ? '99+' : pendingCount;
+          badgeMobile.classList.remove('hidden');
+        } else {
+          badgeMobile.classList.add('hidden');
+        }
+      }
+
+      if (pendingCountBadge) {
+        pendingCountBadge.textContent = `${pendingCount} pendiente${pendingCount === 1 ? '' : 's'}`;
+      }
+
+      if (clearBtn) {
+        if (completedCount > 0) {
+          clearBtn.classList.remove('hidden');
+          const spanText = clearBtn.querySelector('span');
+          if (spanText) spanText.textContent = `Limpiar ${completedCount} completada${completedCount === 1 ? '' : 's'}`;
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+      }
+
+      if (statEl) {
+        statEl.textContent = quickTasks.length > 0 ? `${completedCount} de ${quickTasks.length} hechas` : '';
+      }
+    }
+    window.updateQuickTasksBadge = updateQuickTasksBadge;
+
+    function renderQuickTasks() {
+      const listEl = document.getElementById('quickTasksList');
+      if (!listEl) return;
+
+      updateQuickTasksBadge();
+
+      if (!quickTasks || quickTasks.length === 0) {
+        listEl.innerHTML = `
+          <div class="h-full min-h-[220px] flex flex-col items-center justify-center text-center p-6 text-slate-400 select-none">
+            <div class="w-13 h-13 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center mb-3">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+            </div>
+            <h3 class="text-sm font-extrabold text-slate-700">Sin notas</h3>
+            <p class="text-xs text-slate-400 mt-1 max-w-[210px] leading-relaxed">Escribe arriba cualquier cosa que no quieras olvidar y pulsa Enter.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Ordenar: pendientes arriba por fecha de creación descendente, completadas abajo
+      const sorted = [...quickTasks].sort((a, b) => {
+        if (a.completed === b.completed) {
+          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        }
+        return a.completed ? 1 : -1;
+      });
+
+      listEl.innerHTML = sorted.map(item => `
+        <div class="group flex items-start gap-2.5 p-2 sm:p-2.5 rounded-xl border border-transparent hover:border-slate-200/80 hover:bg-slate-50/90 transition-all duration-150 animate-fade-in ${item.completed ? 'bg-slate-50/50' : 'bg-white'}">
+          <button 
+            type="button" 
+            onclick="toggleQuickTask('${item.id}')"
+            title="${item.completed ? 'Marcar como pendiente' : 'Tachar tarea'}"
+            class="mt-0.5 w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 transition-all cursor-pointer ${item.completed ? 'bg-emerald-500 text-white shadow-2xs' : 'border-2 border-slate-300 hover:border-indigo-500 bg-white hover:bg-indigo-50/50'}"
+          >
+            ${item.completed ? '<svg class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
+          </button>
+
+          <span 
+            onclick="toggleQuickTask('${item.id}')"
+            class="flex-1 text-xs sm:text-sm leading-snug cursor-pointer select-text break-words transition-all ${item.completed ? 'line-through text-slate-400 font-normal' : 'text-slate-800 font-semibold'}"
+          >
+            ${escapeHtml(item.text)}
+          </span>
+
+          <button 
+            type="button" 
+            onclick="deleteQuickTask('${item.id}')" 
+            title="Eliminar"
+            class="opacity-60 sm:opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all flex-shrink-0 cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      `).join('');
+    }
+    window.renderQuickTasks = renderQuickTasks;
+
+    async function submitNewQuickTask() {
+      const input = document.getElementById('quickTaskInput');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+
+      const newItem = {
+        id: 'qt-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
+        text: text,
+        completed: false,
+        createdAt: new Date().toISOString()
+      };
+
+      quickTasks.unshift(newItem);
+      input.value = '';
+      input.focus();
+
+      renderQuickTasks();
+      await persistEncryptedUserData();
+
+      if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+        UniTaskCloudDB.saveQuickTask(currentUser.username, newItem);
+      }
+    }
+    window.submitNewQuickTask = submitNewQuickTask;
+
+    async function toggleQuickTask(id) {
+      const item = quickTasks.find(q => q.id === id);
+      if (!item) return;
+      item.completed = !item.completed;
+
+      renderQuickTasks();
+      await persistEncryptedUserData();
+
+      if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+        UniTaskCloudDB.saveQuickTask(currentUser.username, item);
+      }
+    }
+    window.toggleQuickTask = toggleQuickTask;
+
+    async function deleteQuickTask(id) {
+      quickTasks = quickTasks.filter(q => q.id !== id);
+      renderQuickTasks();
+      await persistEncryptedUserData();
+
+      if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+        UniTaskCloudDB.deleteQuickTask(currentUser.username, id);
+      }
+    }
+    window.deleteQuickTask = deleteQuickTask;
+
+    async function clearCompletedQuickTasks() {
+      const completedIds = quickTasks.filter(q => q.completed).map(q => q.id);
+      if (completedIds.length === 0) return;
+
+      quickTasks = quickTasks.filter(q => !q.completed);
+      renderQuickTasks();
+      await persistEncryptedUserData();
+
+      if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
+        completedIds.forEach(id => {
+          UniTaskCloudDB.deleteQuickTask(currentUser.username, id);
+        });
+      }
+      showToast('Tareas completadas eliminadas.');
+    }
+    window.clearCompletedQuickTasks = clearCompletedQuickTasks;
+
+    // Atajos de teclado globales (Ctrl+K / /: Búsqueda, C: Nueva tarea, Q: Notas, T: Hoy, N: Sig. semana, P: Ant. semana, ?: Ayuda atajos, Esc: Cerrar)
     document.addEventListener('keydown', (e) => {
       const authScreen = document.getElementById('authScreen');
       const isAuthActive = authScreen && !authScreen.classList.contains('hidden');
@@ -5632,9 +6065,14 @@
         return;
       }
 
-      // Cerrar modales activos o menús con tecla Escape
+      // Cerrar modales activos, menús o panel de notas con tecla Escape
       if (e.key === 'Escape') {
         closeAllHeaderMenus();
+        if (window.isQuickTasksOpen && window.isQuickTasksOpen()) {
+          e.preventDefault();
+          window.closeQuickTasksPanel();
+          return;
+        }
         const activeModal = document.querySelector('.modal-backdrop.is-active');
         if (activeModal) {
           e.preventDefault();
@@ -5658,6 +6096,15 @@
 
       // Ignorar si la pantalla de login/registro está activa o no hay usuario
       if (isAuthActive || !currentUser) {
+        return;
+      }
+
+      // Si el panel de notas está abierto, la tecla Q lo cierra
+      if (window.isQuickTasksOpen && window.isQuickTasksOpen()) {
+        if (e.key.toUpperCase() === 'Q' || e.code === 'KeyQ') {
+          e.preventDefault();
+          window.closeQuickTasksPanel();
+        }
         return;
       }
 
@@ -5688,6 +6135,9 @@
       if (key === 'C' || e.code === 'KeyC') {
         e.preventDefault();
         openDefaultNewTask();
+      } else if (key === 'Q' || e.code === 'KeyQ') {
+        e.preventDefault();
+        window.toggleQuickTasksPanel();
       } else if (key === 'T' || e.code === 'KeyT') {
         e.preventDefault();
         window.goToToday();
