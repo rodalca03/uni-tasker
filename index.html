@@ -798,7 +798,7 @@
                 </svg>
               </button>
               
-              <button id="btnToday" title="Ir a hoy (T)" class="btn-action h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm font-extrabold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-colors">
+              <button id="btnToday" title="Ir a hoy en vista 4 días (T)" class="btn-action h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm font-extrabold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-colors">
                 Hoy
               </button>
 
@@ -842,16 +842,19 @@
               </div>
             </div>
 
-            <!-- Main View Mode Switcher (Semanal vs Timeline) -->
-            <div class="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold border border-slate-200/70 h-8 sm:h-9 items-center flex-shrink-0">
-              <button id="btnViewWeekly" onclick="switchMainView('board')" title="Vista semanal por columnas" class="main-view-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs flex items-center gap-1">
-                <svg class="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                <span class="whitespace-nowrap">Semanal</span>
-              </button>
-              <button id="btnViewTimeline" onclick="switchMainView('timeline')" title="Vista cronológica completa" class="main-view-btn px-2 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs flex items-center gap-1">
-                <svg class="w-3.5 h-3.5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="whitespace-nowrap">Timeline</span>
-              </button>
+            <!-- Main View Mode Switcher Dropdown (Timeline, 4 días, Semana, Mes) -->
+            <div class="relative flex-1 lg:flex-initial sm:w-36 xl:w-40 lg:max-w-[155px] xl:max-w-[170px] min-w-0 flex-shrink-0">
+              <select id="mainViewSelect" onchange="switchMainView(this.value)" class="w-full h-8 sm:h-9 text-xs sm:text-sm font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 py-1 pl-2.5 sm:pl-3 pr-7 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors cursor-pointer appearance-none truncate" title="Seleccionar vista (Timeline: l, 4 días: s, Semana: w, Mes: m)">
+                <option value="timeline">Timeline (l)</option>
+                <option value="4days">4 días (s)</option>
+                <option value="week" selected>Semana (w)</option>
+                <option value="month">Mes (m)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
           </div>
 
@@ -892,9 +895,23 @@
       </div>
     </div>
 
-    <!-- Weekly Board (Desktop: 4 days visible with horizontal scroll) -->
-    <div id="weeklyBoardWrapper" class="flex-1 pb-4 min-w-0">
-      <div id="weeklyBoard" class="grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-nowrap lg:overflow-x-auto lg:gap-4 lg:pb-3 custom-scrollbar lg:snap-x lg:snap-mandatory lg:scroll-smooth items-start transition-all duration-200 min-w-0 scroll-mt-20">
+    <!-- Weekly Board (Desktop: 4 days visible with horizontal scroll or 7 days) -->
+    <div id="weeklyBoardWrapper" class="relative flex-1 pb-4 min-w-0">
+      <!-- Left Edge Diffusion / Peek & Scroll Indicator (Only over the 1/4 previous day peek) -->
+      <div id="boardScrollFadeLeft" class="hidden lg:flex pointer-events-none absolute left-0 top-0 bottom-7 w-[calc((100%-5rem)/18+1rem)] min-w-[72px] max-w-[105px] z-20 opacity-0 transition-opacity duration-300 bg-gradient-to-r from-slate-100 via-slate-100/75 to-transparent backdrop-blur-[2px] items-center justify-start pl-1 sm:pl-2">
+        <button type="button" onclick="scrollBoardByDays(-1)" title="Ver días anteriores" class="pointer-events-auto w-8 h-8 rounded-full bg-white/95 text-slate-700 shadow-md border border-slate-200/90 hover:text-indigo-600 hover:bg-white hover:scale-110 active:scale-95 transition-all flex items-center justify-center cursor-pointer ml-1">
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+        </button>
+      </div>
+
+      <!-- Right Edge Diffusion / Peek & Scroll Indicator (Only over the 1/4 next day peek) -->
+      <div id="boardScrollFadeRight" class="hidden lg:flex pointer-events-none absolute right-0 top-0 bottom-7 w-[calc((100%-5rem)/18+1rem)] min-w-[72px] max-w-[105px] z-20 opacity-0 transition-opacity duration-300 bg-gradient-to-l from-slate-100 via-slate-100/75 to-transparent backdrop-blur-[2px] items-center justify-end pr-1 sm:pr-2">
+        <button type="button" onclick="scrollBoardByDays(1)" title="Ver más días a la derecha" class="pointer-events-auto w-8 h-8 rounded-full bg-white/95 text-slate-700 shadow-md border border-slate-200/90 hover:text-indigo-600 hover:bg-white hover:scale-110 active:scale-95 transition-all flex items-center justify-center cursor-pointer mr-1">
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+        </button>
+      </div>
+
+      <div id="weeklyBoard" class="grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-nowrap lg:overflow-x-auto lg:gap-4 lg:pb-3 custom-scrollbar lg:snap-x lg:snap-proximity lg:scroll-smooth items-start transition-all duration-200 min-w-0 scroll-mt-20">
         <!-- 7 Days dynamically generated here -->
       </div>
     </div>
@@ -903,6 +920,13 @@
     <div id="timelineView" class="hidden flex-1 pb-4 min-w-0">
       <div id="timelineContent" class="max-w-4xl mx-auto space-y-6">
         <!-- Dynamically rendered by renderTimelineView() -->
+      </div>
+    </div>
+
+    <!-- Month View Container (Alternative to Weekly Board & Timeline) -->
+    <div id="monthViewWrapper" class="hidden flex-1 pb-4 min-w-0">
+      <div id="monthViewContent" class="space-y-4">
+        <!-- Dynamically rendered by renderMonthView() -->
       </div>
     </div>
   </main>
@@ -1432,7 +1456,23 @@
           <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">C</kbd>
         </div>
         <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
-          <span class="text-slate-700 font-medium">Ir a la semana actual (Hoy)</span>
+          <span class="text-slate-700 font-medium">Vista Timeline</span>
+          <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">L</kbd>
+        </div>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Vista 4 días</span>
+          <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">S</kbd>
+        </div>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Vista Semana (7 días)</span>
+          <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">W</kbd>
+        </div>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Vista Mes completo</span>
+          <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">M</kbd>
+        </div>
+        <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+          <span class="text-slate-700 font-medium">Ir a hoy en vista 4 días</span>
           <kbd class="px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200">T</kbd>
         </div>
         <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
@@ -2055,7 +2095,8 @@
       }
     };
 
-    let currentMainView = 'board'; // 'board' or 'timeline'
+    let currentMainView = 'week'; // 'timeline', '4days', 'week', 'month'
+    let currentMonthDate = new Date();
     let currentEditingTaskSubtasks = [];
     let searchActiveFilter = 'all';
     let selectedSearchItemIndex = -1;
@@ -2300,22 +2341,48 @@
     }
 
     function scrollToToday(smooth = true) {
+      const today = new Date();
+      const todayYMD = formatDateToYMD(today);
       const todayIndex = getInitialDayIndex();
       selectedMobileDayIndex = todayIndex;
 
       // 1. Desktop / Horizontal Weekly Board Scroll
       const board = document.getElementById('weeklyBoard');
       if (board) {
-        const todayCol = document.getElementById(`day-column-${todayIndex}`);
+        const todayCol = board.querySelector(`[data-date="${todayYMD}"]`) || document.getElementById(`day-column-${todayIndex}`);
         if (todayCol && board.scrollWidth > board.clientWidth) {
-          const boardRect = board.getBoundingClientRect();
-          const colRect = todayCol.getBoundingClientRect();
-          const targetScrollLeft = colRect.left - boardRect.left + board.scrollLeft;
-
-          board.scrollTo({
-            left: Math.max(0, targetScrollLeft),
-            behavior: smooth ? 'smooth' : 'auto'
-          });
+          if (currentMainView === '4days') {
+            const colWidth = todayCol.offsetWidth;
+            const gap = 16;
+            const dayIndex = parseInt(todayCol.getAttribute('data-day-index') || `${todayIndex}`, 10);
+            let targetScrollLeft = 0;
+            if (dayIndex > 0) {
+              // Deja visible 1/4 del día anterior a la izquierda bajo el difuminado
+              const leftPeekWidth = 0.25 * colWidth + gap;
+              const maxScrollLeft = board.scrollWidth - board.clientWidth;
+              targetScrollLeft = Math.min(maxScrollLeft, Math.max(0, todayCol.offsetLeft - leftPeekWidth));
+            }
+            board.scrollTo({
+              left: targetScrollLeft,
+              behavior: smooth ? 'smooth' : 'auto'
+            });
+            setTimeout(() => {
+              if (typeof updateBoardScrollIndicators === 'function') {
+                updateBoardScrollIndicators();
+              }
+            }, 180);
+          } else {
+            const boardRect = board.getBoundingClientRect();
+            const colRect = todayCol.getBoundingClientRect();
+            const isFullyVisible = (colRect.left >= boardRect.left && colRect.right <= boardRect.right);
+            if (!isFullyVisible) {
+              const targetScrollLeft = colRect.left - boardRect.left + board.scrollLeft;
+              board.scrollTo({
+                left: Math.max(0, targetScrollLeft),
+                behavior: smooth ? 'smooth' : 'auto'
+              });
+            }
+          }
         }
       }
 
@@ -2745,7 +2812,17 @@
        5. BOARD RENDERING & INTERACTION
        ========================================================= */
     function renderBoard() {
+      if (currentMainView === 'timeline') {
+        renderTimelineView();
+        return;
+      }
+      if (currentMainView === 'month') {
+        renderMonthView();
+        return;
+      }
+
       const board = document.getElementById('weeklyBoard');
+      const prevScrollLeft = board ? board.scrollLeft : 0;
       const prevMinHeight = board.style.minHeight;
       const currentHeight = board.offsetHeight;
       if (currentHeight > 0) {
@@ -2762,44 +2839,52 @@
         return;
       }
 
+      const is4Days = (currentMainView === '4days');
+      const numDays = 7;
+      const startDate = currentWeekStart;
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const currentWeekEnd = new Date(currentWeekStart);
-      currentWeekEnd.setDate(currentWeekEnd.getDate() + 6);
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 6);
 
-      const isSameMonth = currentWeekStart.getMonth() === currentWeekEnd.getMonth();
-      const isSameYear = currentWeekStart.getFullYear() === currentWeekEnd.getFullYear();
-      const startMonth = MONTH_SHORT[currentWeekStart.getMonth()];
-      const endMonth = MONTH_SHORT[currentWeekEnd.getMonth()];
+      const isSameMonth = startDate.getMonth() === endDate.getMonth();
+      const isSameYear = startDate.getFullYear() === endDate.getFullYear();
+      const startMonth = MONTH_SHORT[startDate.getMonth()];
+      const endMonth = MONTH_SHORT[endDate.getMonth()];
 
       let rangeText = '';
       if (isSameMonth) {
-        rangeText = `${currentWeekStart.getDate()} - ${currentWeekEnd.getDate()} de ${startMonth} ${currentWeekEnd.getFullYear()}`;
+        rangeText = `${startDate.getDate()} - ${endDate.getDate()} de ${startMonth} ${endDate.getFullYear()}`;
       } else if (isSameYear) {
-        rangeText = `${currentWeekStart.getDate()} ${startMonth} - ${currentWeekEnd.getDate()} ${endMonth} ${currentWeekEnd.getFullYear()}`;
+        rangeText = `${startDate.getDate()} ${startMonth} - ${endDate.getDate()} ${endMonth} ${endDate.getFullYear()}`;
       } else {
-        rangeText = `${currentWeekStart.getDate()} ${startMonth} ${currentWeekStart.getFullYear()} - ${currentWeekEnd.getDate()} ${endMonth} ${currentWeekEnd.getFullYear()}`;
+        rangeText = `${startDate.getDate()} ${startMonth} ${startDate.getFullYear()} - ${endDate.getDate()} ${endMonth} ${endDate.getFullYear()}`;
       }
       
-      document.getElementById('currentWeekRange').textContent = rangeText;
+      const currentWeekRangeEl = document.getElementById('currentWeekRange');
+      if (currentWeekRangeEl) currentWeekRangeEl.textContent = rangeText;
 
-      let weekTotalTasks = 0;
-      let weekCompletedTasks = 0;
+      let periodTotalTasks = 0;
+      let periodCompletedTasks = 0;
 
       for (let i = 0; i < 7; i++) {
-        const dayDate = new Date(currentWeekStart);
+        const dayDate = new Date(startDate);
         dayDate.setDate(dayDate.getDate() + i);
         const ymd = formatDateToYMD(dayDate);
         const allDayTasks = tasks.filter(t => t.date === ymd);
-        weekTotalTasks += allDayTasks.length;
-        weekCompletedTasks += allDayTasks.filter(t => t.completed).length;
+        periodTotalTasks += allDayTasks.length;
+        periodCompletedTasks += allDayTasks.filter(t => t.completed).length;
       }
 
-      const percent = weekTotalTasks > 0 ? Math.round((weekCompletedTasks / weekTotalTasks) * 100) : 0;
-      document.getElementById('weekProgressBar').style.width = `${percent}%`;
-      document.getElementById('weekStatsPercent').textContent = `${percent}%`;
-      document.getElementById('weekStatsText').textContent = `${weekCompletedTasks} de ${weekTotalTasks} completadas`;
+      const percent = periodTotalTasks > 0 ? Math.round((periodCompletedTasks / periodTotalTasks) * 100) : 0;
+      const weekProgressBar = document.getElementById('weekProgressBar');
+      const weekStatsPercent = document.getElementById('weekStatsPercent');
+      const weekStatsText = document.getElementById('weekStatsText');
+      if (weekProgressBar) weekProgressBar.style.width = `${percent}%`;
+      if (weekStatsPercent) weekStatsPercent.textContent = `${percent}%`;
+      if (weekStatsText) weekStatsText.textContent = `${periodCompletedTasks} de ${periodTotalTasks} completadas`;
 
       const weekProgressBarMobile = document.getElementById('weekProgressBarMobile');
       const weekStatsPercentMobile = document.getElementById('weekStatsPercentMobile');
@@ -2807,21 +2892,35 @@
       if (weekStatsPercentMobile) weekStatsPercentMobile.textContent = `${percent}%`;
 
       const statsBadge = document.getElementById('weekStatsBadge');
-      if (percent === 100 && weekTotalTasks > 0) {
-        statsBadge.textContent = '¡Completado! 🎉';
-        statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 animate-scale-pop flex-shrink-0';
-      } else if (weekTotalTasks === 0) {
-        statsBadge.textContent = 'Sin tareas';
-        statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 flex-shrink-0';
+      if (statsBadge) {
+        if (percent === 100 && periodTotalTasks > 0) {
+          statsBadge.textContent = '¡Completado! 🎉';
+          statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 animate-scale-pop flex-shrink-0';
+        } else if (periodTotalTasks === 0) {
+          statsBadge.textContent = 'Sin tareas';
+          statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 flex-shrink-0';
+        } else {
+          statsBadge.textContent = `${periodTotalTasks - periodCompletedTasks} pendientes`;
+          statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 flex-shrink-0';
+        }
+      }
+
+      // Update board layout classes based on 4 days vs 7 days
+      if (is4Days) {
+        board.className = "grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-nowrap lg:overflow-x-auto lg:gap-4 lg:pb-3 custom-scrollbar lg:snap-x lg:snap-proximity lg:scroll-smooth items-start transition-all duration-200 min-w-0 scroll-mt-20";
+        board.style.scrollPaddingLeft = "calc((100% - 5rem) / 18 + 1rem)";
+        board.style.scrollPaddingRight = "calc((100% - 5rem) / 18 + 1rem)";
       } else {
-        statsBadge.textContent = `${weekTotalTasks - weekCompletedTasks} pendientes`;
-        statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 flex-shrink-0';
+        board.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-nowrap lg:gap-2.5 lg:pb-3 items-start transition-all duration-200 min-w-0 scroll-mt-20 lg:overflow-x-auto custom-scrollbar";
+        board.style.scrollPaddingLeft = "";
+        board.style.scrollPaddingRight = "";
       }
 
       renderMobileDayStrip();
 
+      // Render strictly the 7 days of the selected week (Monday to Sunday)
       for (let i = 0; i < 7; i++) {
-        const dayDate = new Date(currentWeekStart);
+        const dayDate = new Date(startDate);
         dayDate.setDate(dayDate.getDate() + i);
         const ymd = formatDateToYMD(dayDate);
         const isCurrentDay = isSameDay(dayDate, today);
@@ -2839,7 +2938,14 @@
         const col = document.createElement('div');
         col.id = `day-column-${i}`;
         col.setAttribute('data-date', ymd);
-        col.className = `day-column day-col-${i} flex flex-col bg-white rounded-3xl border transition-all duration-200 overflow-hidden min-h-[480px] shadow-xs max-w-full min-w-0 lg:flex-shrink-0 lg:w-[calc((100%-3rem)/4)] lg:min-w-[calc((100%-3rem)/4)] lg:snap-start ${
+        col.setAttribute('data-day-index', i);
+
+        // 4.5 columns visible at once: 0.25 (left peek) + 4 (full days) + 0.25 (right peek)
+        const colWidthClass = is4Days 
+          ? 'lg:flex-shrink-0 lg:w-[calc((100%-5rem)/4.5)] lg:min-w-[calc((100%-5rem)/4.5)] lg:snap-start' 
+          : 'lg:flex-1 lg:min-w-[130px] lg:max-w-none';
+
+        col.className = `day-column day-col-${i} flex flex-col bg-white rounded-3xl border transition-all duration-200 overflow-hidden min-h-[480px] shadow-xs max-w-full min-w-0 ${colWidthClass} ${
           isCurrentDay 
             ? 'border-indigo-400 ring-2 ring-indigo-200/90 shadow-indigo-100/60' 
             : 'border-slate-200/90 hover:border-slate-300 hover:shadow-sm'
@@ -2876,8 +2982,9 @@
           openNewTaskForDate(ymd);
         });
 
+        const dayOfWeekIdx = (dayDate.getDay() + 6) % 7;
         const dayHeader = document.createElement('div');
-        dayHeader.className = `px-4 py-3.5 border-b flex items-center justify-between gap-2.5 transition-colors min-w-0 cursor-pointer ${
+        dayHeader.className = `${is4Days ? 'px-4 py-3.5' : 'px-2.5 py-2.5'} border-b flex items-center justify-between gap-1.5 transition-colors min-w-0 cursor-pointer ${
           isCurrentDay 
             ? 'bg-gradient-to-r from-indigo-50/90 via-indigo-100/40 to-white border-indigo-100' 
             : 'bg-slate-50/80 border-slate-100 hover:bg-slate-100/80'
@@ -2885,36 +2992,39 @@
 
         dayHeader.onclick = (e) => {
           if (!e.target.closest('button')) {
-            switchMobileDay(i);
+            if (i >= 0 && i < 7) {
+              switchMobileDay(i);
+            }
           }
         };
 
         dayHeader.innerHTML = `
-          <div class="flex items-center space-x-3 min-w-0">
-            <span class="w-10 h-10 sm:w-10 sm:h-10 flex items-center justify-center rounded-2xl text-sm sm:text-base font-black transition-transform flex-shrink-0 ${
+          <div class="flex items-center space-x-2 min-w-0">
+            <span class="${is4Days ? 'w-10 h-10 text-sm sm:text-base' : 'w-7 h-7 sm:w-8 sm:h-8 text-xs'} flex items-center justify-center rounded-xl font-black transition-transform flex-shrink-0 ${
               isCurrentDay ? 'bg-indigo-600 text-white shadow-sm scale-105' : 'bg-slate-200 text-slate-800'
             }">
               ${dayDate.getDate()}
             </span>
             <div class="min-w-0 truncate">
-              <div class="flex items-center gap-2 min-w-0">
-                <h4 class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate">${DAY_NAMES[i]}</h4>
-                ${isCurrentDay ? '<span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-600 text-white leading-none flex-shrink-0">Hoy</span>' : ''}
+              <div class="flex items-center gap-1.5 min-w-0">
+                <h4 class="${is4Days ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'} font-extrabold text-slate-900 tracking-tight truncate">${is4Days ? DAY_NAMES[dayOfWeekIdx] : DAY_SHORT[dayOfWeekIdx]}</h4>
+                ${isCurrentDay ? '<span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-indigo-600 text-white leading-none flex-shrink-0">Hoy</span>' : ''}
               </div>
-              <p class="text-xs text-slate-400 font-semibold capitalize">${MONTH_NAMES[dayDate.getMonth()]}</p>
+              <p class="text-[11px] text-slate-400 font-semibold capitalize truncate">${MONTH_NAMES[dayDate.getMonth()]}</p>
             </div>
           </div>
-          <div class="flex items-center space-x-1.5 flex-shrink-0">
-            <span class="text-xs font-bold px-2.5 py-1 rounded-full transition-colors ${
+          <div class="flex items-center space-x-1 flex-shrink-0">
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors ${
               dayTasks.length > 0 ? 'bg-slate-100 text-slate-800' : 'text-slate-400'
             }">
               ${dayTasks.length}
             </span>
-            <button onclick="openNewTaskForDate('${ymd}')" title="Añadir tarea este día" class="btn-action w-9 h-9 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-white rounded-xl transition-all">
-              <svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            ${is4Days ? `
+            <button onclick="openNewTaskForDate('${ymd}')" title="Añadir tarea este día" class="btn-action w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-white rounded-xl transition-all">
+              <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
               </svg>
-            </button>
+            </button>` : ''}
           </div>
         `;
 
@@ -2925,14 +3035,9 @@
 
         if (dayTasks.length === 0) {
           taskContainer.innerHTML = `
-            <div class="h-48 flex flex-col items-center justify-center text-center p-5 border-2 border-dashed border-slate-200/80 rounded-2xl bg-slate-50/40">
-              <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-2.5">
-                <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <p class="text-sm text-slate-500 font-bold">Sin tareas pendientes</p>
-              <button onclick="openNewTaskForDate('${ymd}')" class="mt-2.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3.5 py-1.5 rounded-xl transition-colors">
+            <div class="h-44 flex flex-col items-center justify-center text-center p-4 border-2 border-dashed border-slate-200/80 rounded-2xl bg-slate-50/40">
+              <p class="text-xs font-semibold text-slate-400">Sin tareas programadas</p>
+              <button onclick="openNewTaskForDate('${ymd}')" class="mt-2.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl transition-colors">
                 + Añadir tarea
               </button>
             </div>
@@ -2948,179 +3053,44 @@
         board.appendChild(col);
       }
       requestAnimationFrame(() => {
-        board.style.minHeight = prevMinHeight;
+        board.style.minHeight = '';
+        if (is4Days && prevScrollLeft > 0) {
+          board.scrollLeft = prevScrollLeft;
+        }
+        if (typeof updateBoardScrollIndicators === 'function') {
+          updateBoardScrollIndicators();
+        }
       });
     }
 
-    function getElementDocumentTop(el) {
-      let top = 0;
-      while (el) {
-        top += el.offsetTop || 0;
-        el = el.offsetParent;
-      }
-      return top;
+    function switchMobileDay(index) {
+      selectedMobileDayIndex = index;
+      renderBoard();
+      scrollToDayStrip();
     }
+    window.switchMobileDay = switchMobileDay;
 
     function scrollToDayStrip() {
-      setTimeout(() => {
-        const isMobile = window.innerWidth < 1024;
-        const targetEl = (isMobile && mobileViewMode === 'single')
-          ? document.getElementById('mobileDayStripContainer')
-          : document.getElementById('weeklyBoard');
-
-        if (!targetEl) return;
-
-        const header = document.querySelector('header');
-        const headerHeight = header ? header.offsetHeight : 0;
-        const docTop = getElementDocumentTop(targetEl);
-        
-        // Exact target position so the day row sits flush below sticky header with 6px breather
-        const targetScrollY = Math.max(0, docTop - headerHeight - 6);
-
-        window.scrollTo({
-          top: targetScrollY,
-          behavior: 'smooth'
-        });
-      }, 40);
+      const mobileStripContainer = document.getElementById('mobileDayStripContainer');
+      if (mobileStripContainer && window.innerWidth < 1024) {
+        mobileStripContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
-
-    let dayTransitionTimer = null;
-
-    function switchMobileDay(index) {
-      if (selectedMobileDayIndex === index) return;
-      const prevIndex = selectedMobileDayIndex;
-      const isForward = index > prevIndex;
-      selectedMobileDayIndex = index;
-
-      // 1. En Desktop (>= 1024px): scroll horizontal suave hacia la columna seleccionada
-      if (window.innerWidth >= 1024) {
-        const board = document.getElementById('weeklyBoard');
-        const targetCol = document.getElementById(`day-column-${index}`);
-        if (board && targetCol && board.scrollWidth > board.clientWidth) {
-          const boardRect = board.getBoundingClientRect();
-          const colRect = targetCol.getBoundingClientRect();
-          const targetLeft = colRect.left - boardRect.left + board.scrollLeft;
-          board.scrollTo({
-            left: Math.max(0, targetLeft),
-            behavior: 'smooth'
-          });
-        }
-        return;
-      }
-
-      // 2. Modo móvil lista completa (all): scroll vertical suave hacia el día
-      if (mobileViewMode === 'all') {
-        const targetCol = document.getElementById(`day-column-${index}`);
-        if (targetCol) {
-          targetCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        renderMobileDayStrip();
-        return;
-      }
-
-      // 3. Modo móvil por día (single): transición suave direccional (slide & fade)
-      const board = document.getElementById('weeklyBoard');
-      const prevCol = document.getElementById(`day-column-${prevIndex}`);
-      const nextCol = document.getElementById(`day-column-${index}`);
-
-      if (dayTransitionTimer) {
-        clearTimeout(dayTransitionTimer);
-        dayTransitionTimer = null;
-      }
-
-      // Limpiar clases de animación previas de todas las columnas
-      for (let i = 0; i < 7; i++) {
-        const c = document.getElementById(`day-column-${i}`);
-        if (c) {
-          c.classList.remove('day-transition-in-right', 'day-transition-in-left', 'day-transition-out-left', 'day-transition-out-right');
-          if (c !== prevCol && c !== nextCol) {
-            c.classList.remove('flex', 'w-full');
-            c.classList.add('hidden');
-          }
-        }
-      }
-
-      renderMobileDayStrip();
-
-      // Centrar suavemente la pestaña activa en mobileDayStrip si desborda
-      const mobileStrip = document.getElementById('mobileDayStrip');
-      if (mobileStrip && mobileStrip.children[index] && mobileStrip.scrollWidth > mobileStrip.clientWidth) {
-        const stripRect = mobileStrip.getBoundingClientRect();
-        const btnRect = mobileStrip.children[index].getBoundingClientRect();
-        const targetBtnLeft = btnRect.left - stripRect.left + mobileStrip.scrollLeft - (mobileStrip.clientWidth / 2) + (btnRect.width / 2);
-        mobileStrip.scrollTo({
-          left: Math.max(0, targetBtnLeft),
-          behavior: 'smooth'
-        });
-      }
-
-      if (!prevCol || !nextCol) {
-        for (let i = 0; i < 7; i++) {
-          const col = document.getElementById(`day-column-${i}`);
-          if (col) {
-            if (i === index) {
-              col.classList.remove('hidden');
-              col.classList.add('flex', 'w-full');
-            } else {
-              col.classList.remove('flex', 'w-full');
-              col.classList.add('hidden');
-            }
-          }
-        }
-        return;
-      }
-
-      // Mantener altura mínima del contenedor para evitar brincos en la pantalla
-      if (board) {
-        const curH = board.offsetHeight;
-        if (curH > 0) {
-          board.style.minHeight = `${curH}px`;
-        }
-      }
-
-      // Fase 1: salida suave del día saliente
-      const outClass = isForward ? 'day-transition-out-left' : 'day-transition-out-right';
-      prevCol.classList.add(outClass);
-
-      dayTransitionTimer = setTimeout(() => {
-        prevCol.classList.remove(outClass, 'flex', 'w-full');
-        prevCol.classList.add('hidden');
-
-        // Fase 2: entrada suave con deslizamiento del nuevo día
-        const inClass = isForward ? 'day-transition-in-right' : 'day-transition-in-left';
-        nextCol.classList.remove('hidden');
-        nextCol.classList.add('flex', 'w-full', inClass);
-
-        if (board) {
-          board.style.transition = 'min-height 200ms ease';
-          requestAnimationFrame(() => {
-            const nextH = nextCol.offsetHeight;
-            if (nextH > 0) {
-              board.style.minHeight = `${nextH}px`;
-            }
-          });
-        }
-
-        dayTransitionTimer = setTimeout(() => {
-          nextCol.classList.remove(inClass);
-          if (board) {
-            board.style.minHeight = '';
-            board.style.transition = '';
-          }
-          dayTransitionTimer = null;
-        }, 240);
-      }, 110);
-    }
+    window.scrollToDayStrip = scrollToDayStrip;
 
     function renderMobileDayStrip() {
       const container = document.getElementById('mobileDayStrip');
+      if (!container) return;
       container.innerHTML = '';
+
+      const numDays = 7;
+      const startDate = currentWeekStart;
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      for (let i = 0; i < 7; i++) {
-        const dayDate = new Date(currentWeekStart);
+      for (let i = 0; i < numDays; i++) {
+        const dayDate = new Date(startDate);
         dayDate.setDate(dayDate.getDate() + i);
         const ymd = formatDateToYMD(dayDate);
         const isCurrentDay = isSameDay(dayDate, today);
@@ -3129,6 +3099,8 @@
         const dayTasks = tasks.filter(t => t.date === ymd);
         const pendingCount = dayTasks.filter(t => !t.completed).length;
         const allCompleted = dayTasks.length > 0 && pendingCount === 0;
+
+        const dayOfWeekIndex = (dayDate.getDay() + 6) % 7;
 
         const btn = document.createElement('button');
         btn.className = `btn-action flex-1 py-3 px-2 rounded-2xl text-center border min-h-[66px] flex flex-col items-center justify-between transition-all duration-150 relative min-w-[42px] max-w-full ${
@@ -3144,19 +3116,18 @@
         };
 
         btn.innerHTML = `
-          <span class="text-xs font-bold uppercase tracking-wider leading-tight ${isSelected ? 'text-indigo-100' : 'text-slate-400'}">${DAY_SHORT[i]}</span>
+          <span class="text-xs font-bold uppercase tracking-wider leading-tight ${isSelected ? 'text-indigo-100' : 'text-slate-400'}">${DAY_SHORT[dayOfWeekIndex]}</span>
           <span class="text-base sm:text-lg font-black leading-tight mt-0.5">${dayDate.getDate()}</span>
           <div class="h-2 flex items-center justify-center mt-1">
             ${
               pendingCount > 0
-                ? `<span class="w-2 h-2 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-indigo-600'}"></span>`
+                ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-amber-500'}"></span>`
                 : allCompleted
-                  ? `<span class="w-2 h-2 rounded-full ${isSelected ? 'bg-emerald-300' : 'bg-emerald-500'}"></span>`
-                  : `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-indigo-400/50' : 'bg-transparent'}"></span>`
+                  ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-emerald-300' : 'bg-emerald-500'}"></span>`
+                  : `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-indigo-400/40' : 'bg-transparent'}"></span>`
             }
           </div>
         `;
-
         container.appendChild(btn);
       }
     }
@@ -4056,6 +4027,7 @@
         task.completed = !task.completed;
         renderBoard();
         if (currentMainView === 'timeline') renderTimelineView();
+      if (currentMainView === 'month') renderMonthView();
         persistEncryptedUserData();
         if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
           UniTaskCloudDB.saveTask(currentUser.username, task);
@@ -4294,6 +4266,7 @@
       persistEncryptedUserData();
       renderBoard();
       if (currentMainView === 'timeline') renderTimelineView();
+      if (currentMainView === 'month') renderMonthView();
       showToast('Tarea movida de fecha.');
     }
     window.moveTaskToDate = moveTaskToDate;
@@ -4313,6 +4286,7 @@
       persistEncryptedUserData();
       renderBoard();
       if (currentMainView === 'timeline') renderTimelineView();
+      if (currentMainView === 'month') renderMonthView();
     };
 
     window.selectModalTaskType = function(type) {
@@ -4388,30 +4362,306 @@
     };
 
     /* =========================================================
+       MONTH VIEW (FULL MONTH CALENDAR GRID)
+       ========================================================= */
+    function renderMonthView() {
+      const container = document.getElementById('monthViewContent');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (!currentUser) {
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-10 py-20 text-center text-slate-400">
+            <p class="text-base font-bold">Inicia sesión para acceder a tu vista mensual.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const year = currentMonthDate.getFullYear();
+      const month = currentMonthDate.getMonth(); // 0-11
+
+      // Month name and year in top range bar
+      const rangeEl = document.getElementById('currentWeekRange');
+      if (rangeEl) {
+        rangeEl.textContent = `${MONTH_NAMES[month]} ${year}`;
+      }
+
+      // Calculate tasks for this entire month
+      const yyyyMmPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+      const monthTasks = tasks.filter(t => t.date && t.date.startsWith(yyyyMmPrefix));
+      const monthTotal = monthTasks.length;
+      const monthCompleted = monthTasks.filter(t => t.completed).length;
+      const percent = monthTotal > 0 ? Math.round((monthCompleted / monthTotal) * 100) : 0;
+
+      // Update progress bar & stats
+      const weekProgressBar = document.getElementById('weekProgressBar');
+      const weekStatsPercent = document.getElementById('weekStatsPercent');
+      const weekStatsText = document.getElementById('weekStatsText');
+      if (weekProgressBar) weekProgressBar.style.width = `${percent}%`;
+      if (weekStatsPercent) weekStatsPercent.textContent = `${percent}%`;
+      if (weekStatsText) weekStatsText.textContent = `${monthCompleted} de ${monthTotal} completadas`;
+
+      const weekProgressBarMobile = document.getElementById('weekProgressBarMobile');
+      const weekStatsPercentMobile = document.getElementById('weekStatsPercentMobile');
+      if (weekProgressBarMobile) weekProgressBarMobile.style.width = `${percent}%`;
+      if (weekStatsPercentMobile) weekStatsPercentMobile.textContent = `${percent}%`;
+
+      const statsBadge = document.getElementById('weekStatsBadge');
+      if (statsBadge) {
+        if (percent === 100 && monthTotal > 0) {
+          statsBadge.textContent = '¡Completado! 🎉';
+          statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 animate-scale-pop flex-shrink-0';
+        } else if (monthTotal === 0) {
+          statsBadge.textContent = 'Sin tareas';
+          statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 flex-shrink-0';
+        } else {
+          statsBadge.textContent = `${monthTotal - monthCompleted} pendientes`;
+          statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 flex-shrink-0';
+        }
+      }
+
+      // Calendar card wrapper
+      const card = document.createElement('div');
+      card.className = 'bg-white rounded-3xl border border-slate-200/90 shadow-xs p-2.5 sm:p-5 transition-all min-w-0';
+
+      // Days of the week header row (Lun, Mar, Mié, Jue, Vie, Sáb, Dom)
+      const daysHeader = document.createElement('div');
+      daysHeader.className = 'grid grid-cols-7 gap-1 sm:gap-2 text-center text-xs font-extrabold text-slate-600 uppercase tracking-wider py-2.5 bg-slate-50/90 rounded-2xl border border-slate-200/70 mb-2 sm:mb-3';
+      DAY_SHORT.forEach(shortName => {
+        const d = document.createElement('div');
+        d.textContent = shortName;
+        daysHeader.appendChild(d);
+      });
+      card.appendChild(daysHeader);
+
+      // Grid for days
+      const grid = document.createElement('div');
+      grid.className = 'grid grid-cols-7 gap-1 sm:gap-2 auto-rows-fr';
+
+      const firstDay = new Date(year, month, 1);
+      const startDayOfWeek = (firstDay.getDay() + 6) % 7; // Monday = 0
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      const totalSlots = Math.ceil((startDayOfWeek + daysInMonth) / 7) * 7;
+
+      for (let slot = 0; slot < totalSlots; slot++) {
+        let cellDate;
+        let isCurrentMonth = true;
+
+        if (slot < startDayOfWeek) {
+          const dayNum = daysInPrevMonth - startDayOfWeek + slot + 1;
+          cellDate = new Date(year, month - 1, dayNum);
+          isCurrentMonth = false;
+        } else if (slot < startDayOfWeek + daysInMonth) {
+          const dayNum = slot - startDayOfWeek + 1;
+          cellDate = new Date(year, month, dayNum);
+          isCurrentMonth = true;
+        } else {
+          const dayNum = slot - (startDayOfWeek + daysInMonth) + 1;
+          cellDate = new Date(year, month + 1, dayNum);
+          isCurrentMonth = false;
+        }
+
+        cellDate.setHours(0, 0, 0, 0);
+        const ymd = formatDateToYMD(cellDate);
+        const isCurrentDay = isSameDay(cellDate, today);
+
+        // Filter tasks for this day
+        const dayTasks = tasks.filter(task => {
+          if (task.date !== ymd) return false;
+          if (selectedSubjectFilter !== 'ALL' && task.subjectId !== selectedSubjectFilter) return false;
+          if (activeFilter === 'pending' && task.completed) return false;
+          if (activeFilter === 'completed' && !task.completed) return false;
+          return true;
+        });
+
+        const cellEl = document.createElement('div');
+        cellEl.className = `month-day-cell group flex flex-col p-1.5 sm:p-2.5 rounded-2xl border transition-all duration-150 min-h-[75px] sm:min-h-[110px] relative select-none ${
+          isCurrentDay
+            ? 'bg-indigo-50/40 border-indigo-400 ring-2 ring-indigo-200/90 shadow-indigo-100/50'
+            : isCurrentMonth
+              ? 'bg-white border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/50 hover:shadow-xs'
+              : 'bg-slate-50/50 border-slate-100 text-slate-300 hover:bg-slate-100/50'
+        }`;
+
+        // Double click to create task on that date
+        cellEl.ondblclick = (e) => {
+          if (e.target.closest('.month-task-pill') || e.target.closest('button')) return;
+          openNewTaskForDate(ymd);
+        };
+
+        // Drag & drop target
+        cellEl.addEventListener('dragover', (e) => {
+          if (e.dataTransfer && Array.from(e.dataTransfer.types).includes('application/unitask-task-id')) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            cellEl.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50');
+          }
+        });
+
+        cellEl.addEventListener('dragleave', (e) => {
+          if (!cellEl.contains(e.relatedTarget)) {
+            cellEl.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50');
+          }
+        });
+
+        cellEl.addEventListener('drop', (e) => {
+          cellEl.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50');
+          const taskId = e.dataTransfer ? e.dataTransfer.getData('application/unitask-task-id') : null;
+          if (taskId) {
+            e.preventDefault();
+            e.stopPropagation();
+            moveTaskToDate(taskId, ymd);
+          }
+        });
+
+        // Top row of cell: Day number + Add task button
+        const cellHeader = document.createElement('div');
+        cellHeader.className = 'flex items-center justify-between gap-1 mb-1.5 flex-shrink-0';
+
+        const dayNumBadge = document.createElement('span');
+        dayNumBadge.className = `w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+          isCurrentDay
+            ? 'bg-indigo-600 text-white font-black shadow-xs'
+            : isCurrentMonth
+              ? 'text-slate-800'
+              : 'text-slate-400'
+        }`;
+        dayNumBadge.textContent = cellDate.getDate();
+        cellHeader.appendChild(dayNumBadge);
+
+        // Add task button (shown on hover or tap)
+        const addBtn = document.createElement('button');
+        addBtn.className = 'opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all';
+        addBtn.title = `Añadir tarea el ${cellDate.getDate()} de ${MONTH_NAMES[cellDate.getMonth()]}`;
+        addBtn.innerHTML = '<svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>';
+        addBtn.onclick = (e) => {
+          e.stopPropagation();
+          openNewTaskForDate(ymd);
+        };
+        cellHeader.appendChild(addBtn);
+
+        cellEl.appendChild(cellHeader);
+
+        // Tasks container in cell
+        const tasksContainer = document.createElement('div');
+        tasksContainer.className = 'flex-1 flex flex-col gap-1 overflow-hidden min-h-0';
+
+        const maxVisibleTasks = 3;
+        const visibleTasks = dayTasks.slice(0, maxVisibleTasks);
+        const hiddenCount = dayTasks.length - maxVisibleTasks;
+
+        visibleTasks.forEach(task => {
+          const sub = subjects.find(s => s.id === task.subjectId);
+          const subColor = sub ? sub.color : '#6366f1';
+
+          const taskPill = document.createElement('div');
+          taskPill.className = `month-task-pill group/pill cursor-pointer px-1.5 py-0.5 rounded-lg border text-[10px] sm:text-[11px] leading-tight flex items-center gap-1 transition-all truncate ${
+            task.completed
+              ? 'bg-slate-50/80 border-slate-200/60 opacity-60'
+              : 'bg-white border-slate-200/90 hover:border-indigo-300 hover:shadow-xs'
+          }`;
+          taskPill.draggable = true;
+          taskPill.title = `${task.title}${task.time ? ' (' + task.time + ')' : ''} - ${sub ? sub.name : ''}`;
+
+          taskPill.onclick = (e) => {
+            e.stopPropagation();
+            editTask(task.id);
+          };
+
+          taskPill.addEventListener('dragstart', (e) => {
+            e.stopPropagation();
+            e.dataTransfer.setData('application/unitask-task-id', task.id);
+            e.dataTransfer.setData('text/plain', task.id);
+            e.dataTransfer.effectAllowed = 'move';
+            taskPill.classList.add('opacity-40');
+          });
+
+          taskPill.addEventListener('dragend', () => {
+            taskPill.classList.remove('opacity-40');
+          });
+
+          taskPill.innerHTML = `
+            <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background-color: ${subColor}"></span>
+            <span class="truncate flex-1 font-semibold ${task.completed ? 'line-through text-slate-400' : 'text-slate-800'}">${escapeHtml(task.title)}</span>
+            ${task.time ? `<span class="hidden sm:inline text-[9px] text-slate-400 flex-shrink-0 font-medium">${task.time}</span>` : ''}
+          `;
+
+          tasksContainer.appendChild(taskPill);
+        });
+
+        if (hiddenCount > 0) {
+          const morePill = document.createElement('div');
+          morePill.className = 'text-[9px] sm:text-[10px] font-extrabold text-indigo-600 px-1 hover:underline cursor-pointer flex-shrink-0';
+          morePill.textContent = `+${hiddenCount} más`;
+          morePill.onclick = (e) => {
+            e.stopPropagation();
+            currentWeekStart = getMonday(cellDate);
+            switchMainView('week');
+          };
+          tasksContainer.appendChild(morePill);
+        }
+
+        cellEl.appendChild(tasksContainer);
+        grid.appendChild(cellEl);
+      }
+
+      card.appendChild(grid);
+      container.appendChild(card);
+    }
+
+    /* =========================================================
        TIMELINE VIEW (CHRONOLOGICAL OVERVIEW)
        ========================================================= */
     window.switchMainView = function(view) {
+      if (view === 'board') view = 'week';
       currentMainView = view;
-      const btnWeekly = document.getElementById('btnViewWeekly');
-      const btnTimeline = document.getElementById('btnViewTimeline');
+
+      const mainViewSelect = document.getElementById('mainViewSelect');
+      if (mainViewSelect && mainViewSelect.value !== view) {
+        mainViewSelect.value = view;
+      }
+
       const boardWrapper = document.getElementById('weeklyBoardWrapper');
       const timelineView = document.getElementById('timelineView');
+      const monthViewWrapper = document.getElementById('monthViewWrapper');
       const mobileStrip = document.getElementById('mobileDayStripContainer');
 
       if (view === 'timeline') {
-        if (btnWeekly) btnWeekly.className = 'main-view-btn px-2 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs flex items-center gap-1';
-        if (btnTimeline) btnTimeline.className = 'main-view-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs flex items-center gap-1';
         if (boardWrapper) boardWrapper.classList.add('hidden');
         if (timelineView) timelineView.classList.remove('hidden');
+        if (monthViewWrapper) monthViewWrapper.classList.add('hidden');
         if (mobileStrip) mobileStrip.classList.add('hidden');
+        if (typeof updateBoardScrollIndicators === 'function') updateBoardScrollIndicators();
         renderTimelineView();
-      } else {
-        if (btnWeekly) btnWeekly.className = 'main-view-btn px-2 sm:px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs font-bold transition-all h-full text-[11px] sm:text-xs flex items-center gap-1';
-        if (btnTimeline) btnTimeline.className = 'main-view-btn px-2 sm:px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition-all h-full text-[11px] sm:text-xs flex items-center gap-1';
+      } else if (view === 'month') {
+        if (boardWrapper) boardWrapper.classList.add('hidden');
+        if (timelineView) timelineView.classList.add('hidden');
+        if (monthViewWrapper) monthViewWrapper.classList.remove('hidden');
+        if (mobileStrip) mobileStrip.classList.add('hidden');
+        if (typeof updateBoardScrollIndicators === 'function') updateBoardScrollIndicators();
+        renderMonthView();
+      } else { // '4days' or 'week'
         if (boardWrapper) boardWrapper.classList.remove('hidden');
         if (timelineView) timelineView.classList.add('hidden');
+        if (monthViewWrapper) monthViewWrapper.classList.add('hidden');
         if (mobileStrip && mobileViewMode === 'single') mobileStrip.classList.remove('hidden');
         renderBoard();
+        if (view === '4days') {
+          setTimeout(() => {
+            scrollToToday(false);
+          }, 40);
+        }
+        if (typeof updateBoardScrollIndicators === 'function') {
+          setTimeout(() => {
+            updateBoardScrollIndicators();
+          }, 80);
+        }
       }
     };
 
@@ -4858,6 +5108,7 @@
           tasks = tasks.filter(t => t.id !== taskId);
           renderBoard();
           if (currentMainView === 'timeline') renderTimelineView();
+      if (currentMainView === 'month') renderMonthView();
           persistEncryptedUserData();
           if (currentUser && !currentUser.isGuest && UniTaskCloudDB.isConfigured) {
             UniTaskCloudDB.deleteTask(currentUser.username, taskId);
@@ -5216,23 +5467,37 @@
 
     function animateBoardTransition() {
       const board = document.getElementById('weeklyBoard');
+      if (!board) return;
       board.classList.add('opacity-0', 'scale-[0.99]');
       setTimeout(() => {
         board.scrollLeft = 0;
         renderBoard();
         board.classList.remove('opacity-0', 'scale-[0.99]');
+        if (typeof updateBoardScrollIndicators === 'function') {
+          updateBoardScrollIndicators();
+        }
       }, 150);
     }
 
     function goToPrevWeek() {
-      currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-      animateBoardTransition();
+      if (currentMainView === 'month') {
+        currentMonthDate.setMonth(currentMonthDate.getMonth() - 1);
+        renderMonthView();
+      } else {
+        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+        animateBoardTransition();
+      }
     }
     window.goToPrevWeek = goToPrevWeek;
 
     function goToNextWeek() {
-      currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-      animateBoardTransition();
+      if (currentMainView === 'month') {
+        currentMonthDate.setMonth(currentMonthDate.getMonth() + 1);
+        renderMonthView();
+      } else {
+        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+        animateBoardTransition();
+      }
     }
     window.goToNextWeek = goToNextWeek;
 
@@ -5241,15 +5506,112 @@
 
     window.goToToday = function() {
       currentWeekStart = getMonday(new Date());
+      currentMonthDate = new Date();
       selectedMobileDayIndex = getInitialDayIndex();
-      animateBoardTransition();
+
+      // Sea cual sea la vista actual, cambiar a la vista de 4 días y mostrar el día de hoy
+      if (currentMainView !== '4days') {
+        switchMainView('4days');
+      } else {
+        renderBoard();
+      }
+
       scrollToDayStrip();
       setTimeout(() => {
         scrollToToday(true);
+      }, 80);
+    };
+    document.getElementById('btnToday').addEventListener('click', goToToday);
+
+    window.scrollBoardByDays = function(days) {
+      const board = document.getElementById('weeklyBoard');
+      if (!board) return;
+      const firstCol = board.querySelector('.day-column');
+      if (!firstCol) return;
+      const colWidth = firstCol.offsetWidth;
+      const gap = 16;
+      const scrollAmount = (colWidth + gap) * days;
+
+      board.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+      setTimeout(() => {
+        if (typeof updateBoardScrollIndicators === 'function') {
+          updateBoardScrollIndicators();
+        }
       }, 200);
     };
 
-    document.getElementById('btnToday').addEventListener('click', goToToday);
+    function updateBoardScrollIndicators() {
+      const board = document.getElementById('weeklyBoard');
+      const fadeLeft = document.getElementById('boardScrollFadeLeft');
+      const fadeRight = document.getElementById('boardScrollFadeRight');
+      if (!board || !fadeLeft || !fadeRight) return;
+
+      if (currentMainView !== '4days' || board.scrollWidth <= board.clientWidth + 5) {
+        fadeLeft.classList.add('opacity-0', 'pointer-events-none');
+        fadeLeft.classList.remove('opacity-100');
+        fadeRight.classList.add('opacity-0', 'pointer-events-none');
+        fadeRight.classList.remove('opacity-100');
+        return;
+      }
+
+      // Indicador difuminado a la izquierda (solo cuando hay días visibles a la izquierda)
+      if (board.scrollLeft > 12) {
+        fadeLeft.classList.remove('opacity-0', 'pointer-events-none');
+        fadeLeft.classList.add('opacity-100');
+      } else {
+        fadeLeft.classList.add('opacity-0', 'pointer-events-none');
+        fadeLeft.classList.remove('opacity-100');
+      }
+
+      // Indicador difuminado a la derecha (solo cuando hay días visibles a la derecha)
+      const maxScrollLeft = board.scrollWidth - board.clientWidth;
+      if (board.scrollLeft < maxScrollLeft - 12) {
+        fadeRight.classList.remove('opacity-0', 'pointer-events-none');
+        fadeRight.classList.add('opacity-100');
+      } else {
+        fadeRight.classList.add('opacity-0', 'pointer-events-none');
+        fadeRight.classList.remove('opacity-100');
+      }
+    }
+    window.updateBoardScrollIndicators = updateBoardScrollIndicators;
+
+    const boardScrollEl = document.getElementById('weeklyBoard');
+    if (boardScrollEl) {
+      boardScrollEl.addEventListener('scroll', () => {
+        updateBoardScrollIndicators();
+      }, { passive: true });
+
+      boardScrollEl.addEventListener('wheel', (e) => {
+        if (currentMainView !== '4days') return;
+        if (boardScrollEl.scrollWidth <= boardScrollEl.clientWidth) return;
+        
+        // If native horizontal trackpad scroll is active, let it handle
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+          return;
+        }
+
+        // If hovering over an internal task list that can scroll vertically in this direction, don't intercept
+        const taskContainer = e.target.closest('.overflow-y-auto');
+        if (taskContainer && taskContainer.scrollHeight > taskContainer.clientHeight) {
+          const atTop = taskContainer.scrollTop <= 0 && e.deltaY < 0;
+          const atBottom = (taskContainer.scrollTop + taskContainer.clientHeight >= taskContainer.scrollHeight - 2) && e.deltaY > 0;
+          if (!atTop && !atBottom) {
+            return;
+          }
+        }
+
+        e.preventDefault();
+        boardScrollEl.scrollLeft += e.deltaY;
+        updateBoardScrollIndicators();
+      }, { passive: false });
+    }
+
+    window.addEventListener('resize', () => {
+      updateBoardScrollIndicators();
+    });
 
     // Atajos de teclado globales (Ctrl+K / /: Búsqueda, C: Nueva tarea, T: Hoy, N: Sig. semana, P: Ant. semana, ?: Ayuda atajos, Esc: Cerrar)
     document.addEventListener('keydown', (e) => {
@@ -5335,6 +5697,18 @@
       } else if (key === 'P' || e.code === 'KeyP') {
         e.preventDefault();
         window.goToPrevWeek();
+      } else if (key === 'L' || e.code === 'KeyL') {
+        e.preventDefault();
+        window.switchMainView('timeline');
+      } else if (key === 'S' || e.code === 'KeyS') {
+        e.preventDefault();
+        window.switchMainView('4days');
+      } else if (key === 'W' || e.code === 'KeyW') {
+        e.preventDefault();
+        window.switchMainView('week');
+      } else if (key === 'M' || e.code === 'KeyM') {
+        e.preventDefault();
+        window.switchMainView('month');
       }
     });
 
