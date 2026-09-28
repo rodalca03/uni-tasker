@@ -4123,6 +4123,9 @@
     }
 
     function closeModalEl(modalEl) {
+      if (modalEl && modalEl.contains(document.activeElement)) {
+        document.activeElement.blur();
+      }
       modalEl.classList.remove('is-active');
       setTimeout(() => {
         modalEl.classList.add('hidden');
@@ -5828,6 +5831,7 @@
       return drawer && !drawer.classList.contains('translate-x-full');
     };
 
+    let quickTasksFocusTimeout = null;
     window.openQuickTasksPanel = function() {
       closeAllHeaderMenus();
       const backdrop = document.getElementById('quickTasksDrawerBackdrop');
@@ -5840,16 +5844,32 @@
       drawer.classList.remove('translate-x-full');
       drawer.classList.add('translate-x-0');
 
-      setTimeout(() => {
+      if (quickTasksFocusTimeout) clearTimeout(quickTasksFocusTimeout);
+      quickTasksFocusTimeout = setTimeout(() => {
+        if (!window.isQuickTasksOpen()) return;
         const input = document.getElementById('quickTaskInput');
         if (input) input.focus();
       }, 120);
     };
 
     window.closeQuickTasksPanel = function() {
+      if (quickTasksFocusTimeout) {
+        clearTimeout(quickTasksFocusTimeout);
+        quickTasksFocusTimeout = null;
+      }
+
       const backdrop = document.getElementById('quickTasksDrawerBackdrop');
       const drawer = document.getElementById('quickTasksDrawer');
       if (!backdrop || !drawer) return;
+
+      // Desenfocar inmediatamente cualquier input activo para no bloquear atajos globales
+      if (document.activeElement && (drawer.contains(document.activeElement) || document.activeElement.id === 'quickTaskInput')) {
+        document.activeElement.blur();
+      }
+      const quickTaskInput = document.getElementById('quickTaskInput');
+      if (quickTaskInput && typeof quickTaskInput.blur === 'function') {
+        quickTaskInput.blur();
+      }
 
       backdrop.classList.remove('opacity-100', 'pointer-events-auto');
       backdrop.classList.add('opacity-0', 'pointer-events-none');
