@@ -935,7 +935,7 @@
         </button>
       </div>
 
-      <div id="weeklyBoard" class="grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-nowrap lg:overflow-x-auto lg:gap-4 lg:pb-3 custom-scrollbar lg:snap-x lg:snap-proximity lg:scroll-smooth items-start transition-all duration-200 min-w-0 scroll-mt-20">
+      <div id="weeklyBoard" class="grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-nowrap lg:overflow-x-auto lg:gap-4 lg:pb-3 custom-scrollbar items-start transition-all duration-200 min-w-0 scroll-mt-20">
         <!-- 7 Days dynamically generated here -->
       </div>
     </div>
@@ -2551,15 +2551,17 @@
               const maxScrollLeft = board.scrollWidth - board.clientWidth;
               targetScrollLeft = Math.min(maxScrollLeft, Math.max(0, todayCol.offsetLeft - leftPeekWidth));
             }
+            isProgrammaticBoardScroll = true;
             board.scrollTo({
               left: targetScrollLeft,
               behavior: smooth ? 'smooth' : 'auto'
             });
             setTimeout(() => {
+              isProgrammaticBoardScroll = false;
               if (typeof updateBoardScrollIndicators === 'function') {
                 updateBoardScrollIndicators();
               }
-            }, 180);
+            }, 250);
           } else {
             const boardRect = board.getBoundingClientRect();
             const colRect = todayCol.getBoundingClientRect();
@@ -3113,9 +3115,9 @@
 
       // Update board layout classes based on 4 days vs 7 days
       if (is4Days) {
-        board.className = "grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-nowrap lg:overflow-x-auto lg:gap-4 lg:pb-3 custom-scrollbar lg:snap-x lg:snap-proximity lg:scroll-smooth items-start transition-all duration-200 min-w-0 scroll-mt-20";
-        board.style.scrollPaddingLeft = "calc((100% - 5rem) / 18 + 1rem)";
-        board.style.scrollPaddingRight = "calc((100% - 5rem) / 18 + 1rem)";
+        board.className = "grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-nowrap lg:overflow-x-auto lg:gap-4 lg:pb-3 custom-scrollbar items-start transition-all duration-200 min-w-0 scroll-mt-20";
+        board.style.scrollPaddingLeft = "";
+        board.style.scrollPaddingRight = "";
       } else {
         board.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-nowrap lg:gap-2.5 lg:pb-3 items-start transition-all duration-200 min-w-0 scroll-mt-20 lg:overflow-x-auto custom-scrollbar";
         board.style.scrollPaddingLeft = "";
@@ -3148,7 +3150,7 @@
 
         // 4.5 columns visible at once: 0.25 (left peek) + 4 (full days) + 0.25 (right peek)
         const colWidthClass = is4Days 
-          ? 'lg:flex-shrink-0 lg:w-[calc((100%-5rem)/4.5)] lg:min-w-[calc((100%-5rem)/4.5)] lg:snap-start' 
+          ? 'lg:flex-shrink-0 lg:w-[calc((100%-5rem)/4.5)] lg:min-w-[calc((100%-5rem)/4.5)]' 
           : 'lg:flex-1 lg:min-w-[130px] lg:max-w-none';
 
         col.className = `day-column day-col-${i} flex flex-col bg-white rounded-3xl border transition-all duration-200 overflow-hidden min-h-[480px] shadow-xs max-w-full min-w-0 ${colWidthClass} ${
@@ -4830,6 +4832,7 @@
     function switchMainView(view) {
       if (view === 'board') view = 'week';
       currentMainView = view;
+      if (typeof window.cancelBoardSnap === 'function') window.cancelBoardSnap();
 
       const mainViewSelect = document.getElementById('mainViewSelect');
       if (mainViewSelect && mainViewSelect.value !== view) {
@@ -5733,6 +5736,16 @@
     };
     document.getElementById('btnToday').addEventListener('click', goToToday);
 
+    let boardSnapDebounceTimer = null;
+    let isProgrammaticBoardScroll = false;
+
+    window.cancelBoardSnap = function() {
+      if (boardSnapDebounceTimer) {
+        clearTimeout(boardSnapDebounceTimer);
+        boardSnapDebounceTimer = null;
+      }
+    };
+
     window.scrollBoardByDays = function(days) {
       const board = document.getElementById('weeklyBoard');
       if (!board) return;
@@ -5742,16 +5755,82 @@
       const gap = 16;
       const scrollAmount = (colWidth + gap) * days;
 
+      window.cancelBoardSnap();
+      isProgrammaticBoardScroll = true;
       board.scrollBy({
         left: scrollAmount,
         behavior: 'smooth'
       });
       setTimeout(() => {
+        isProgrammaticBoardScroll = false;
         if (typeof updateBoardScrollIndicators === 'function') {
           updateBoardScrollIndicators();
         }
-      }, 200);
+        snapBoardToClosestDay();
+      }, 350);
     };
+
+    function snapBoardToClosestDay() {
+      const board = document.getElementById('weeklyBoard');
+      if (!board || currentMainView !== '4days') return;
+      if (document.querySelector('.is-dragging')) return;
+
+      const maxScrollLeft = board.scrollWidth - board.clientWidth;
+      if (maxScrollLeft <= 5) return;
+
+      const cols = Array.from(board.querySelectorAll('.day-column'));
+      if (cols.length === 0) return;
+
+      const firstCol = cols[0];
+      const colWidth = firstCol.offsetWidth;
+      const gap = cols.length > 1 ? (cols[1].offsetLeft - cols[0].offsetLeft - colWidth) : 16;
+      const leftPeekWidth = 0.25 * colWidth + gap;
+
+      const snapTargets = [0];
+
+      for (let i = 1; i < cols.length; i++) {
+        const col = cols[i];
+        const target = Math.min(maxScrollLeft, Math.max(0, col.offsetLeft - leftPeekWidth));
+        const rounded = Math.round(target);
+        if (!snapTargets.includes(rounded)) {
+          snapTargets.push(rounded);
+        }
+      }
+
+      const roundedMax = Math.round(maxScrollLeft);
+      if (!snapTargets.includes(roundedMax)) {
+        snapTargets.push(roundedMax);
+      }
+
+      snapTargets.sort((a, b) => a - b);
+
+      const currentScroll = board.scrollLeft;
+      let bestTarget = snapTargets[0];
+      let minDiff = Math.abs(currentScroll - bestTarget);
+
+      for (let i = 1; i < snapTargets.length; i++) {
+        const diff = Math.abs(currentScroll - snapTargets[i]);
+        if (diff < minDiff) {
+          minDiff = diff;
+          bestTarget = snapTargets[i];
+        }
+      }
+
+      // Si ya está casi alineado (diferencia <= 3px), no animar
+      if (minDiff <= 3) return;
+
+      isProgrammaticBoardScroll = true;
+      board.scrollTo({
+        left: bestTarget,
+        behavior: 'smooth'
+      });
+
+      setTimeout(() => {
+        isProgrammaticBoardScroll = false;
+        updateBoardScrollIndicators();
+      }, 400);
+    }
+    window.snapBoardToClosestDay = snapBoardToClosestDay;
 
     function updateBoardScrollIndicators() {
       const board = document.getElementById('weeklyBoard');
@@ -5792,7 +5871,30 @@
     if (boardScrollEl) {
       boardScrollEl.addEventListener('scroll', () => {
         updateBoardScrollIndicators();
+
+        if (currentMainView !== '4days') return;
+        if (boardScrollEl.scrollWidth <= boardScrollEl.clientWidth + 5) return;
+        if (isProgrammaticBoardScroll) return;
+
+        if (boardSnapDebounceTimer) {
+          clearTimeout(boardSnapDebounceTimer);
+        }
+
+        boardSnapDebounceTimer = setTimeout(() => {
+          snapBoardToClosestDay();
+        }, 500); // Espera 0.5 segundos y magnéticamente pega las tarjetas al grid
       }, { passive: true });
+
+      // Cualquier interacción del usuario cancela el temporizador y el bloqueo programático
+      ['wheel', 'touchstart', 'pointerdown', 'mousedown'].forEach(evt => {
+        boardScrollEl.addEventListener(evt, () => {
+          isProgrammaticBoardScroll = false;
+          if (boardSnapDebounceTimer) {
+            clearTimeout(boardSnapDebounceTimer);
+            boardSnapDebounceTimer = null;
+          }
+        }, { passive: true });
+      });
 
       boardScrollEl.addEventListener('wheel', (e) => {
         if (currentMainView !== '4days') return;
@@ -5820,6 +5922,7 @@
     }
 
     window.addEventListener('resize', () => {
+      window.cancelBoardSnap();
       updateBoardScrollIndicators();
     });
 
