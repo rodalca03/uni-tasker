@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <!-- Cache Control: Force browsers to fetch latest version without relying on stale disk cache -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Studeo - Agenda Universitaria</title>
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <!-- Progressive Web App (PWA) Manifest & Mobile Meta -->
@@ -6838,18 +6842,118 @@
       document.querySelectorAll('.pwa-install-btn').forEach(btn => btn.classList.add('hidden'));
     }
 
-    // Register Service Worker
+    // Register Service Worker with forced update check & auto-reload on new versions
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
+        navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
           .then((reg) => {
             console.log('Studeo Service Worker registrado:', reg.scope);
+
+            // Force immediate check for updates to sw.js on the server
+            reg.update().catch(() => {});
+
+            // If an updated worker is waiting, activate it immediately
+            if (reg.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('Nueva versión disponible. Activando...');
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              }
+            });
           })
           .catch((err) => {
             console.warn('Error registrando Service Worker:', err);
           });
       });
+
+      // When the service worker changes, reload the page to apply the latest code
+      let isControlled = Boolean(navigator.serviceWorker.controller);
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (isControlled && !refreshing) {
+          const lastReload = sessionStorage.getItem('studeo_last_sw_reload');
+          const now = Date.now();
+          if (!lastReload || now - parseInt(lastReload, 10) > 4000) {
+            refreshing = true;
+            sessionStorage.setItem('studeo_last_sw_reload', now.toString());
+            window.location.reload();
+          }
+        }
+      });
     }
+
+    // Reload if the page was restored from bfcache (back-forward cache in memory)
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    });
+
+    // Check server for updates whenever the tab regains focus or visibility
+    let lastUpdateCheck = 0;
+    async function checkServerForUpdates() {
+      const now = Date.now();
+      if (now - lastUpdateCheck < 10000 || !navigator.onLine) return;
+      lastUpdateCheck = now;
+
+      // 1. Force Service Worker update check
+      if ('serviceWorker' in navigator) {
+        try {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg) await reg.update();
+        } catch (e) {}
+      }
+
+      // 2. Check if the server HTML has changed via HEAD request (bypasses SW GET cache)
+      try {
+        const checkUrl = window.location.pathname + '?_chk=' + now;
+        const res = await fetch(checkUrl, {
+          method: 'HEAD',
+          cache: 'no-store'
+        });
+
+        const serverEtag = res.headers.get('etag');
+        const serverLastMod = res.headers.get('last-modified');
+
+        const currentEtag = sessionStorage.getItem('studeo_page_etag');
+        const currentLastMod = sessionStorage.getItem('studeo_page_lastmod');
+
+        if (serverEtag && currentEtag && serverEtag !== currentEtag) {
+          console.log('🔄 Nueva versión detectada en el servidor (ETag). Recargando...');
+          sessionStorage.setItem('studeo_page_etag', serverEtag);
+          window.location.reload();
+          return;
+        }
+
+        if (serverLastMod && currentLastMod && serverLastMod !== currentLastMod) {
+          console.log('🔄 Nueva versión detectada en el servidor (Last-Modified). Recargando...');
+          sessionStorage.setItem('studeo_page_lastmod', serverLastMod);
+          window.location.reload();
+          return;
+        }
+
+        if (serverEtag && !currentEtag) sessionStorage.setItem('studeo_page_etag', serverEtag);
+        if (serverLastMod && !currentLastMod) sessionStorage.setItem('studeo_page_lastmod', serverLastMod);
+      } catch (err) {}
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        checkServerForUpdates();
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      checkServerForUpdates();
+    });
 
     /* =========================================================
        CLOUD SYNC UTILITIES (Silent Background Sync)
@@ -6901,6 +7005,7 @@
        APP BOOTSTRAP (WITH RELOAD SESSION PERSISTENCE & CLOUD)
        ========================================================= */
     window.onload = async function() {
+      checkServerForUpdates();
       initTaskDescriptionEditor();
       await UniTaskDB.init();
       await UniTaskCloudDB.init();
