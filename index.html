@@ -399,6 +399,38 @@
       min-height: 100%;
       background-color: #f1f5f9;
     }
+
+    /* Custom priority selector (replaces native select) */
+    .priority-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      height: 2.75rem;
+      padding: 0 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 0.875rem;
+      border: 1px solid #e2e8f0;
+      background-color: #fff;
+      color: #64748b;
+      box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .priority-pill:hover { background-color: #f8fafc; color: #334155; }
+    .priority-pill:active { transform: scale(0.96); }
+    .priority-pill[aria-checked="true"][data-priority="high"] {
+      border-color: #f43f5e; background-color: #fff1f2; color: #be123c;
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.12);
+    }
+    .priority-pill[aria-checked="true"][data-priority="medium"] {
+      border-color: #f59e0b; background-color: #fffbeb; color: #b45309;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.14);
+    }
+    .priority-pill[aria-checked="true"][data-priority="low"] {
+      border-color: #10b981; background-color: #ecfdf5; color: #047857;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+    }
   </style>
 </head>
 <body class="min-h-full min-h-screen flex flex-col text-slate-800 bg-slate-100 select-none sm:select-auto overflow-x-hidden w-full">
@@ -449,8 +481,8 @@
         <!-- 3 Feature Pills -->
         <div class="grid grid-cols-1 gap-3 max-w-lg">
           <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 text-white font-bold text-lg">
-              🗓️
+            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 text-white">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
             <div>
               <h4 class="text-xs font-bold text-white leading-tight">Tablero Adaptativo</h4>
@@ -459,8 +491,8 @@
           </div>
 
           <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 text-white font-bold text-lg">
-              🔒
+            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 text-white">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
             </div>
             <div>
               <h4 class="text-xs font-bold text-white leading-tight">Cifrado Cero Conocimiento</h4>
@@ -469,8 +501,8 @@
           </div>
 
           <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/15 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 text-white font-bold text-lg">
-              🎨
+            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 text-white">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
             </div>
             <div>
               <h4 class="text-xs font-bold text-white leading-tight">Gestión por Materias</h4>
@@ -752,7 +784,7 @@
               <div class="pt-3 border-t border-slate-100">
                 <div class="flex items-center justify-between mb-2 px-1">
                   <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                    <span>⌨️</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
                     <span>Atajos de teclado</span>
                   </span>
                   <button id="btnShortcutsHelp" onclick="closeAllHeaderMenus(); openShortcutsModal();" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 transition">
@@ -1092,7 +1124,9 @@
 
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
         <div class="flex items-center gap-2">
-          <span class="text-xl">✨</span>
+          <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          </span>
           <h3 class="text-base font-extrabold text-slate-900">¿Qué deseas crear?</h3>
         </div>
         <button onclick="closeModalEl(document.getElementById('mobileCreateModal'))" class="btn-action text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition">
@@ -1329,23 +1363,23 @@
           <input type="hidden" id="taskType" value="delivery" />
           <div class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-1.5 sm:gap-2" id="taskTypePills">
             <button type="button" data-type="delivery" onclick="selectModalTaskType('delivery')" class="task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-indigo-500 bg-indigo-50 text-indigo-700 shadow-2xs flex items-center justify-center gap-1.5 transition">
-              <span>📝</span>
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               <span class="truncate">Práctica</span>
             </button>
             <button type="button" data-type="exam" onclick="selectModalTaskType('exam')" class="task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs flex items-center justify-center gap-1.5 transition">
-              <span>📖</span>
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
               <span class="truncate">Examen</span>
             </button>
             <button type="button" data-type="team" onclick="selectModalTaskType('team')" class="task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs flex items-center justify-center gap-1.5 transition">
-              <span>👥</span>
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
               <span class="truncate">Grupal</span>
             </button>
             <button type="button" data-type="tutoring" onclick="selectModalTaskType('tutoring')" class="task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs flex items-center justify-center gap-1.5 transition">
-              <span>🎓</span>
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
               <span class="truncate">Tutoría</span>
             </button>
             <button type="button" data-type="other" onclick="selectModalTaskType('other')" class="task-type-pill py-2 px-2 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs flex items-center justify-center gap-1.5 transition">
-              <span>📌</span>
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
               <span class="truncate">Otro</span>
             </button>
           </div>
@@ -1373,15 +1407,24 @@
           </div>
 
           <div class="min-w-0">
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5" for="taskPriority">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
               Prioridad
             </label>
-            <select id="taskPriority"
-                    class="w-full text-base sm:text-sm px-4 py-3.5 sm:py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition bg-white shadow-2xs">
-              <option value="high">🔴 Alta</option>
-              <option value="medium" selected>🟡 Media</option>
-              <option value="low">🟢 Baja</option>
-            </select>
+            <input type="hidden" id="taskPriority" value="medium" />
+            <div id="taskPriorityPills" class="grid grid-cols-3 gap-1.5 sm:gap-2" role="radiogroup" aria-label="Prioridad">
+              <button type="button" id="priorityPillHigh" data-priority="high" role="radio" onclick="selectModalPriority('high')" class="priority-pill">
+                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="14" width="4.5" height="7" rx="1.2"/><rect x="9.75" y="9" width="4.5" height="12" rx="1.2"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.2"/></svg>
+                <span>Alta</span>
+              </button>
+              <button type="button" id="priorityPillMedium" data-priority="medium" role="radio" onclick="selectModalPriority('medium')" class="priority-pill">
+                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="14" width="4.5" height="7" rx="1.2"/><rect x="9.75" y="9" width="4.5" height="12" rx="1.2"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.2" opacity="0.25"/></svg>
+                <span>Media</span>
+              </button>
+              <button type="button" id="priorityPillLow" data-priority="low" role="radio" onclick="selectModalPriority('low')" class="priority-pill">
+                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="14" width="4.5" height="7" rx="1.2"/><rect x="9.75" y="9" width="4.5" height="12" rx="1.2" opacity="0.25"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.2" opacity="0.25"/></svg>
+                <span>Baja</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1678,7 +1721,7 @@
         <button data-search-filter="all" onclick="setSearchFilter('all')" class="search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-indigo-700 shadow-2xs border border-indigo-100 transition">Todas</button>
         <button data-search-filter="pending" onclick="setSearchFilter('pending')" class="search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">Pendientes</button>
         <button data-search-filter="completed" onclick="setSearchFilter('completed')" class="search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">Entregadas</button>
-        <button data-search-filter="exam" onclick="setSearchFilter('exam')" class="search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">📖 Exámenes</button>
+        <button data-search-filter="exam" onclick="setSearchFilter('exam')" class="search-filter-pill px-2.5 py-1 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition inline-flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>Exámenes</button>
       </div>
 
       <!-- Results List -->
@@ -1703,7 +1746,9 @@
     <div class="modal-panel bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[85vh]">
       <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
         <div class="flex items-center gap-2">
-          <span class="text-lg">⌨️</span>
+          <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+          </span>
           <h3 class="text-base font-extrabold text-slate-900">Atajos de teclado</h3>
         </div>
         <button onclick="closeModalEl(document.getElementById('shortcutsModal'))" class="btn-action text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition">
@@ -2376,40 +2421,62 @@
     let selectedMobileDayIndex = getInitialDayIndex();
     let confirmCallback = null;
 
+    // Iconos de línea (estilo Heroicons) usados en toda la interfaz en lugar de emojis
+    const ICON_PATHS = {
+      pencil: '<path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
+      book: '<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>',
+      users: '<path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>',
+      academic: '<path d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/>',
+      bookmark: '<path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>',
+      alert: '<path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+      warning: '<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>',
+      star: '<path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>',
+      calendar: '<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>',
+      clock: '<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+      checkCircle: '<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+      check: '<path d="M5 13l4 4L19 7"/>',
+      fire: '<path d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/><path d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/>',
+      sparkles: '<path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>'
+    };
+
+    function svgIcon(name, cls = 'w-3.5 h-3.5') {
+      return `<svg class="${cls} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;
+    }
+
     const TASK_TYPES = {
       delivery: {
         id: 'delivery',
         label: 'Práctica / Entrega',
         shortLabel: 'Práctica',
-        icon: '📝',
+        icon: svgIcon('pencil'),
         badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200'
       },
       exam: {
         id: 'exam',
         label: 'Examen / Parcial',
         shortLabel: 'Examen',
-        icon: '📖',
+        icon: svgIcon('book'),
         badgeClass: 'bg-rose-50 text-rose-700 border-rose-200 ring-1 ring-rose-200/60 font-black'
       },
       team: {
         id: 'team',
         label: 'Trabajo Grupal',
         shortLabel: 'Grupal',
-        icon: '👥',
+        icon: svgIcon('users'),
         badgeClass: 'bg-purple-50 text-purple-700 border-purple-200'
       },
       tutoring: {
         id: 'tutoring',
         label: 'Tutoría / Seminario',
         shortLabel: 'Tutoría',
-        icon: '🎓',
+        icon: svgIcon('academic'),
         badgeClass: 'bg-amber-50 text-amber-800 border-amber-200'
       },
       other: {
         id: 'other',
         label: 'Otro / General',
         shortLabel: 'Otro',
-        icon: '📌',
+        icon: svgIcon('bookmark'),
         badgeClass: 'bg-slate-100 text-slate-700 border-slate-200'
       }
     };
@@ -3233,8 +3300,8 @@
       const statsBadge = document.getElementById('weekStatsBadge');
       if (statsBadge) {
         if (percent === 100 && periodTotalTasks > 0) {
-          statsBadge.textContent = '¡Completado! 🎉';
-          statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 animate-scale-pop flex-shrink-0';
+          statsBadge.innerHTML = `${svgIcon('sparkles', 'w-3 h-3')}<span>¡Completado!</span>`;
+          statsBadge.className = 'hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 animate-scale-pop flex-shrink-0';
         } else if (periodTotalTasks === 0) {
           statsBadge.textContent = 'Sin tareas';
           statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 flex-shrink-0';
@@ -4631,6 +4698,15 @@
       if (currentMainView === 'month') renderMonthView();
     };
 
+    window.selectModalPriority = function(priority) {
+      const input = document.getElementById('taskPriority');
+      if (input) input.value = priority;
+      document.querySelectorAll('#taskPriorityPills .priority-pill').forEach(btn => {
+        btn.setAttribute('aria-checked', btn.getAttribute('data-priority') === priority ? 'true' : 'false');
+      });
+    };
+    selectModalPriority('medium');
+
     window.selectModalTaskType = function(type) {
       document.getElementById('taskType').value = type;
       document.querySelectorAll('#taskTypePills .task-type-pill').forEach(btn => {
@@ -4755,8 +4831,8 @@
       const statsBadge = document.getElementById('weekStatsBadge');
       if (statsBadge) {
         if (percent === 100 && monthTotal > 0) {
-          statsBadge.textContent = '¡Completado! 🎉';
-          statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 animate-scale-pop flex-shrink-0';
+          statsBadge.innerHTML = `${svgIcon('sparkles', 'w-3 h-3')}<span>¡Completado!</span>`;
+          statsBadge.className = 'hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 animate-scale-pop flex-shrink-0';
         } else if (monthTotal === 0) {
           statsBadge.textContent = 'Sin tareas';
           statsBadge.className = 'hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 flex-shrink-0';
@@ -5058,11 +5134,11 @@
       now.setHours(0, 0, 0, 0);
 
       const groups = [
-        { id: 'overdue', title: '🚨 Vencidas pendientes', tasks: [] },
-        { id: 'today', title: '🌟 Para Hoy', tasks: [] },
-        { id: 'this_week', title: '📅 Esta semana', tasks: [] },
-        { id: 'upcoming', title: '🔮 Próximas entregas y exámenes', tasks: [] },
-        { id: 'done', title: '✅ Entregadas / Completadas', tasks: [] }
+        { id: 'overdue', title: 'Vencidas pendientes', icon: 'alert', iconClass: 'bg-rose-50 text-rose-600', tasks: [] },
+        { id: 'today', title: 'Para Hoy', icon: 'star', iconClass: 'bg-amber-50 text-amber-600', tasks: [] },
+        { id: 'this_week', title: 'Esta semana', icon: 'calendar', iconClass: 'bg-indigo-50 text-indigo-600', tasks: [] },
+        { id: 'upcoming', title: 'Próximas entregas y exámenes', icon: 'clock', iconClass: 'bg-purple-50 text-purple-600', tasks: [] },
+        { id: 'done', title: 'Entregadas / Completadas', icon: 'checkCircle', iconClass: 'bg-emerald-50 text-emerald-600', tasks: [] }
       ];
 
       const currentMonday = getMonday(new Date());
@@ -5096,7 +5172,10 @@
         
         groupEl.innerHTML = `
           <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100">
-            <h3 class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">${g.title}</h3>
+            <h3 class="flex items-center gap-2 text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
+              <span class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${g.iconClass}">${svgIcon(g.icon, 'w-4 h-4')}</span>
+              <span>${g.title}</span>
+            </h3>
             <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">${g.tasks.length}</span>
           </div>
           <div class="space-y-3">
@@ -5406,7 +5485,7 @@
       document.getElementById('modalTitle').textContent = 'Nueva tarea';
       document.getElementById('taskDate').value = dateYmd;
       document.getElementById('taskTime').value = '23:59';
-      document.getElementById('taskPriority').value = 'medium';
+      selectModalPriority('medium');
       if (subjects.length > 0) {
         document.getElementById('taskSubject').value = subjects[0].id;
       }
@@ -5457,7 +5536,7 @@
         let pLabel = 'Baja';
         if (task.priority === 'urgent') {
           pClass = 'bg-rose-100 text-rose-800 border-rose-300 font-black';
-          pLabel = '🔥 Urgente';
+          pLabel = `${svgIcon('fire')}<span>Urgente</span>`;
         } else if (task.priority === 'high') {
           pClass = 'bg-rose-50 text-rose-700 border-rose-200 font-extrabold';
           pLabel = 'Alta';
@@ -5465,8 +5544,8 @@
           pClass = 'bg-amber-50 text-amber-800 border-amber-200 font-extrabold';
           pLabel = 'Media';
         }
-        priorityBadge.className = `inline-flex items-center text-xs font-extrabold px-2.5 py-1 rounded-xl border ${pClass}`;
-        priorityBadge.textContent = pLabel;
+        priorityBadge.className = `inline-flex items-center gap-1 text-xs font-extrabold px-2.5 py-1 rounded-xl border ${pClass}`;
+        priorityBadge.innerHTML = pLabel;
       }
 
       // 4. Status Button (Completed / Pending)
@@ -5505,11 +5584,11 @@
       const dueStatusEl = document.getElementById('taskDetailDueDateStatus');
       if (dueStatusEl) {
         if (task.completed) {
-          dueStatusEl.innerHTML = '<span class="inline-flex items-center gap-1 text-emerald-600 font-extrabold">✓ Entregada</span>';
+          dueStatusEl.innerHTML = `<span class="inline-flex items-center gap-1 text-emerald-600 font-extrabold">${svgIcon('check')}Entregada</span>`;
         } else if (task.date === todayYmd) {
           dueStatusEl.innerHTML = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-600 text-white font-extrabold text-[11px] animate-pulse-subtle">¡Para hoy!</span>';
         } else if (task.date < todayYmd) {
-          dueStatusEl.innerHTML = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700 font-extrabold text-[11px]">⚠️ Vencida</span>';
+          dueStatusEl.innerHTML = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700 font-extrabold text-[11px]">${svgIcon('warning', 'w-3 h-3')}Vencida</span>`;
         } else {
           const diffDays = Math.round((new Date(task.date + 'T00:00:00') - new Date(todayYmd + 'T00:00:00')) / (1000 * 60 * 60 * 24));
           if (diffDays === 1) {
@@ -5695,7 +5774,7 @@
       dismissedUrls.clear();
       setTaskDescContent(task.description || '');
       closeLinkPopover();
-      document.getElementById('taskPriority').value = task.priority || 'medium';
+      selectModalPriority(task.priority || 'medium');
 
       currentEditingTaskAttachments = task.attachments ? JSON.parse(JSON.stringify(task.attachments)) : [];
       renderTaskModalAttachments();
